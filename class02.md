@@ -1,4 +1,4 @@
-﻿# Go Class 02 Hello World
+# Go Class 02 Hello World
 
 ## Hello World
 
