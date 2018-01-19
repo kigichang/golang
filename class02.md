@@ -1,4 +1,4 @@
-# Go Class 02 Hello World
+﻿# Go Class 02 Hello World
 
 ## Hello World
 
@@ -46,4 +46,4 @@ func main() {
 ```
 
 利用 `os.Args` 來接 command line 傳進來的參數。`os.Args[0]` 是執行檔的完整檔名，所以傳入的參數值要從 `os.Args[1]` 開始。如果要寫較複雜的 command line 程式，建議用 [spf13/cobra](https://github.com/spf13/cobra) 這個套件來管理參數。
-�來管理參數。
+�來管理參數。
