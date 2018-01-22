@@ -183,5 +183,3 @@ const (
 - float: 0.0
 - string: ""
 - boolean: false
-- string: ""
-- boolean: false
