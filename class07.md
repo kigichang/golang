@@ -239,12 +239,12 @@ a1:
 使用當下迴圈 i 的變數值。因此會是 **2 1 0**
 
 a2:
-每次迴圈完成時，會記錄要執行一個 **anonymous function**，當迴圈結束後，則開始執行 defer 記錄的 function，此時 i 的值已經是 **3**。
+每次迴圈完成時，會記錄要執行一個 **anonymous function**，當迴圈結束後，則開始執行 defer 記錄的 function，此時 i 的值已經是 **3**。
 
 a3:
 與 a2 類似，多傳入當下 i 的值，因此結果與會 a1 相同。
 
-使用 **defer** 要特別小心當下操作的變數。
+使用 **defer** 要特別小心當下操作的變數。
 
 ### Error Handling, Panic, Revcover
 
