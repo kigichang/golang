@@ -167,7 +167,7 @@ ages["alice"]++         // alice = 33
 
 ### Delete
 
-```go {.line-number}
+```go {.line-numbers}
 delete(ages, "cat")
 ```
 

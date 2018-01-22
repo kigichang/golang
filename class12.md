@@ -162,7 +162,7 @@ Run 'docker COMMAND --help' for more information on a command
 
 `docker run --help` 為例:
 
-```text {.line-number}
+```text
 Usage:  docker run [OPTIONS] IMAGE [COMMAND] [ARG...]
 
 Run a command in a new container

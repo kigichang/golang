@@ -34,7 +34,7 @@ func Sum(n ...int) int {
 
 util_test.go
 
-```go {.line-number}
+```go {.line-numbers}
 package class08
 
 import "testing"
