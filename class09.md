@@ -1,4 +1,4 @@
-# Go Class 09 Concurrency - Gorouting and Channel
+# Go Class 09 Concurrency - Gorouting and Channel
 
 ## gorouting
 
@@ -27,4 +27,4 @@ fmt.Printf("\rFibonacci(%d) = %d\n", n, fibN)
 
 ## channel and select
 
-TO-DO
+TO-DOO
