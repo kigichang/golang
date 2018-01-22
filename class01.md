@@ -12,7 +12,7 @@
 
 Books:
 
-1. The Go Programming Language。[中文](https://www.gitbook.com/book/wizardforcel/gopl-zh/details)
+1. [The Go Programming Language](https://www.amazon.com/Programming-Language-Addison-Wesley-Professional-Computing-ebook/dp/B0184N7WWS), [中文](https://www.gitbook.com/book/wizardforcel/gopl-zh/details)
 1. [Go Web Programming](https://www.manning.com/books/go-web-programming)
 1. [Go System Programming](https://www.packtpub.com/networking-and-servers/go-systems-programming)
 
