@@ -20,7 +20,7 @@ Arrays and structs are aggregate types; their values are **concatenations** of o
 
 ### Array Declaration
 
-```go {.line-numbers}
+```go
 var a [3]int
 var q [3]int = [3]int{1, 2, 3}
 
@@ -35,7 +35,7 @@ x := [...]int{99: -1}   // value of 0 ~ 98th is "0", and 99th is "-1", length of
 
 ### Array Travel
 
-```go {.line-numbers}
+```go
 // Print the indices and elements.
 for i, v := range a {
     fmt.Printf("%d %d\n", i, v)
@@ -49,7 +49,7 @@ for _, v := range a {
 
 ### itoa
 
-```go {.line-numbers}
+```go
 type Currency int
 
 const (
@@ -69,7 +69,7 @@ If an array’s element type is **comparable** then the array type is comparable
 
 eg:
 
-```go {.line-numbers}
+```go
 a := [2]int{1, 2}
 b := [...]int{1, 2}
 c := [2]int{1, 3}
@@ -85,7 +85,7 @@ fmt.Println(a == d) // compile error: cannot compare [2]int == [3]int
 
 ### Struct Declaration
 
-```go {.line-numbers}
+```go
 type Employee struct {
     ID        int
     Name      string
@@ -115,7 +115,7 @@ wally := Employee {
 
 與 C 一樣，struct 通常會撘配 pointer 來處理。與 C 不同是操作語法。在 C 中，如果是實例 (instance)，則用 `.` 來操作, eg: `x.A`，如果是指標 (pointer)，則用 `->`, eg: `x->A`。在 Go 則都用 `.` 來操作，也因此要小心是在用 instance 還是 pointer。
 
-```go {.line-numbers}
+```go
 alice := &Employee {
     ID: 2,
     Name: "Alice",
@@ -128,7 +128,7 @@ func EmployeeByID(id int) *Employee { /* ... */ }
 
 If all the fields of a struct are **comparable**, the struct itself is comparable, so two expressions of that type may be compared using == or !=. The == operation compares the corresponding fields of the two structs in order, so the two printed expressions below are equivalent:
 
-```go {.line-numbers}
+```go
 type Point struct{ X, Y int }
 p := Point{1, 2}
 q := Point{2, 1}
@@ -140,7 +140,7 @@ fmt.Println(p == q)                   // "false"
 
 struct 裏還可以再包含 struct。在程式寫作上，會有點麻煩。如下：
 
-```go {.line-numbers}
+```go
 type Point struct {
     X, Y int
 }
@@ -164,7 +164,7 @@ w.Spokes = 20
 
 可以修改成下面的寫法：
 
-```go {.line-numbers}
+```go
 type Circle struct {
     Point
     Radius int
@@ -198,7 +198,7 @@ Go 有內建處理 JSON 的套件 `encoding/json`
 
 eg:
 
-```go {.line-numbers}
+```go
 type Movie struct {
     Title  string
     Year   int  `json:"released"`

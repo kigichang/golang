@@ -16,7 +16,7 @@ eg:
 
 util.go
 
-```go {.line-numbers}
+```go
 package class08
 
 // Sum ...
@@ -34,7 +34,7 @@ func Sum(n ...int) int {
 
 util_test.go
 
-```go {.line-numbers}
+```go
 package class08
 
 import "testing"
@@ -71,7 +71,7 @@ func TestSum(t *testing.T) {
 
 eg:
 
-```go {.line-numbers}
+```go
 package class08
 
 import (
@@ -105,7 +105,7 @@ Go Unit Test 套件，也可以做 benchmark 測試，程式碼撰寫在 `xxx_te
 
 eg:
 
-```go {.line-numbers}
+```go
 package class08
 
 import (

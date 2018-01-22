@@ -32,7 +32,7 @@ Go 的 Data Type 有分四個類別：
 
 eg:
 
-```go {.line-numbers}
+```go
 var a int32   // zero value: 0
 b := 10       // type: int
 ```
@@ -44,7 +44,7 @@ b := 10       // type: int
 
 eg:
 
-```go {.line-numbers}
+```go
 var f float32 // zero value: 0.0
 d := 0.0      // type: float64
 ```
@@ -60,12 +60,12 @@ eg:
 
 sample 1:
 
-```go {.line-numbers}
+```go
 x := 1 + 2i
 y := 3 + 4i
 ```
 
-```go {.line-numbers}
+```go
 var x complex128 = complex(1, 2)    // 1+2i
 var y complex128 = complex(3, 4)    // 3+4i
 fmt.Println(x*y)                    // "(-5+10i)"
@@ -79,7 +79,7 @@ fmt.Println(imag(x*y))              // "10"
 
 eg:
 
-```go {.line-numbers}
+```go
 var b boolean   // zero value: false
 ok := true
 ```
@@ -91,14 +91,14 @@ ok := true
 
 eg:
 
-```go {.line-numbers}
+```go
 var str string    // zero value: "" (empty string)
 str2 := "hello world"
 ```
 
 topic 1: get length
 
-```go {.line-numbers}
+```go
 len := len(str2)    // use len() to get length of bytes in string
 ```
 
@@ -106,7 +106,7 @@ topic 2: substring
 
 使用 `str[i:j]` 取得 substring. 會從第 i 個開始，取到第 j-1 個為止。可以省略 i 及 j。
 
-```go {.line-numbers}
+```go
 substr2 := s[0:5]    // hello
 substr3 := s[1:]     // 從第 1 個開始，取到最後
 substr4 := s[:5]     // 從 0 開始，取到第 4 個
@@ -115,7 +115,7 @@ substr5 := s[:]      // 全取
 
 topic 3: concate
 
-```go {.line-numbers}
+```go
 a := "hello"
 b := " world"
 c := a + b    // "hello world"
@@ -125,7 +125,7 @@ c := a + b    // "hello world"
 
 常用 functions:
 
-```go {.line-numbers}
+```go
 func Contains(s, substr string) bool
 func Count(s, sep string) int
 func Fields(s string) []string
@@ -140,7 +140,7 @@ func Join(a []string, sep string) string
 
 eg:
 
-```go {.line-numbers}
+```go
 package main
 
 import "fmt"
@@ -163,7 +163,7 @@ func main() {
 
 eg 1:
 
-```go {.line-numbers}
+```go
 x := 123
 y := fmt.Sprintf("%d", x)
 fmt.Println(y, strconv.Itoa(x)) // "123 123"
@@ -171,14 +171,14 @@ fmt.Println(y, strconv.Itoa(x)) // "123 123"
 
 eg 2:
 
-```go {.line-numbers}
+```go
 fmt.Println(strconv.FormatInt(int64(x), 2)) // "1111011"
 s := fmt.Sprintf("x=%b", x)                 // "x=1111011"
 ```
 
 eg 3:
 
-```go {.line-numbers}
+```go
 x, err := strconv.Atoi("123")             // x is an int
 y, err := strconv.ParseInt("123", 10, 64) // base 10, up to 64 bits
 ```
@@ -187,11 +187,11 @@ y, err := strconv.ParseInt("123", 10, 64) // base 10, up to 64 bits
 
 與 C 相同，利用 `const` 這個關鍵字來宣告常數。
 
-```go {.line-numbers}
+```go
 const pi = 3.14159 // approximately; math.Pi is a better approximation
 ```
 
-```go {.line-numbers}
+```go
 const (
     e = 2.71828182845904523536028747135266249775724709369995957496696763
     pi = 3.14159265358979323846264338327950288419716939937510582097494459

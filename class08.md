@@ -4,7 +4,7 @@ Interface 與 Java 類似，用 struct 的 method 來實作 interface 指定的 
 
 sample 1 用 **struct** 實作 interface method
 
-```go {.line-numbers}
+```go
 type Scale interface {
     ScaleBy(float64)
 }
@@ -32,7 +32,7 @@ fmt.Println(p)  // {100 200}
 
 sample 2 用 **pointer** 實作 interface method
 
-```go {.line-numbers}
+```go
 type Scale interface {
     ScaleBy(float64)
 }
@@ -64,7 +64,7 @@ Test(p, 10)     // cannot use p (type Point) as type Scale in argument to Test: 
 
 **Stringer** interface 有一個 `String()`，功能類似 Java Object 的 **toString**. 
 
-```go {.line-numbers}
+```go
 type Stringer interface {
     String() string
 }
@@ -72,7 +72,7 @@ type Stringer interface {
 
 eg:
 
-```go {.line-numbers}
+```go
 type Point struct {
     X float64
     Y float64
@@ -90,6 +90,6 @@ fmt.Println(p)              // (100.000000, 200.000000)
 
 An interface value (**interface{}**) can hold arbitrarily large dynamic values
 
-```go {.line-numbers}
+```go
 var x interface{} = time.Now()
 ```

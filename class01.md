@@ -33,7 +33,7 @@ Books:
 
 ## GOPATH 目錄說明
 
-```shell {.line-numbers}
+```shell
 .
 ├── bin
 ├── pkg

@@ -2,7 +2,7 @@
 
 ## gorouting
 
-```go {.line-numbers}
+```go
 func spinner(delay time.Duration) {
     for {
         for _, r := range `-\|/` {

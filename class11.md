@@ -45,7 +45,7 @@
 
 作者的文章中，有提到 ubuntu 環境的 script，以此，修改 mac 的版本：
 
-```bash {.line-numbers}
+```bash
 #!/usr/bin/env bash
 
 package=$1
@@ -93,7 +93,7 @@ Go 原本是沒有 dependency management 工具，因此社群很多第三方的
 
 ### Gopkg.toml 格式
 
-```toml {.line-numbers}
+```toml
 
 # Gopkg.toml example
 #
@@ -121,7 +121,7 @@ Go 原本是沒有 dependency management 工具，因此社群很多第三方的
 
 eg:
 
-```toml {.line-numbers}
+```toml
 [[constraint]]
   name = "google.golang.org/grpc"
   version = "1.7.1"
