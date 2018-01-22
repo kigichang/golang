@@ -196,7 +196,7 @@ func ReadFile(filename string) ([]byte, error) {
 }
 ```
 
-**defer** 的呼叫順序是 **stack** 的LIFO (Last In First Out)，並且利用當下的變數值來執行。如下：
+**defer** 的呼叫順序是 **stack** 的LIFO (Last In First Out)，並且利用當下的變數值來執行。如下：
 
 ```go {.line-numbers}
 package main
