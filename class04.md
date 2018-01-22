@@ -136,9 +136,9 @@ func Join(a []string, sep string) string
 
 ### Rune
 
-`rune` 是 unicode chacter 的概念，它的底層型別是 **int32** 也就是 4 bytes. 一般 string 操作單位是 **byte**。
+`rune` 是 unicode chacter 的概念，它的底層型別是 **int32** 也就是 4 bytes. 一般 string 操作單位是 **byte**。
 
-eg:
+eg:
 
 ```go {.line-numbers}
 package main
@@ -205,4 +205,4 @@ const (
 - int: 0
 - float: 0.0
 - string: ""
-- boolean: false
+- boolean: falsealse
