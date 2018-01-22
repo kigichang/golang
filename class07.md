@@ -196,6 +196,56 @@ func ReadFile(filename string) ([]byte, error) {
 }
 ```
 
+**defer** 的呼叫順序是 **stack** 的LIFO (Last In First Out)，並且利用當下的變數值來執行。如下：
+
+```go {.line-numbers}
+package main
+
+import "fmt"
+
+func a1() {
+    for i := 0; i < 3; i++ {
+        defer fmt.Print(i, " ")
+    }
+}
+
+func a2() {
+    for i := 0; i < 3; i++ {
+        defer func() {
+            fmt.Print(i, " ")
+        }()
+    }
+}
+
+func a3() {
+    for i := 0; i < 3; i++ {
+        defer func(n int) {
+            fmt.Print(n, " ")
+        }(i)
+    }
+}
+
+func main() {
+    a1()            // 2 1 0
+    fmt.Println()
+    a2()            // 3 3 3
+    fmt.Println()
+    a3()            // 2 1 0
+    fmt.Println()
+}
+```
+
+a1:
+使用當下迴圈 i 的變數值。因此會是 **2 1 0**
+
+a2:
+每次迴圈完成時，會記錄要執行一個 **anonymous function**，當迴圈結束後，則開始執行 defer 記錄的 function，此時 i 的值已經是 **3**。
+
+a3:
+與 a2 類似，多傳入當下 i 的值，因此結果與會 a1 相同。
+
+使用 **defer** 要特別小心當下操作的變數。
+
 ### Error Handling, Panic, Revcover
 
 #### errors
