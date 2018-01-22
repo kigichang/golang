@@ -301,6 +301,3 @@ Go 沒有 `private` and `public`，是利用字母的大、小寫來區分 `priv
 ## Scope
 
 local block -> function block -> global
-## Scope
-
-local block -> function block -> global
