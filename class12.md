@@ -357,7 +357,7 @@ func main() {
     createCmd.Flags().BoolVarP(&proxy, "proxy", "p", false, "use proxy to connect")
     ```
 
-1. 設定只能有一個參數
+1. 設定只能有一個參數。詳細設定，請見：[cobra#Positional and Custom Arguments](https://github.com/spf13/cobra#positional-and-custom-arguments)
 
     ```go {.line-numbers}
     createCmd.Args = cobra.ExactArgs(1)
