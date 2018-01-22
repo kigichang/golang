@@ -134,6 +134,29 @@ func Index(s, sep string) int
 func Join(a []string, sep string) string
 ```
 
+### Rune
+
+`rune` 是 unicode chacter 的概念，它的底層型別是 **int32** 也就是 4 bytes. 一般 string 操作單位是 **byte**。
+
+eg:
+
+```go {.line-numbers}
+package main
+
+import "fmt"
+
+func main() {
+  const nihongo = "日本語"
+  for i := 0; i < len(nihongo); i++ {
+    fmt.Printf("%d: %x\n", i, nihongo[i])
+  }
+
+  for index, runeValue := range nihongo {
+    fmt.Printf("%#U starts at byte position %d\n", runeValue, index)
+  }
+}
+```
+
 ## Conversions between Strings and Numbers
 
 使用 `fmt.Sprintf()` 與 `strconv` 這個套件。
