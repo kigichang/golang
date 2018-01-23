@@ -505,7 +505,7 @@ func main() {
 }
 ```
 
-用 struct point 定義 method 要特別注意會修改到原本的值。
+用 struct pointer 定義 method 要特別注意會修改到原本的值。
 
 sample 1, struct:
 

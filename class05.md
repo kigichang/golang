@@ -63,6 +63,8 @@ symbol := [...]string{USD: "$", EUR: "€", GBP: "£", RMB: "¥"}
 fmt.Println(RMB, symbol[RMB]) // "3 ¥"
 ```
 
+[詳細說明](https://github.com/golang/go/wiki/Iota)
+
 ### Compare
 
 If an array’s element type is **comparable** then the array type is comparable too, so we may directly compare two arrays of that type using the == operator, which reports whether all corresponding elements are equal. The != operator is its negation.
@@ -245,6 +247,6 @@ fmt.Println("movie1", movie1)
 ```
 
 1. 在宣告 struct 時，加入 json 的 annotation. 如: `json:"color,omitempty`, `color` 是指 json 的欄位名稱，`omitempty` 是指如果該欄位值是 **zero value**，則不輸出 json。
-1. 如果沒有寫 json 的 annotation, 則直接用變數名稱。
+1. 如果沒有寫 json 的 annotation, 則直接用變數名稱。建議還是都加 annotation 重新定義。
 1. 使用 json.Umarshal 來取得資料。
 1. 使用 json.Marshal 來輸出 json 資料。

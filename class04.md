@@ -1,6 +1,6 @@
 # Go Class 04 Data Type - Basic Types
 
-Go 的 Data Type 有分四個類別：
+Go 的 Data Type 分成四個類別：
 
 - Basic Type
   - numbers
@@ -206,3 +206,6 @@ const (
 - float: 0.0
 - string: ""
 - boolean: falsealse
+- struct: struct that field with zero value
+- array: 指定長度，內含 zero value.
+- reference type: nil
