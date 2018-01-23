@@ -16,7 +16,7 @@
 
 在 import viper 後，會有一個 global 變數 **viper**，可以直接用。在使用前，需先設定要載入的檔名以及設定檔放的路徑，最後再執行讀取。
 
-eg:
+eg: 在專案的目錄下，放置一個 **config.json** 的設定檔，Viper 設定好目錄與設定檔名(**不含副檔名**)，呼叫 `ReadInConfig`，來載入設定檔。
 
 ```go
 viper.SetConfigName("config") // name of config file (without extension)
