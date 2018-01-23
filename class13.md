@@ -366,7 +366,7 @@ func main() {
         ```
 
         - 指定檔案放的目錄：`http.FileServer(http.Dir("./public"))`
-        - 設定 url
+        - 設定 靜態資料的 url，指到剛剛設定的 `FileServer`。
 
 1. 其他 URL 的 routing: 利用 `HandleFunc` 來設定 URL 與處理 function 的關係。以下的 sample，`/add` 會執行 `add`, `/` 會執行 `index`
 
@@ -421,9 +421,9 @@ func add(w http.ResponseWriter, r *http.Request) {
 ```
 
 1. 可透過 `r.Method` 來判斷是 GET or POST 等
-1. 透過 `r.PostFormValue` 來取得 POST 值。Go 有內建多種取 request 值的方式，處理如下：
+1. 透過 `r.PostFormValue` 來取得 POST 值。Go 有內建多種取 request 值的方式，整理如下：
 
-| Field | Should call method | URL | Form | URL encoded | Multipart
+| Field | Should call method first | parameters in URL | Form | URL encoded | Multipart (upload file)
 | - | - | - | - | - | -
 | Form | ParseForm | ✓ | ✓ | ✓ | -
 | PostForm | Form | - | ✓ | ✓ | -
