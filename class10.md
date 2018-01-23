@@ -2,7 +2,7 @@
 
 Go 有自帶一個 Unit Test 的工具包。程式寫作時，可以自動做 unit test。使用上的慣例：在當下的目錄下，為每一個程式檔案，再新增一個 xxx_test.go 的檔案，裏面撰寫 unit test 程式。
 
-eg: 專案目錄是 `class08`
+eg: 專案目錄是 `class10`
 
 ```text
 .
@@ -17,7 +17,7 @@ eg:
 util.go
 
 ```go
-package class08
+package class10
 
 // Sum ...
 func Sum(n ...int) int {
@@ -35,7 +35,7 @@ func Sum(n ...int) int {
 util_test.go
 
 ```go
-package class08
+package class10
 
 import "testing"
 
@@ -72,7 +72,7 @@ func TestSum(t *testing.T) {
 eg:
 
 ```go
-package class08
+package class10
 
 import (
     "os"
@@ -106,7 +106,7 @@ Go Unit Test 套件，也可以做 benchmark 測試，程式碼撰寫在 `xxx_te
 eg:
 
 ```go
-package class08
+package class10
 
 import (
     "os"
@@ -144,11 +144,11 @@ VS Code 預設不會執行 benchmark，因此可以在 console 下，切換到�
 ```text
 goos: darwin
 goarch: amd64
-pkg: go_test/class08
+pkg: go_test/class10
 BenchmarkSum-4
 200000000                8.01 ns/op
 PASS
-ok      go_test/class08 2.421s
+ok      go_test/class10 2.421s
 ```
 
 以中 `200000000                8.01 ns/op` 是指本次 benchmark 執行 **200000000** 次數，**8.01 ns/op** 每次花費 **8.01 ns**。
