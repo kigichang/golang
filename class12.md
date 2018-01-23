@@ -426,6 +426,8 @@ func main() {
     args: [abc]
     ```
 
+    boolean 型別的 flag，後面可以不用接值。
+
 ### 與 Viper 結合
 
 可以將 flag 當作設定檔的資料。如此一來，在大型的程式中，就可以統一都使用 Viper 來當共用設定，而這些設定可以是來自設定檔或者是 command line 的 flag。
