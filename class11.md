@@ -94,7 +94,6 @@ Go 原本是沒有 dependency management 工具，因此社群很多第三方的
 ### Gopkg.toml 格式
 
 ```toml
-
 # Gopkg.toml example
 #
 # Refer to https://github.com/golang/dep/blob/master/docs/Gopkg.toml.md
@@ -117,7 +116,7 @@ Go 原本是沒有 dependency management 工具，因此社群很多第三方的
 #  version = "2.4.0"
 ```
 
-最常用的是 ``[[constraint]]``
+最常用的是 **``[[constraint]]``**
 
 eg:
 
