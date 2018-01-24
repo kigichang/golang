@@ -16,7 +16,7 @@
 1. [Go Class 06 Data Types - Reference Types](class06.md)
 1. [Go Class 07 Functions and Methods](class07.md)
 1. [Go Class 08 Interface](class08.md)
-1. [Go Class 09 Concurrency - Gorouting and Channel](class09.md)
+1. [Go Class 09 Concurrency - Goroutine and Channel](class09.md)
 1. [Go Class 10 Testing](class10.md)
 1. [Go Class 11 Build and Dependency Management](class11.md)
 1. [Go Class 12 spf13 Cobra and Viper](class12.md)
