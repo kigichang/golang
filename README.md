@@ -20,5 +20,5 @@
 1. [Go Class 10 Testing](class10.md)
 1. [Go Class 11 Build and Dependency Management](class11.md)
 1. [Go Class 12 spf13 Cobra and Viper](class12.md)
-1. [Go Class 13 Web and MySQL](class13.md)
+1. [Go Class 13 MySQL and Web](class13.md)
 1. [Go Class 14 Protobuf and gRPC](class14.md)
