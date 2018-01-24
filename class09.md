@@ -391,7 +391,7 @@ func main() {
 }
 ```
 
-與先前的範例最大不同是，這次關閉 channel 是在 `producer` 執行，而非主程序，也就是說在產生完資料後，就關閉 channel，之後就不能再寫入。而 `consumer` 端，在 channel 被讀完後，就會跳出 for-range 的迴圈而執行完畢。
+與先前的範例最大不同是，這次關閉 channel 是在 `producer` 執行，而非主程序，也就是說在產生完資料後，就關閉 channel，之後就不能再寫入。而 `consumer` 端，在 channel 資料讀完後，就會跳出 for-range 的迴圈而執行完畢。
 
 如果不在 `producer` 關閉 channel，而是在主程序，則會發生 deadlock。
 
@@ -589,10 +589,8 @@ func main() {
 
 說明：
 
-1. Producer:
-
-    主要模擬產生 100 筆訂單後，往後送給 consumer actor 處理。最後再關閉 consumer actor 的 channel，讓程式可以執行完畢。
-1. CategorySum: 主要統計每個分類的業績。
-1. SiteSum: 主要統計全站業績
+1. `Producer`: 負責模擬產生 100 筆訂單後，往後送給 consumer actor 處理。最後再關閉 consumer actor 的 channel，讓程式可以執行完畢。
+1. `CategorySum`: 負責主要統計每個分類的業績。
+1. `SiteSum`: 負責統計全站業績
 
 ## Select
