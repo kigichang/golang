@@ -435,9 +435,13 @@ from: [Go Web Programming](https://www.manning.com/books/go-web-programming)
 
 ### Templates
 
-// TO-DO
+Go template engine 很好用，會自動依版型的內容，來自動做 escape 動作。使用 template engine 需要再學習它的語法。
 
-eg:
+Go html template 是利用 text template，因此相關的語法，要看 ["text/template"](https://golang.org/pkg/text/template/#pkg-index)
+
+範例中，整理了我覺得常用的案例。
+
+### 程式碼
 
 ```go
 func generateHTML(w http.ResponseWriter, data interface{}, files ...string) {
@@ -449,4 +453,402 @@ func generateHTML(w http.ResponseWriter, data interface{}, files ...string) {
     tmpl := template.Must(template.ParseFiles(tmp...))
     tmpl.ExecuteTemplate(w, "layout", data)
 }
+
+func test(w http.ResponseWriter, r *http.Request) {
+    data := &MyData{
+        Title: "測試",
+        Nav:   "home",
+    }
+
+    // 測試資料
+    data.Data = struct {
+        TestString   string
+        SimpleString string
+        TestStruct   struct{ A, B string }
+        TestArray    []string
+        Num1, Num2   int
+        EmptyArray   []string
+        ZeroInt      int
+    }{
+        `O'Reilly: How are <i>you</i>?`,
+        "中文測試",
+        struct{ A, B string }{"foo", "boo"},
+        []string{"Hello", "World", "Test"},
+        10,
+        101,
+        []string{},
+        0,
+    }
+
+    generateHTML(w, data, "layout", "nav", "test")
+}
 ```
+
+說明：
+
+1. `template.ParseFiles(tmp...)`: 選擇會用到的版型檔案，要確認版型的路徑與檔案是否正確。
+1. `template.Must(template.ParseFiles(tmp...))`: 使用 `template.Must` 產生版型物件。
+1. `tmpl.ExecuteTemplate(w, "layout", data)`: 執行版型，並將版型會用的資料(`data`)帶入。其中 `"layout"` 是定義在版型內。
+
+### 版型
+
+範例的版型結構：
+
+1. `layout.html`: 版型的主框。內含 `nav` 與  `content` 這個子版型。
+    - `{{ template "navbar" . }}`
+    - `{{ template "content" . }}`
+
+    在 `layout.html` 定義了這個版型的名稱 **layout**：`{{ define "layout" }}`，也就是程式碼 `tmpl.ExecuteTemplate(w, "layout", data)` 中的 `"layout"`。
+
+    在 include 子版型的語法中，eg: `{{ template "navbar" . }}`，有 **`.`**，指的是傳進來的資料，在 ["text/template"](https://golang.org/pkg/text/template/#pkg-index) 有詳細的說明。
+
+    ```html
+    {{ define "layout" }}
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=9">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Kara - {{ .Title }}</title>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/css/bootstrap.min.css" integrity="sha384-Zug+QiDoJOrZ5t4lssLdxGhVrurbmBWopoEl+M6BdEfwnCJZtKxi1KgxUyJq13dy" crossorigin="anonymous">
+    </head>
+    <body>
+        {{ template "navbar" . }}
+        <div class="container">
+        {{ template "content" . }}
+        </div> <!-- /container -->
+        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/js/bootstrap.min.js" integrity="sha384-a5N7Y/aK3qNeh15eJKGWxsqtnX/wWdSZSKp+81YjTmS15nvnvxKHuzaWwXHDli+4" crossorigin="anonymous"></script>
+    </body>
+    </html>
+    {{ end }}
+    ```
+
+1. `nav.html`: Navigation bar。跟 `layout.html` 一樣，一開頭定義這個版型的名稱 `{{ define "navbar" }}`，也就是 `layout.html` 中 `{{ template "navbar" . }}` 的 `"navbar"`。
+
+    ```html
+    {{ define "navbar" }}
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="#">Kara</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNavDropdown">
+        <ul class="navbar-nav">
+            <li class="nav-item {{ if eq .Nav "home" }}active{{ end }}">
+            <a class="nav-link" href="/">首頁</a>
+            </li>
+            <li class="nav-item {{ if eq .Nav "add" }}active{{ end }}">
+            <a class="nav-link" href="/add">新增排程</a>
+            </li>
+        </ul>
+        </div>
+    </nav>
+    {{ end }}
+    ```
+
+1. `test.html`: 內容的子版型，開頭 `{{ define "content" }}` 與上述相同。
+
+```html
+{{ define "content" }}
+
+<script languate="javascript">
+    var pair = {{ .Data.TestStruct }};
+    var array = {{ .Data.TestArray }};
+    var str1 = "{{ .Data.TestString }}";
+    var str2 = "{{ .Data.SimpleString }}";
+</script>
+
+<p> escape string <br />
+{{ .Data.TestString }} <br />
+<a title='{{ .Data.TestString }}'>{{ .Data.TestString }}</a> <br />
+<a href="/{{ .Data.TestString }}">{{ .Data.TestString }}</a> <br />
+<a href="?q={{ .Data.TestString }}">{{ .Data.TestString }}</a> <br />
+<a onx='f("{{ .Data.TestString }}")'>{{ .Data.TestString }}</a> <br />
+<a onx='f({{ .Data.TestString }})'>{{ .Data.TestString }}</a> <br />
+<a onx='pattern = /{{ .Data.TestString }}/;'>{{.Data.TestString }}</a> <br />
+</p>
+
+<p> non escape string <br />
+{{ .Data.SimpleString }} <br />
+<a title='{{ .Data.SimpleString }}'>{{ .Data.SimpleString }}</a> <br />
+<a href="/{{ .Data.SimpleString }}">{{ .Data.SimpleString }}</a> <br />
+<a href="?q={{ .Data.SimpleString }}">{{ .Data.SimpleString }}</a> <br />
+<a onx='f("{{ .Data.SimpleString }}")'>{{ .Data.SimpleString }}</a> <br />
+<a onx='f({{ .Data.SimpleString }})'>{{ .Data.SimpleString }}</a> <br />
+<a onx='pattern = /{{ .Data.SimpleString }}/;'>{{ .Data.SimpleString }}</a> <br />
+</p>
+
+<p>array index <br />
+    {{ index .Data.TestArray 0 }}<br />
+    {{ index .Data.TestArray 1 }}<br />
+    {{ index .Data.TestArray 2 }}<br />
+    len: {{ len .Data.TestArray }}<br />
+
+</p>
+
+<p>Compare<br />
+{{ with .Data }}
+{{ if eq .Num1 .Num2}} eq {{ else }} ne {{end}}<br/>
+{{ if ne .Num1 .Num2}} ne {{ else }} eq {{end}}<br/>
+{{ if lt .Num1 .Num2}} lt {{ else if gt .Num1 .Num2 }} gt {{ else if le .Num1 .Num2 }} le {{ else }} ge {{end}}
+{{ end }}
+</p>
+
+<p>Range data<br />
+    {{ range .Data.TestArray}}
+    {{.}} <br />
+    {{else}}
+    no data
+    {{end}}
+    <br />
+</p>
+
+<p>Range empty<br />
+    {{ range .Data.EmptyArray}}
+    {{ . }} <br />
+    {{ else }}
+    no data
+    {{ end }}
+    <br />
+</p>
+
+<p>with empty<br />
+   {{with .Data.EmptyArray}}
+    have data
+    {{else}}
+    nodata
+    {{end}}
+</p>
+
+<p>with int zero value<br />
+    {{with .Data.ZeroInt}}
+     have data
+     {{else}}
+     nodata
+     {{end}}
+ </p>
+{{ end }}
+```
+
+### 重點語法說明
+
+Go template engine 會依照版型的內容，自動做 escape。
+
+1. 在 `<script></script>` 的效果
+
+    語法：
+    ```html
+    <script languate="javascript">
+        var pair = {{ .Data.TestStruct }};
+        var array = {{ .Data.TestArray }};
+        var str1 = "{{ .Data.TestString }}";
+        var str2 = "{{ .Data.SimpleString }}";
+    </script>
+    ```
+
+    結果：
+    ```html
+    <script languate="javascript">
+        var pair = {"A":"foo","B":"boo"};
+        var array = ["Hello","World","Test"];
+        var str1 = "O\x27Reilly: How are \x3ci\x3eyou\x3c\/i\x3e?";
+        var str2 = "中文測試";
+    </script>
+    ```
+
+    如果 string 內容有需要做 escape 時，go template engine 會自動做，eg: `"O\x27Reilly: How are \x3ci\x3eyou\x3c\/i\x3e?"`, 比較特別的是如果資料是 struct 或 array，會自動轉成 javascript 的 data type 型態。eg: `var pair = {"A":"foo","B":"boo"};` 及 `var array = ["Hello","World","Test"];`。
+
+1. string 自動 escape 效果
+
+    語法：
+    ```html
+    <p> escape string <br />
+    {{ .Data.TestString }} <br />
+    <a title='{{ .Data.TestString }}'>{{ .Data.TestString }}</a> <br />
+    <a href="/{{ .Data.TestString }}">{{ .Data.TestString }}</a> <br />
+    <a href="?q={{ .Data.TestString }}">{{ .Data.TestString }}</a> <br />
+    <a onx='f("{{ .Data.TestString }}")'>{{ .Data.TestString }}</a> <br />
+    <a onx='f({{ .Data.TestString }})'>{{ .Data.TestString }}</a> <br />
+    <a onx='pattern = /{{ .Data.TestString }}/;'>{{.Data.TestString }}</a> <br />
+    </p>
+    ```
+
+    結果：
+
+    ```html
+    <p> escape string <br />
+    O&#39;Reilly: How are &lt;i&gt;you&lt;/i&gt;? <br />
+    <a title='O&#39;Reilly: How are &lt;i&gt;you&lt;/i&gt;?'>O&#39;Reilly: How are &lt;i&gt;you&lt;/i&gt;?</a> <br />
+    <a href="/O%27Reilly:%20How%20are%20%3ci%3eyou%3c/i%3e?">O&#39;Reilly: How are &lt;i&gt;you&lt;/i&gt;?</a> <br />
+    <a href="?q=O%27Reilly%3a%20How%20are%20%3ci%3eyou%3c%2fi%3e%3f">O&#39;Reilly: How are &lt;i&gt;you&lt;/i&gt;?</a> <br />
+    <a onx='f("O\x27Reilly: How are \x3ci\x3eyou\x3c\/i\x3e?")'>O&#39;Reilly: How are &lt;i&gt;you&lt;/i&gt;?</a> <br />
+    <a onx='f(&#34;O&#39;Reilly: How are \u003ci\u003eyou\u003c/i\u003e?&#34;)'>O&#39;Reilly: How are &lt;i&gt;you&lt;/i&gt;?</a> <br />
+    <a onx='pattern = /O\x27Reilly: How are \x3ci\x3eyou\x3c\/i\x3e\?/;'>O&#39;Reilly: How are &lt;i&gt;you&lt;/i&gt;?</a> <br />
+    </p>
+    ```
+
+1. string 沒有需要做 escape 時
+
+    語法：
+
+    ```html
+    <p> non escape string <br />
+    {{ .Data.SimpleString }} <br />
+    <a title='{{ .Data.SimpleString }}'>{{ .Data.SimpleString }}</a> <br />
+    <a href="/{{ .Data.SimpleString }}">{{ .Data.SimpleString }}</a> <br />
+    <a href="?q={{ .Data.SimpleString }}">{{ .Data.SimpleString }}</a> <br />
+    <a onx='f("{{ .Data.SimpleString }}")'>{{ .Data.SimpleString }}</a> <br />
+    <a onx='f({{ .Data.SimpleString }})'>{{ .Data.SimpleString }}</a> <br />
+    <a onx='pattern = /{{ .Data.SimpleString }}/;'>{{ .Data.SimpleString }}</a> <br />
+    </p>
+    ```
+
+    效果：
+
+    ```html
+    <p> non escape string <br />
+    中文測試 <br />
+    <a title='中文測試'>中文測試</a> <br />
+    <a href="/%e4%b8%ad%e6%96%87%e6%b8%ac%e8%a9%a6">中文測試</a> <br />
+    <a href="?q=%e4%b8%ad%e6%96%87%e6%b8%ac%e8%a9%a6">中文測試</a> <br />
+    <a onx='f("中文測試")'>中文測試</a> <br />
+    <a onx='f(&#34;中文測試&#34;)'>中文測試</a> <br />
+    <a onx='pattern = /中文測試/;'>中文測試</a> <br />
+    </p>
+    ```
+
+1. Compare and if-else
+
+    語法：
+
+    ```html
+    <p>Compare<br />
+    {{ with .Data }}
+    {{ if eq .Num1 .Num2}} eq {{ else }} ne {{end}}<br/>
+    {{ if ne .Num1 .Num2}} ne {{ else }} eq {{end}}<br/>
+    {{ if lt .Num1 .Num2}} lt {{ else if gt .Num1 .Num2 }} gt {{ else if le .Num1 .Num2 }} le {{ else }} ge {{end}}
+    {{ end }}
+    </p>
+    ```
+
+    結果：
+
+    ```html
+    <p>Compare<br />
+
+    ne <br/>
+    ne <br/>
+    lt 
+
+    </p>
+    ```
+
+1. 讀取 array 值
+
+    語法：
+
+    ```html
+    <p>array index <br />
+        {{ index .Data.TestArray 0 }}<br />
+        {{ index .Data.TestArray 1 }}<br />
+        {{ index .Data.TestArray 2 }}<br />
+        len: {{ len .Data.TestArray }}<br />
+    </p>
+    ```
+
+    結果：
+
+    ```html
+    <p>array index <br />
+        Hello<br />
+        World<br />
+        Test<br />
+        len: 3<br />
+    </p>
+    ```
+1. array travel (range-else)
+
+    語法：
+
+    ```html
+    <p>Range data<br />
+        {{ range .Data.TestArray}}
+        {{.}} <br />
+        {{else}}
+        no data
+        {{end}}
+        <br />
+    </p>
+
+    <p>Range empty<br />
+        {{ range .Data.EmptyArray}}
+        {{ . }} <br />
+        {{ else }}
+        no data
+        {{ end }}
+        <br />
+    </p>
+    ```
+
+    結果：
+
+    ```html
+    <p>Range data<br />
+
+        Hello <br />
+
+        World <br />
+
+        Test <br />
+
+        <br />
+    </p>
+
+    <p>Range empty<br />
+
+        no data
+
+        <br />
+    </p>
+    ```
+
+1. 確認值是否**不是 zero value**，要特別小心當值是 **zero value**，像 `int` 型別，值又是 **"0"** 時，會判定成沒有值，會進到 `else` 的區塊。
+
+    語法：
+
+    ```html
+    <p>with empty<br />
+    {{with .Data.EmptyArray}}
+        have data
+        {{else}}
+        nodata
+        {{end}}
+    </p>
+
+    <p>with int zero value<br />
+        {{with .Data.ZeroInt}}
+        have data
+        {{else}}
+        nodata
+        {{end}}
+    </p>
+    ```
+
+    結果：
+
+    ```html
+    <p>with empty<br />
+
+        nodata
+
+    </p>
+
+    <p>with int zero value<br />
+
+        nodata
+
+    </p>
+    ```
