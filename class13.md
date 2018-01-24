@@ -2,7 +2,7 @@
 
 ## MySQL
 
-與 Java JDBC 類似，Go 有定義一套 interface，所有要連 DB 的 driver，都需要實作這個 interface。以下我是用 [go-sql-driver/mysql](https://github.com/go-sql-driver/mysql)
+與 Java JDBC 類似，Go 有定義一套 interface，所有要連 DB 的 driver，都需要實作這些 interface (["database/sql/driver"](https://golang.org/pkg/database/sql/driver/))。以下我是用 [go-sql-driver/mysql](https://github.com/go-sql-driver/mysql)
 
 **Select** sample code:
 
@@ -130,7 +130,7 @@ for rows.Next() {
     defer db.Close()
     ```
 
-    與 JDBC 連線類似，會傳入一組類似 url 的設定, 格式是：`[username[:password]@][protocol[(address)]]/dbname[?param1=value1&...&paramN=valueN]`。詳細的說明，請見：[DSN (Data Source Name)](https://github.com/go-sql-driver/mysql#dsn-data-source-name)。我在連線後，多做了 Ping 的動作，如下：
+    與 JDBC 連線類似，指定 driver 的種類，並傳入一組 url 的設定, 格式是：`[username[:password]@][protocol[(address)]]/dbname[?param1=value1&...&paramN=valueN]`。詳細的說明，請見：[DSN (Data Source Name)](https://github.com/go-sql-driver/mysql#dsn-data-source-name)。我在連線後，多做了 Ping 的動作，如下：
 
     ```go
     if err := db.Ping(); err != nil {
@@ -640,6 +640,7 @@ Go template engine 會依照版型的內容，自動做 escape。
 1. 在 `<script></script>` 的效果
 
     語法：
+
     ```html
     <script languate="javascript">
         var pair = {{ .Data.TestStruct }};
@@ -664,6 +665,7 @@ Go template engine 會依照版型的內容，自動做 escape。
 1. string 自動 escape 效果
 
     語法：
+
     ```html
     <p> escape string <br />
     {{ .Data.TestString }} <br />
