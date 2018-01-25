@@ -10,7 +10,7 @@
 
 原文：
 
-Arrays and structs are aggregate types; their values are **concatenations** of other values in memory. Arrays are homogeneous—their elements all have the same type—whereas structs are heterogeneous. Both arrays and structs are **fixed size**.
+Arrays and structs are aggregate types; their values are ==concatenations== of other values in memory. Arrays are homogeneous—their elements all have the same type—whereas structs are heterogeneous. Both arrays and structs are ==fixed size==.
 
 註：
 

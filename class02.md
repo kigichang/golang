@@ -19,11 +19,11 @@
 
 ### 說明
 
-1. 寫執行檔的程式，檔名不一定要命名成 `main.go`，但程式碼的 package 宣告一定要是 **main**。
+1. 寫執行檔的程式，檔名不一定要命名成 `main.go`，但程式碼的 package 宣告一定要是 ==main==。
 1. 經過 build 之後，產生的執行檔名，會是目錄的名稱。
 1. 可以使用 `go run main.go` 直接執行程式，如果程式是拆分成多個 .go 的檔案，則需要將每個檔名也加入。eg: `go run main.go a.go b.go`
 1. `import` 是將會用到的 package 加入，跟 Java 一樣，有用到的 package 用 import 加入。Go 的工具，會幫忙找內建的 package ，自動加入到程式碼中，很方便；但如果是第三方的套件，就要自己寫。第三方套件 import 路徑，是從 `$GOPATH/src` 以下。eg: 程式放在 `$GOPATH/src/a/b/c` 則 import 路徑是 `import "a/b/c"`。
-1. 程式的進入點 (Entry point): `func main()`，跟大多數的程式語言一樣，寫執行檔都會需要有一個主函式 **main**
+1. 程式的進入點 (Entry point): `func main()`，跟大多數的程式語言一樣，寫執行檔都會需要有一個主函式 ==main==
 
 ## Arguemnts
 

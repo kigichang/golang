@@ -34,26 +34,6 @@ complex  real  imag
 panic  recover
 ```
 
-## Sample code
-
-```go
-// Boiling prints the boiling point of water.
-package main
-
-import "fmt"
-
-const boilingF = 212.0
-
-func main() {
-    var f = boilingF
-    var c = (f - 32) * 5 / 9
-    fmt.Printf("boiling point = %g°F or %g°C\n", f, c)
-}
-```
-
-output:
-`boiling point = 212°F or 100°C`
-
 ## 宣告 Declaraion
 
 ### 完整寫法：
@@ -288,10 +268,57 @@ package 中，可以在某一個程式檔案，定義 `func init()`。當 packag
 
 eg:
 
-```go
-func init() {
+目錄結構：
 
+```text
+.
+├── main.go
+└── test
+    └── utils.go
+```
+
+程式碼：
+
+==utils.go==
+
+```go
+package test
+
+import "fmt"
+
+func init() {
+    fmt.Println("test package init")
 }
+
+// Println ...
+func Println(s string) {
+    fmt.Println(s)
+}
+
+```
+
+==main.go==
+
+```go
+package main
+
+import (
+    "fmt"
+    "go_test/class03/test"
+)
+
+func main() {
+    fmt.Println("start...")
+    test.Println("hello world!!!")
+}
+```
+
+結果：
+
+```text
+test package init
+start...
+hello world!!!
 ```
 
 ## Visible
