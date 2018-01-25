@@ -14,7 +14,7 @@ Books:
 1. [Go Web Programming](https://www.manning.com/books/go-web-programming)
 1. [Go System Programming](https://www.packtpub.com/networking-and-servers/go-systems-programming)
 
-第一本看完就差不多了；第二本主要是講 Web，包含 DB, 版型；第三本主要是討論跟作業系統互動，對 routing, channel 有比較深入的說明。
+第一本看完就差不多了；第二本主要是講 Web，包含 DB, 版型；第三本主要是討論跟作業系統互動，對 routine, channel 有比較深入的說明。
 
 [^中文版]: [中譯版](https://www.gitbook.com/book/wizardforcel/gopl-zh/details)
 
