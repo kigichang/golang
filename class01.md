@@ -10,7 +10,7 @@
 
 Books:
 
-1. [The Go Programming Language](https://www.amazon.com/Programming-Language-Addison-Wesley-Professional-Computing-ebook/dp/B0184N7WWS) [~中文版~](https://www.gitbook.com/book/wizardforcel/gopl-zh/details)
+1. [The Go Programming Language](https://www.amazon.com/Programming-Language-Addison-Wesley-Professional-Computing-ebook/dp/B0184N7WWS) [<sub>中文版<sub>](https://www.gitbook.com/book/wizardforcel/gopl-zh/details)
 1. [Go Web Programming](https://www.manning.com/books/go-web-programming)
 1. [Go System Programming](https://www.packtpub.com/networking-and-servers/go-systems-programming)
 
@@ -18,7 +18,7 @@ Books:
 
 ## 環境設定
 
-1. 下載 golang。[~下載連結~](https://golang.org/dl/)
+1. 下載 golang。[<sub>下載連結</sub>](https://golang.org/dl/)
 1. 設定環境變數 **\$GOPATH**: `$GOPATH` 是專門放 Go 開發專案的目錄，所有 Go 相關的工具，也會一併裝在這個目錄。
 
 ## IDE 建議
@@ -26,9 +26,12 @@ Books:
 建議用 Visual Studio Code，再安裝相關的 plugin。
 
 1. Go plugin: [https://github.com/Microsoft/vscode-go](https://github.com/Microsoft/vscode-go)
-![go for vscode](go_for_vscode.png)
+
+    ![go for vscode](go_for_vscode.png)
+
 1. Code Runner: [https://github.com/formulahendry/vscode-code-runner](https://github.com/formulahendry/vscode-code-runner)
-![code runner](code_runner.png)
+
+    ![code runner](code_runner.png)
 
 ## GOPATH 目錄說明
 
@@ -84,5 +87,5 @@ Books:
 - 因為沒有 OO，只有封裝，沒有繼承等功能
 - 沒有泛型 (Generic) 所以有關型別方面的寫作，就沒這個彈性。
 - 有工具會自動校正 coding style.
-- 檔案的編碼，一定要是 ==UTF-8==。
+- 檔案的編碼，一定要是 **UTF-8**。
 - Function paramenter **pass by value** (call by value)

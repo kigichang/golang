@@ -279,7 +279,7 @@ eg:
 
 程式碼：
 
-==utils.go==
+utils.go
 
 ```go
 package test
@@ -297,7 +297,7 @@ func Println(s string) {
 
 ```
 
-==main.go==
+main.go
 
 ```go
 package main
