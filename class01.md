@@ -6,7 +6,7 @@
 
 1. 官網：[https://golang.org/](https://golang.org/)
 1. 線上學習：[A tour of Go](https://tour.golang.org/welcome/1)。請務必要上網練習，玩過一輪後，差不多就學完最基本的語法，再撘配 [The Go Programming Language](https://www.amazon.com/Programming-Language-Addison-Wesley-Professional-Computing-ebook/dp/B0184N7WWS) 書，效果會比較好。
-1. [Effective Go](https://golang.org/doc/effective_go.html) Go 上手後，一定要看。
+1. [Effective Go](https://golang.org/doc/effective_go.html): Go 上手後，一定要看。
 
 Books:
 
@@ -28,7 +28,9 @@ Books:
 建議用 Visual Studio Code，再安裝相關的 plugin。
 
 1. Go plugin: [https://github.com/Microsoft/vscode-go](https://github.com/Microsoft/vscode-go)
+![go for vscode](go_for_vscode.png)
 1. Code Runner: [https://github.com/formulahendry/vscode-code-runner](https://github.com/formulahendry/vscode-code-runner)
+![code runner](code_runner.png)
 
 ## GOPATH 目錄說明
 
