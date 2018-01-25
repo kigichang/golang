@@ -4,7 +4,7 @@
 - Slices
 - Maps
 - Functions (class 07)
-- Channel
+- Channel (class 09)
 
 ## Pointer
 
