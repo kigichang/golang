@@ -593,6 +593,117 @@ func main() {
 1. `CategorySum`: 負責主要統計每個分類的業績。
 1. `SiteSum`: 負責統計全站業績
 
-## Select
+## Select and Timeout
 
-// TODO
+可以透過 `select` 來偵測 channel 是否可以被寫入及是否有資料可以讀取。`select` 可以撘配 `time.After` 來實作 timeout 的機制。
+
+eg:
+
+```go
+package main
+
+import (
+    "log"
+    "math/rand"
+    "time"
+)
+
+func createNumber(max int, randomChannel chan<- int, finishChannel <-chan bool) {
+    for {
+        select {
+        case randomChannel <- rand.Intn(max):
+            time.Sleep(1 * time.Second)
+        case x := <-finishChannel:
+            log.Println("finish channel got ", x)
+            if x {
+                close(randomChannel)
+                log.Println("createNumber end")
+                return
+            }
+        }
+    }
+
+}
+
+func readNumber(randomChannel <-chan int) {
+    for {
+        select {
+        case x, ok := <-randomChannel:
+            if !ok {
+                log.Println("readNumber end")
+                return
+            }
+            log.Println("random channel got ", x)
+        case <-time.After(500 * time.Millisecond):
+            log.Println("time out")
+        }
+    }
+}
+
+func main() {
+    rand.Seed(time.Now().Unix())
+
+    randomChannel := make(chan int)
+    finishChannel := make(chan bool)
+
+    go createNumber(100, randomChannel, finishChannel)
+    go readNumber(randomChannel)
+
+    time.Sleep(2 * time.Second)
+    finishChannel <- false
+    time.Sleep(3 * time.Second)
+    finishChannel <- true
+    time.Sleep(1 * time.Second)
+    close(finishChannel)
+    log.Println("end")
+
+}
+```
+
+### 說明
+
+#### createNumber
+
+1. `for { }`: 無窮迴圈
+1. `select - case`: 使用 `select` 來偵測 channel 狀態。
+1. `case randomChannel <- rand.Intn(max)`: 對 `randomChannel` 寫入資料
+1. `x := <-finishChannel`: 從 `finishChannel` 讀取資料，如果為 `true` 則關閉 `randomChannel` 並結束 `select - case` 迴圈。
+
+#### readNumber
+
+1. `for { }`: 無窮迴圈
+1. `select - case`: 使用 `select` 來偵測 channel 狀態。
+1. `case x, ok := <-randomChannel`: 從 `randomChannel` 讀取資料，這邊與先前從 channel 讀資料不同，多了一個 `ok` 來判斷 channel 是否已經被關閉了。如果 `randomChannel` 已被關閉，則跳出迴圈。
+1. `case <-time.After(500 * time.Millisecond)`: Timeout 機制，如果 500 ms  內，randomChannel 一直沒有資料寫入的話，則會觸發。
+
+#### main
+
+1. 初始化 channel 及 goroutine.
+1. 先停 2 sec. 後，先對 `finishChannel` 寫入 `false`，此時不會中止所有活動，但 `finishChannel` 會得到一個 `false` 值。
+1. 再停 3 sec. 後，再對 `finishChannel` 寫入 `true`，此時會中斷 `createNumber` 的迴圈，且 `randomChannel` 會被關閉。
+1. `randomChannel` 被關閉後，`readNumber` 會偵測到 `randomChannel` 被關閉，而中斷 `readNumber` 迴圈。
+1. 再停 1 sec. 關閉 `finishChannel`。
+
+#### 執行結果
+
+```text
+2018/01/29 15:42:14 random channel got  13
+2018/01/29 15:42:14 time out
+2018/01/29 15:42:15 random channel got  14
+2018/01/29 15:42:15 time out
+2018/01/29 15:42:16 finish channel got  false
+2018/01/29 15:42:16 random channel got  19
+2018/01/29 15:42:16 time out
+2018/01/29 15:42:17 random channel got  97
+2018/01/29 15:42:17 time out
+2018/01/29 15:42:18 random channel got  61
+2018/01/29 15:42:18 time out
+2018/01/29 15:42:19 random channel got  79
+2018/01/29 15:42:19 time out
+2018/01/29 15:42:20 random channel got  2
+2018/01/29 15:42:20 time out
+2018/01/29 15:42:21 finish channel got  true
+2018/01/29 15:42:21 createNumber end
+2018/01/29 15:42:21 readNumber end
+2018/01/29 15:42:22 end
+```
