@@ -93,8 +93,8 @@ for rows.Next() {
     )
     ```
 
-    - `"database/sql"` 是 go 定義 sql interface 的 package
-    - `_ "github.com/go-sql-driver/mysql"` mysql driver package
+    1. `"database/sql"` 是 go 定義 sql interface 的 package
+    1. `_ "github.com/go-sql-driver/mysql"` mysql driver package
 
 1. 定義資料的 struct，類似要做 ORM 的動作，當然也可以不要這個定義，都用變數來存資料。
 
@@ -174,7 +174,7 @@ for rows.Next() {
     }
     ```
 
-    - 使用 Stmt.Query 方式，取得 Rows
+    1. 使用 Stmt.Query 方式，取得 Rows
 
         ```go
         rows, err := sel.Query(1)
@@ -187,7 +187,7 @@ for rows.Next() {
 
         與上述取得連線一樣，立即下 `defer rows.Close()` 確保程式結束後，會關閉 rows。(說明文件說，會[自動關閉](https://golang.org/pkg/database/sql/#Rows.Close)。這部分就看自己的習慣了。但 DB 與 Stmt 一定要記得關。)
 
-    - 跟 JDBC 一樣，一定要先執行 **Next** 才能取資料。
+    1. 跟 JDBC 一樣，一定要先執行 **Next** 才能取資料。
 
         ```go
         for rows.Next() {
@@ -200,7 +200,7 @@ for rows.Next() {
         }
         ```
 
-    - 透過 Rows.Scan 取得資料。
+    1. 透過 Rows.Scan 取得資料。
 
         ```go
         func RowScanSchedule(rows *sql.Rows) (*Schedule, error) {
@@ -248,7 +248,7 @@ if err != nil {
 1. 利用 DB.Pepare 建立一個 PreparedStatement 連線，記得下 `defer ins.Close()`
 1. 與 Select 不同，使用 Stmt.Exec 執行指 SQL 指令。
 
-    ```go {.line-numbers}
+    ```go
     result, err := ins.Exec(url, referer, count, date+" "+time)
     if err != nil {
         fmt.Fprintln(w, err)
