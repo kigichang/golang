@@ -317,13 +317,13 @@ func main() {
 
 可以將 flag 當作設定檔的資料。如此一來，在大型的程式中，就可以統一都使用 Viper 來當共用設定，而這些設定可以是來自設定檔或者是 command line 的 flag。
 
+請使用 `PersistentFlags` 撘配 `Viper` 使用。
+
 eg:
 
 ```go
-var author string
+rootCmd.PersistentFlags().StringVarP(&test, "test", "t", "my test", "test string")
+viper.BindPFlag("test", rootCmd.PersistentFlags().Lookup("test"))
 
-func init() {
-  rootCmd.PersistentFlags().StringVar(&author, "author", "YOUR NAME", "Author name for copyright attribution")
-  viper.BindPFlag("author", rootCmd.PersistentFlags().Lookup("author"))
-}
+fmt.Println("viper test:", viper.GetString("test"))
 ```
