@@ -651,6 +651,7 @@ Go template engine 會依照版型的內容，自動做 escape。
     ```
 
     結果：
+
     ```html
     <script languate="javascript">
         var pair = {"A":"foo","B":"boo"};
