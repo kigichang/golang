@@ -14,7 +14,7 @@ Arrays and structs are aggregate types; their values are **concatenations** of o
 
 註：
 
-1. call by value, 會 copy 原本資料，因此要小心記憶的問題。可改用 slice 及 pointer。
+1. pass by value, 會 copy 原本資料，因此要小心記憶的問題。可改用 slice 及 pointer。
 
 ## Arrays
 
