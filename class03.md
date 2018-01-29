@@ -62,15 +62,6 @@ sample 3:
 var f, err = os.Open(name) // os.Open returns a file and an error
 ```
 
-#### Zero Values
-
-```go
-var s string    // ""
-var a int       // 0
-var f float32   // 0.0
-var err error   // nil
-```
-
 ### 簡寫：
 
 ```go
