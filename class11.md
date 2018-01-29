@@ -86,10 +86,17 @@ Go 原本是沒有 dependency management 工具，因此社群很多第三方的
 
 大多數的管理工具，包含官方工具，會在專案的目錄下，產生 `vendor` 的目錄，將第三方套件的 source code 下載到這個目錄下，專案有使用到時，則來這個目錄找。
 
+使用方式：
+
+1. 一開始在專案的目錄下，執行 `dep init`，會產生 `Gopkg.toml`, `Gopkg.lock` 及 `vendor`
+1. 產生一個 go 的程式檔案
+1. 需要用到某個套件前(還沒開始寫 import), 執行 `dep ensure -add 套件_URI`。會發現在 `Gopkg.toml` 加入設定，以及下載套件到 `vendor` 目錄下。
+1. 繼續寫程式
+
 常用指令：
 
 - `dep init`: 第一次使用管理工具時，請先執行，會自動產生 `Gopkg.toml` 檔案，裏面會去掃描有用到的第三方工具，並下載。
-- `dep ensure`: 之後有異動 `Gopkg.toml`，再執行，會去更新 vendor 目錄
+- `dep ensure`: 之後有異動 `Gopkg.toml`，再執行，會去更新 `vendor` 目錄
 
 ### Gopkg.toml 格式
 
