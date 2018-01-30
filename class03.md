@@ -2,7 +2,7 @@
 
 ## 關鍵字
 
-```go
+```go { .line-numbers }
 break    default     func   interface select
 case     defer       go     map       struct
 chan     else        goto   package   switch
@@ -12,13 +12,13 @@ continue for         import return    var
 
 ## 內建常數
 
-```go
+```go { .line-numbers }
 true  false  iota  nil
 ```
 
 ## 資料型別
 
-```go
+```go { .line-numbers }
 int  int8  int16  int32  int64 uint  uint8  uint16  uint32  uint64 uintptr
 float32  float64  complex64  complex128
 bool  byte  rune  string  error
@@ -26,7 +26,7 @@ bool  byte  rune  string  error
 
 ## 內建 Function
 
-```go
+```go { .line-numbers }
 make  len  cap  new  append  copy
 delete
 close
@@ -38,39 +38,39 @@ panic  recover
 
 ### 完整寫法：
 
-```go
+```go { .line-numbers }
 var name type = expression
 ```
 
 sample 1:
 
-```go
+```go { .line-numbers }
 var s string
 fmt.Println(s) // ""
 ```
 
 sample 2:
 
-```go
+```go { .line-numbers }
 var i, j, k int                 // int, int, int
 var b, f, s = true, 2.3, "four" // bool, float64, string
 ```
 
 sample 3:
 
-```go
+```go { .line-numbers }
 var f, err = os.Open(name) // os.Open returns a file and an error
 ```
 
 ### 簡寫：
 
-```go
+```go { .line-numbers }
 name := expression
 ```
 
 sample 1:
 
-```go
+```go { .line-numbers }
 anim := gif.GIF{LoopCount: nframes}
 freq := rand.Float64() * 3.0
 t := 0.0
@@ -78,13 +78,13 @@ t := 0.0
 
 sample 2:
 
-```go
+```go { .line-numbers }
 i, j := 0, 1
 ```
 
 sample 3:
 
-```go
+```go { .line-numbers }
 f, err := os.Open(name)
 if err != nil {
     return err 
@@ -97,7 +97,7 @@ f.Close()
 
 #### Default Type
 
-```go
+```go { .line-numbers }
 i := 0      // int
 f := 0.0    // float64
 s := ""     // string
@@ -109,7 +109,7 @@ s := ""     // string
 
 sample 1:
 
-```go
+```go { .line-numbers }
 in, err := os.Open(infile)
 // ...
 out, err := os.Create(outfile)
@@ -119,7 +119,7 @@ out, err := os.Create(outfile)
 
 sample 2:
 
-```go
+```go { .line-numbers }
 f, err := os.Open(infile)
 // ...
 f, err := os.Create(outfile) // compile error: no new variables
@@ -137,7 +137,7 @@ eg:
 
 sample 1:
 
-```go
+```go { .line-numbers }
 x := 1
 p := &x         // p, of type *int, points to x
 fmt.Println(*p) // "1"
@@ -147,7 +147,7 @@ fmt.Println(x)  // "2"
 
 不可做指標位移:
 
-```go
+```go { .line-numbers }
 a := 10
 b := &a
 b++     // invalid operation: b++ (non-numeric type *int)
@@ -157,14 +157,14 @@ b++     // invalid operation: b++ (non-numeric type *int)
 
 ### Tuple Assignment
 
-```go
+```go { .line-numbers }
 x, y = y, x
 a[i], a[j] = a[j], a[i]
 ```
 
 GCD sample:
 
-```go
+```go { .line-numbers }
 func gcd(x, y int) int {
 
     for y != 0 {
@@ -177,7 +177,7 @@ func gcd(x, y int) int {
 
 ### Return Tuple
 
-```go
+```go { .line-numbers }
 func swap(x, y int) (int, int) {
     return y, x
 }
@@ -191,7 +191,7 @@ eg:
 
 sample 1:
 
-```go
+```go { .line-numbers }
 package tempconv
 
 import "fmt"
@@ -211,7 +211,7 @@ func FToC(f Fahrenheit) Celsius { return Celsius((f - 32) * 5 / 9) }
 
 sample 2:
 
-```go
+```go { .line-numbers }
 fmt.Printf("%g\n", BoilingC-FreezingC) // "100" °C
 boilingF := CToF(BoilingC)
 fmt.Printf("%g\n", boilingF-CToF(FreezingC)) // "180" °F
@@ -220,7 +220,7 @@ fmt.Printf("%g\n", boilingF-FreezingC)       // compile error: type mismatch
 
 sample 3:
 
-```go
+```go { .line-numbers }
 var c Celsius
 var f Fahrenheit
 fmt.Println(c == 0)             // "true"
@@ -249,7 +249,7 @@ import 的路徑，由 `$GOPATH/src` 以下目錄開始。
 
 import 則用
 
-```go
+```go { .line-numbers }
 import "gopl.io/ch1/helloworld"
 ```
 
@@ -272,7 +272,7 @@ eg:
 
 utils.go
 
-```go
+```go { .line-numbers }
 package test
 
 import "fmt"
@@ -290,7 +290,7 @@ func Println(s string) {
 
 main.go
 
-```go
+```go { .line-numbers }
 package main
 
 import (

@@ -4,7 +4,7 @@
 
 結構:
 
-```go
+```go { .line-numbers }
 func name(parameter-list) (result-list) {
     body
 }
@@ -14,7 +14,7 @@ eg:
 
 sample 1:
 
-```go
+```go { .line-numbers }
 func hypot(x, y float64) float64 {
       return math.Sqrt(x*x + y*y)
 }
@@ -24,14 +24,14 @@ fmt.Println(hypot(3, 4)) // "5"
 
 sample 2:
 
-```go
+```go { .line-numbers }
 func f(i, j, k int, s, t string)                { /* ... */ }
 func f(i int, j int, k int, s string, t string) { /* ... */ }
 ```
 
 sample 3:
 
-```go
+```go { .line-numbers }
 func add(x int, y int) int { return x+y }
 func sub(x, y int) (z int) { z= x - y; return }
 func first(x int, _ int) int { return x }
@@ -50,7 +50,7 @@ Go 在傳遞參數時，是以 **by value** 的方式進行，也就是說在傳
 
 struct sample:
 
-```go
+```go { .line-numbers }
 type Test struct {
     A int
     B string
@@ -81,7 +81,7 @@ fmt.Println(t)      // {1 Test by test}
 
 array sample:
 
-```go
+```go { .line-numbers }
 func arrTest(a [3]int) {
     for i, x := range a {
         a[i] = x + 1
@@ -112,7 +112,7 @@ fmt.Println(a);         // [2 3 4]
 
 遞迴
 
-```go
+```go { .line-numbers }
 func gcd(a, b int) int {
     if b == 0 {
         return a
@@ -130,7 +130,7 @@ Go 的 function 可以一次回傳多個值 (tuple)
 
 eg:
 
-```go
+```go { .line-numbers }
 func swap(x, y int) (int, int) {
     return y, x
 }
@@ -147,7 +147,7 @@ eg:
 
 sample 1:
 
-```go
+```go { .line-numbers }
 func sum(vals ...int) int {
     total := 0
     for _, val := range vals {
@@ -163,7 +163,7 @@ fmt.Println(sum(1, 2, 3, 4)) //  "10"
 
 如何將 array 傳入:
 
-```go
+```go { .line-numbers }
 values := []int{1, 2, 3, 4}
 fmt.Println(sum(values...)) // "10"
 ```
@@ -172,7 +172,7 @@ fmt.Println(sum(values...)) // "10"
 
 在 code block 或 function 結束前，一定要執行的程式碼。與 Java `finally` 很像。
 
-```go
+```go { .line-numbers }
 func double(x int) (result int) {
     defer func() { fmt.Printf("double(%d) = %d\n", x, result) }()
     return x + x
@@ -183,7 +183,7 @@ _ = double(4) // double(4) = 8
 
 在有關 I/O 處理時，一定會用到。
 
-```go
+```go { .line-numbers }
 func ReadFile(filename string) ([]byte, error) {
     f, err := os.Open(filename)
 
@@ -198,7 +198,7 @@ func ReadFile(filename string) ([]byte, error) {
 
 **defer** 的呼叫順序是 **stack** 的LIFO (Last In First Out)，並且利用當下的變數值來執行。如下：
 
-```go
+```go { .line-numbers }
 package main
 
 import "fmt"
@@ -252,7 +252,7 @@ a3:
 
 在 Go 的 function 設計中，很多都會回傳包含 error 的 tuple。eg:
 
-```go
+```go { .line-numbers }
 resp, err := http.Get(url)
 
 if err != nil {
@@ -264,7 +264,7 @@ if err != nil {
 
 eg:
 
-```go
+```go { .line-numbers }
 func WaitForServer(url string) error {
     const timeout = 1 * time.Minute
     deadline := time.Now().Add(timeout)
@@ -293,7 +293,7 @@ if err := WaitForServer(url); err != nil {
 
 ##### Panic 現像：
 
-```go
+```go { .line-numbers }
 func f(x int) {
     fmt.Printf("f(%d)\n", x+0/x) // panics if x == 0
     defer fmt.Printf("defer %d\n", x)
@@ -329,7 +329,7 @@ main.main()
 
 不應該使用 Panic 的案例，請回傳 **error**:
 
-```go
+```go { .line-numbers }
 func Reset(x *Buffer) {
     if x == nil {
         panic("x is nil") // unnecessary!
@@ -344,7 +344,7 @@ func Reset(x *Buffer) {
 
 eg:
 
-```go
+```go { .line-numbers }
 package main
 
 import "fmt"
@@ -387,7 +387,7 @@ internal error: runtime error: integer divide by zero
 
 eg:
 
-```go
+```go { .line-numbers }
 func add(x int, y int) int { return x+y }
 func sub(x, y int) (z int) { z= x - y; return }
 func first(x int, _ int) int { return x }
@@ -408,7 +408,7 @@ function 也有資料型別，可以當作變數，或當作另一個 function �
 
 Assignment:
 
-```go
+```go { .line-numbers }
 func square(n int) int { return n * n }
 func negative(n int) int { return -n }
 func product(m, n int) int { return m * n }
@@ -427,7 +427,7 @@ f = product // cannot use product (type func(int, int) int) as type func(int) in
 
 As parameter and return:
 
-```go
+```go { .line-numbers }
 func square(n int) int { return n * n }
 func negative(n int) int { return -n }
 
@@ -452,7 +452,7 @@ fmt.Println(k2(10))                 // 100 square(negative(10))
 
 eg:
 
-```go
+```go { .line-numbers }
 type Point struct{ X, Y float64 }
 
 // traditional function
@@ -475,7 +475,7 @@ fmt.Println(p.Distance(q))  // "5", method call
 
 eg:
 
-```go
+```go { .line-numbers }
 package main
 
 import "fmt"
@@ -509,7 +509,7 @@ func main() {
 
 sample 1, struct:
 
-```go
+```go { .line-numbers }
 package main
 
 import "fmt"
@@ -530,7 +530,7 @@ func main() {
 
 sample 2, struct pointer:
 
-```go
+```go { .line-numbers }
 package main
 
 import "fmt"
@@ -551,7 +551,7 @@ func main() {
 
 method 本身就是 funcation，因此也有 signature.
 
-```go
+```go { .line-numbers }
 package main
 
 import "fmt"

@@ -6,7 +6,7 @@
 
 **Select** sample code:
 
-```go
+```go { .line-numbers }
 import (
     "database/sql"
     _ "github.com/go-sql-driver/mysql"
@@ -86,7 +86,7 @@ for rows.Next() {
 
 1. import package.
 
-    ```go
+    ```go { .line-numbers }
     import (
         "database/sql"
         _ "github.com/go-sql-driver/mysql"
@@ -98,7 +98,7 @@ for rows.Next() {
 
 1. 定義資料的 struct，類似要做 ORM 的動作，當然也可以不要這個定義，都用變數來存資料。
 
-    ```go
+    ```go { .line-numbers }
     // Schedule ...
     type Schedule struct {
         // ...
@@ -107,7 +107,7 @@ for rows.Next() {
 
 1. 連線資料庫
 
-    ```go
+    ```go { .line-numbers }
     func Connect(driver, uri string) (*sql.DB, error) {
         db, err := sql.Open(driver, uri)
         if err != nil {
@@ -132,7 +132,7 @@ for rows.Next() {
 
     與 JDBC 連線類似，指定 driver 的種類，並傳入一組 url 的設定, 格式是：`[username[:password]@][protocol[(address)]]/dbname[?param1=value1&...&paramN=valueN]`。詳細的說明，請見：[DSN (Data Source Name)](https://github.com/go-sql-driver/mysql#dsn-data-source-name)。我在連線後，多做了 Ping 的動作，如下：
 
-    ```go
+    ```go { .line-numbers }
     if err := db.Ping(); err != nil {
         return nil, err
     }
@@ -142,7 +142,7 @@ for rows.Next() {
 
 1. 下 SQL，與 Java 的 PreparedStatement 類似。
 
-    ```go
+    ```go { .line-numbers }
     sel, err := db.Prepare("select id, url, referer, count, start, current, success, failed, status from schedule where status = ? order by start desc")
 
     if err != nil {
@@ -156,7 +156,7 @@ for rows.Next() {
 
 1. 透過 Stmt 取得資料。
 
-    ```go
+    ```go { .line-numbers }
     rows, err := sel.Query(1)
     if err != nil {
         // ...
@@ -176,7 +176,7 @@ for rows.Next() {
 
     1. 使用 Stmt.Query 方式，取得 Rows
 
-        ```go
+        ```go { .line-numbers }
         rows, err := sel.Query(1)
         if err != nil {
             // ...
@@ -189,7 +189,7 @@ for rows.Next() {
 
     1. 跟 JDBC 一樣，一定要先執行 **Next** 才能取資料。
 
-        ```go
+        ```go { .line-numbers }
         for rows.Next() {
             tmp, err := RowScanSchedule(rows)
             if err != nil {
@@ -202,7 +202,7 @@ for rows.Next() {
 
     1. 透過 Rows.Scan 取得資料。
 
-        ```go
+        ```go { .line-numbers }
         func RowScanSchedule(rows *sql.Rows) (*Schedule, error) {
             tmp := &Schedule{}
             if err := rows.Scan(&tmp.ID, &tmp.URL, &tmp.Referer, &tmp.Count, &tmp.Start, &tmp.Current, &tmp.Success, &tmp.Failed, &tmp.Status); err != nil {
@@ -214,7 +214,7 @@ for rows.Next() {
 
 **Insert** sample code:
 
-```go
+```go { .line-numbers }
 db, err := Connect("mysql", "crawler:1234@/crawler")
 if err != nil {
     fmt.Fprintln(w, err)
@@ -248,7 +248,7 @@ if err != nil {
 1. 利用 DB.Pepare 建立一個 PreparedStatement 連線，記得下 `defer ins.Close()`
 1. 與 Select 不同，使用 Stmt.Exec 執行指 SQL 指令。
 
-    ```go
+    ```go { .line-numbers }
     result, err := ins.Exec(url, referer, count, date+" "+time)
     if err != nil {
         fmt.Fprintln(w, err)
@@ -299,7 +299,7 @@ web
 
 eg:
 
-```go
+```go { .line-numbers }
 package main
 
 import (
@@ -334,7 +334,7 @@ func main() {
 
 1. import 必要的 package
 
-    ```go
+    ```go { .line-numbers }
     import (
         // ...
         "html/template"
@@ -347,7 +347,7 @@ func main() {
 
 1. 實作 routing 機制：
 
-    ```go
+    ```go { .line-numbers }
     mux := http.NewServeMux()
     files := http.FileServer(http.Dir("./public"))
 
@@ -360,7 +360,7 @@ func main() {
     - http.NewServMux(): 產生 `ServMux` 物件，用來處理 url routing 的工作。
     - 處理靜態資料:
 
-        ```go
+        ```go { .line-numbers }
         files := http.FileServer(http.Dir("./public"))
         mux.Handle("/static/", http.StripPrefix("/static/", files))
         ```
@@ -370,14 +370,14 @@ func main() {
 
 1. 其他 URL 的 routing: 利用 `HandleFunc` 來設定 URL 與處理 function 的關係。以下的 sample，`/add` 會執行 `add`, `/` 會執行 `index`
 
-    ```go
+    ```go { .line-numbers }
     mux.HandleFunc("/add", add)
     mux.HandleFunc("/", index)
     ```
 
 1. 綁定 port 並啟動 web server
 
-    ```go
+    ```go { .line-numbers }
     server := &http.Server{
         Addr:    "0.0.0.0:8080",
         Handler: mux,
@@ -393,7 +393,7 @@ func main() {
 
 Handler function 的定義：
 
-```go
+```go { .line-numbers }
 func name(w http.ResponseWriter, r *http.Request) {
     body
 }
@@ -401,7 +401,7 @@ func name(w http.ResponseWriter, r *http.Request) {
 
 eg:
 
-```go
+```go { .line-numbers }
 func add(w http.ResponseWriter, r *http.Request) {
 
     // ...
@@ -443,7 +443,7 @@ Go html template 是利用 text template，因此相關的語法，要看 ["text
 
 ### 程式碼
 
-```go
+```go { .line-numbers }
 func generateHTML(w http.ResponseWriter, data interface{}, files ...string) {
     var tmp []string
     for _, f := range files {

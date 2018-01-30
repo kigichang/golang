@@ -11,7 +11,7 @@
 與 C 相同，使用 `&` 來取得 pointer 位置，用 `*` 來存取 pointer 指定的值。
 與 C 相同的是，不能對 pointer 做位移。
 
-```go
+```go { .line-numbers }
 a := 10
 b := &a
 *b = 20
@@ -43,7 +43,7 @@ Slice 的 zero value 是 **nil**
 
 eg:
 
-```go
+```go { .line-numbers }
 var s []int
 fmt.Println(s, s == nil, len(s), cap(s))    // [] true 0 0
 
@@ -70,7 +70,7 @@ fmt.Println(s, s == nil, len(s), cap(s))    // [0 0 0 0 0] false 5 6
 
 實際上，Slice 底層還是 Array，Slice 的 pointer 會指定 array 的位置。
 
-```go
+```go { .line-numbers }
 months := [...]string{1: "January", /* ... */, 12: "December"}
 Q2 := months[4:7]
 summer := months[6:9]
@@ -88,7 +88,7 @@ fmt.Println(summer) // ["June" "July" "August"]
 
 eg:
 
-```go
+```go { .line-numbers }
 package main
 
 import "fmt"
@@ -117,7 +117,7 @@ func main() {
 
 eg:
 
-```go
+```go { .line-numbers }
 s := [6]int{0, 1, 2, 3, 4, 5}
 
 s1 := s[2:]
@@ -145,7 +145,7 @@ Key-Value 結構，也就是 hashtable 的結構。
 
 ### Map Declaration
 
-```go
+```go { .line-numbers }
 ages := map[string]int{
     "alice":   31,
     "charlie": 34,
@@ -154,20 +154,20 @@ ages := map[string]int{
 
 也可使用 `make` 來產生 空白 map.
 
-```go
+```go { .line-numbers }
 ages := make(map[string]int) // mapping from strings to ints
 ```
 
 ### Put
 
-```go
+```go { .line-numbers }
 ages["alice"] = 32      // alice = 32
 ages["alice"]++         // alice = 33
 ```
 
 ### Delete
 
-```go
+```go { .line-numbers }
 delete(ages, "cat")
 ```
 
@@ -177,7 +177,7 @@ Map 在取值時，如果 key 不存在，會回值 value 型別的 **zero value
 
 eg:
 
-```go
+```go { .line-numbers }
 ages := map[string]int{
     "alice":   31,
     "charlie": 34,
@@ -193,7 +193,7 @@ fmt.Println(a, ok)          // 0, false
 
 與 array 同，用 `for-range`
 
-```go
+```go { .line-numbers }
 for name, age := range ages {
       fmt.Printf("%s\t%d\n", name, age)
 }

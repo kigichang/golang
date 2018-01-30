@@ -16,7 +16,7 @@
 
 eg: 在專案的目錄下，放置一個 **config.json** 的設定檔，Viper 設定好目錄與設定檔名(**不含副檔名**)，呼叫 `ReadInConfig`，來載入設定檔。
 
-```go
+```go { .line-numbers }
 viper.SetConfigName("config") // name of config file (without extension)
 viper.AddConfigPath(".")      // path to look for the config file in
 
@@ -36,7 +36,7 @@ Viper 也允許自己產生一個全新的 viper，方便管理不同的設定�
 
 eg:
 
-```go
+```go { .line-numbers }
 package config
 
 import "github.com/spf13/viper"
@@ -72,7 +72,7 @@ func LoadFile(config string) (*viper.Viper, error) {
 
 ### 取值
 
-```go
+```go { .line-numbers }
 Get(key string) : interface{}
 GetBool(key string) : bool
 GetFloat64(key string) : float64
@@ -157,7 +157,7 @@ Options:
 
 eg:
 
-```go
+```go { .line-numbers }
 package main
 
 import (
@@ -196,7 +196,7 @@ Additional help topics:
 
 接下來定義每個 sub command 需要的 flag, 參數與工作。
 
-```go
+```go { .line-numbers }
 package main
 
 import (
@@ -237,20 +237,20 @@ func main() {
 
 1. 定義兩個 flag，`name` 及 `proxy`
 
-    ```go
+    ```go { .line-numbers }
     createCmd.Flags().StringVarP(&name, "name", "n", "myname", "assign a name")
     createCmd.Flags().BoolVarP(&proxy, "proxy", "p", false, "use proxy to connect")
     ```
 
 1. 設定只能有一個參數。詳細設定，請見：[cobra#Positional and Custom Arguments](https://github.com/spf13/cobra#positional-and-custom-arguments)
 
-    ```go
+    ```go { .line-numbers }
     createCmd.Args = cobra.ExactArgs(1)
     ```
 
 1. 設定執行動作
 
-    ```go
+    ```go { .line-numbers }
     createCmd.Run = func(cmd *cobra.Command, args []string) {
         fmt.Println("creating")
         fmt.Println("name:", name)
@@ -321,7 +321,7 @@ func main() {
 
 eg:
 
-```go
+```go { .line-numbers }
 rootCmd.PersistentFlags().StringVarP(&test, "test", "t", "my test", "test string")
 viper.BindPFlag("test", rootCmd.PersistentFlags().Lookup("test"))
 
