@@ -444,6 +444,35 @@ w.Header().Set("Location", "/all")
 w.WriteHeader(302)
 ```
 
+### Cookie
+
+eg:
+
+```go
+func setCookie(w http.ResponseWriter, r *http.Request) {
+    c1 := http.Cookie{
+        Name:     "first_cookie",
+        Value:    "Go Web Programming",
+        HttpOnly: true,
+    }
+    c2 := http.Cookie{
+        Name:     "second_cookie",
+        Value:    "Manning Publications Co",
+        HttpOnly: true,
+    }
+    //w.Header().Set("Set-Cookie", c1.String())
+    //w.Header().Add("Set-Cookie", c2.String())
+
+    http.SetCookie(w, &c1)
+    http.SetCookie(w, &c2)
+}
+
+func getCookie(w http.ResponseWriter, r *http.Request) {
+    h := r.Header["Cookie"]
+    fmt.Fprintln(w, h)
+}
+```
+
 ### Templates
 
 Go template engine 很好用，會自動依版型的內容，來自動做 escape 動作。使用 template engine 需要再學習它的語法。
