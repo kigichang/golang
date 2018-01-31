@@ -433,6 +433,17 @@ func add(w http.ResponseWriter, r *http.Request) {
 
 from: [Go Web Programming](https://www.manning.com/books/go-web-programming)
 
+### Response Header
+
+預設 response 的 status code 是 **200(OK)**，如果要修改 header 值或 status code 時，要注意 `w.WriteHeader(code)` 要最後呼叫，因為呼叫完 `WriteHeader` 後，任何 header 的更動，都不會被接受。也就是改了也沒用。
+
+eg:
+
+```go {.line-numbers}
+w.Header().Set("Location", "/all")
+w.WriteHeader(302)
+```
+
 ### Templates
 
 Go template engine 很好用，會自動依版型的內容，來自動做 escape 動作。使用 template engine 需要再學習它的語法。
