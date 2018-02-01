@@ -124,6 +124,8 @@ alice := &Employee {
 }
 
 func EmployeeByID(id int) *Employee { /* ... */ }
+
+fmt.Println(alice.ID)
 ```
 
 ### Struct Compare
