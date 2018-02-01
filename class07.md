@@ -161,7 +161,7 @@ fmt.Println(sum(3))          //  "3"
 fmt.Println(sum(1, 2, 3, 4)) //  "10"
 ```
 
-如何將 array 傳入:
+如何將 slice 傳入:
 
 ```go { .line-numbers }
 values := []int{1, 2, 3, 4}
