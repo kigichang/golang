@@ -121,13 +121,28 @@ eg:
 s := [6]int{0, 1, 2, 3, 4, 5}
 
 s1 := s[2:]
-fmt.Println(len(s1), cap(s1))
+fmt.Println(len(s1), cap(s1))   // 4 4
 
 s1 = append(s1, 100)
 
-fmt.Println(s)      // [0 1 2 3 4 5]
-fmt.Println(s1)     // [2 3 4 5 100]
+fmt.Println(s)  // [0 1 2 3 4 5]
+fmt.Println(s1) // [2 3 4 5 100]
+
+s2 := s[1:3]
+fmt.Println(len(s2), cap(s2))   // 2 5
+
+s2 = append(s2, 30)
+
+fmt.Println(s)  // [0 1 2 30 4 5]
+fmt.Println(s2) // [1 2 30]
 ```
+
+**注意**: 上述範例中，`s1` 已經沒有空間做 `append`，因此產生了一組新的記憶體空間，也因為這樣，才沒有更動到 `s`。但 `s2` 還有空間做 `append`, 可以用原來的位址來操作，因此會修改到原來的 `s`。
+
+在實作上，儘可能利用 **slice** 而非 array。
+
+1. 可避免因 pass by value，而造成記憶體的泿費
+1. 避免上述 puzzle.
 
 #### append 的原理
 
