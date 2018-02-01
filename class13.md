@@ -264,8 +264,8 @@ if err != nil {
 
     Result 功能：
 
-    - LastInsertId(): 取得 **auto_increment** 的 id
-    - RowsAffected(): 取得異動的資料筆數，注意，[文件](https://golang.org/pkg/database/sql/#Result)上說並非所有的 driver 都會實作。
+    1. LastInsertId(): 取得 **auto_increment** 的 id
+    1. RowsAffected(): 取得異動的資料筆數，注意，[文件](https://golang.org/pkg/database/sql/#Result)上說並非所有的 driver 都會實作。
 
 **Update/Delete** 與 Insert 類似。
 
@@ -294,8 +294,8 @@ web
 
 目錄說明
 
-- public: 放置靜態資料，實際運作上，AP server 可以不用處理靜態資料。
-- templates: 放置版型
+1. public: 放置靜態資料，實際運作上，AP server 可以不用處理靜態資料。
+1. templates: 放置版型
 
 eg:
 
@@ -342,8 +342,8 @@ func main() {
     )
     ```
 
-    - `"html/template"`: Go 的 template engine。可以直接修改版型，不用重啟系統。
-    - `"net/http"`: Http 模組
+    1. `"html/template"`: Go 的 template engine。可以直接修改版型，不用重啟系統。
+    1. `"net/http"`: Http 模組
 
 1. 實作 routing 機制：
 
@@ -357,16 +357,16 @@ func main() {
     mux.HandleFunc("/", index)
     ```
 
-    - http.NewServMux(): 產生 `ServMux` 物件，用來處理 url routing 的工作。
-    - 處理靜態資料:
+    1. http.NewServMux(): 產生 `ServMux` 物件，用來處理 url routing 的工作。
+    1. 處理靜態資料:
 
         ```go { .line-numbers }
         files := http.FileServer(http.Dir("./public"))
         mux.Handle("/static/", http.StripPrefix("/static/", files))
         ```
 
-        - 指定檔案放的目錄：`http.FileServer(http.Dir("./public"))`
-        - 設定 靜態資料的 url，指到剛剛設定的 `FileServer`。
+        1. 指定檔案放的目錄：`http.FileServer(http.Dir("./public"))`
+        1. 設定 靜態資料的 url，指到剛剛設定的 `FileServer`。
 
 1. 其他 URL 的 routing: 利用 `HandleFunc` 來設定 URL 與處理 function 的關係。以下的 sample，`/add` 會執行 `add`, `/` 會執行 `index`
 
@@ -524,6 +524,7 @@ func test(w http.ResponseWriter, r *http.Request) {
         SimpleString string
         TestStruct   struct{ A, B string }
         TestArray    []string
+        TestMap      map[string]string
         Num1, Num2   int
         EmptyArray   []string
         ZeroInt      int
@@ -532,6 +533,7 @@ func test(w http.ResponseWriter, r *http.Request) {
         "中文測試",
         struct{ A, B string }{"foo", "boo"},
         []string{"Hello", "World", "Test"},
+        map[string]string{"A": "B", "abc": "DEF"},
         10,
         101,
         []string{},
@@ -553,8 +555,8 @@ func test(w http.ResponseWriter, r *http.Request) {
 範例的版型結構：
 
 1. `layout.html`: 版型的主框。內含 `nav` 與  `content` 這個子版型。
-    - `{{ template "navbar" . }}`
-    - `{{ template "content" . }}`
+    1. `{{ template "navbar" . }}`
+    1. `{{ template "content" . }}`
 
     在 `layout.html` 定義了這個版型的名稱 **layout**：`{{ define "layout" }}`，也就是程式碼 `tmpl.ExecuteTemplate(w, "layout", data)` 中的 `"layout"`。
 
@@ -647,6 +649,12 @@ func test(w http.ResponseWriter, r *http.Request) {
 
 </p>
 
+<p>Map<br />
+abc : {{ index .Data.TestMap "abc"}} <br />
+A : {{ index .Data.TestMap "A"}} <br />
+B : {{ index .Data.TestMap "B"}} <br />
+</p>
+
 <p>Compare<br />
 {{ with .Data }}
 {{ if eq .Num1 .Num2}} eq {{ else }} ne {{end}}<br/>
@@ -655,9 +663,27 @@ func test(w http.ResponseWriter, r *http.Request) {
 {{ end }}
 </p>
 
-<p>Range data<br />
+<p>Range Array 1<br />
     {{ range .Data.TestArray}}
     {{.}} <br />
+    {{else}}
+    no data
+    {{end}}
+    <br />
+</p>
+
+<p>Range Array 2<br />
+    {{ range $idx, $elm := .Data.TestArray }}
+    {{ $idx }} : {{ $elm }} <br />
+    {{else}}
+    no data
+    {{end}}
+    <br />
+</p>
+
+<p>Range Map<br />
+    {{ range $key, $elm := .Data.TestMap }}
+    {{ $key }} : {{ $elm }} <br />
     {{else}}
     no data
     {{end}}
@@ -688,6 +714,7 @@ func test(w http.ResponseWriter, r *http.Request) {
      nodata
      {{end}}
  </p>
+
 {{ end }}
 ```
 
@@ -835,13 +862,21 @@ Go template engine 會依照版型的內容，自動做 escape。
     語法：
 
     ```html
-    <p>Range data<br />
+    <p>Range Array 1<br />
         {{ range .Data.TestArray}}
         {{.}} <br />
         {{else}}
         no data
         {{end}}
-        <br />
+    </p>
+
+    <p>Range Array 2<br />
+        {{ range $idx, $elm := .Data.TestArray }}
+        {{ $idx }} : {{ $elm }} <br />
+        {{else}}
+        no data
+        {{end}}
+
     </p>
 
     <p>Range empty<br />
@@ -850,14 +885,13 @@ Go template engine 會依照版型的內容，自動做 escape。
         {{ else }}
         no data
         {{ end }}
-        <br />
     </p>
     ```
 
     結果：
 
     ```html
-    <p>Range data<br />
+    <p>Range Array 1<br />
 
         Hello <br />
 
@@ -865,14 +899,69 @@ Go template engine 會依照版型的內容，自動做 escape。
 
         Test <br />
 
-        <br />
+    </p>
+
+    <p>Range Array 2<br />
+
+        0 : Hello <br />
+
+        1 : World <br />
+
+        2 : Test <br />
+
     </p>
 
     <p>Range empty<br />
 
         no data
 
-        <br />
+    </p>
+    ```
+1. 讀取 map
+
+    語法：
+
+    ```html
+    <p>Map<br />
+    abc : {{ index .Data.TestMap "abc"}} <br />
+    A : {{ index .Data.TestMap "A"}} <br />
+    B : {{ index .Data.TestMap "B"}} <br />
+    </p>
+    ```
+
+    結果：
+
+    ```html
+    <p>Map<br />
+    abc : DEF <br />
+    A : B <br />
+    B :  <br />
+    </p>
+    ```
+
+1. Map travel
+
+    語法：
+
+    ```html
+    <p>Range Map<br />
+        {{ range $key, $elm := .Data.TestMap }}
+        {{ $key }} : {{ $elm }} <br />
+        {{else}}
+        no data
+        {{end}}
+    </p>
+    ```
+
+    結果：
+
+    ```html
+    <p>Range Map<br />
+
+        A : B <br />
+
+        abc : DEF <br />
+
     </p>
     ```
 
