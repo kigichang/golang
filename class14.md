@@ -82,29 +82,29 @@ message Verification {
 
 對應表：
 
-| .proto Type | Notes | C++ Type | Java Type | Python Type [^python] | Go Type | Ruby Type | C# Type | PHP Type
-| - | - | - | - | - | - | - | - | -
-| double | | double | double | float | float64 | Float | double | float
-| float | | float | float | float | float32 | Float | float | float
-| int32 | Uses variable-length encoding. Inefficient for encoding negative numbers – if your field is likely to have negative values, use sint32 instead. | int32 | int | int | int32 | Fixnum or Bignum (as required) | int | integer
-| int64 | Uses variable-length encoding. Inefficient for encoding negative numbers – if your field is likely to have negative values, use sint64 instead. | int64 | long | int/long[^long] | int64 | Bignum | long | integer/string[^intstring]
-| uint32 | Uses variable-length encoding. | uint32 | int[^java] | int/long[^long] | uint32 | Fixnum or Bignum (as required) | uint | integer
-| uint64 | Uses variable-length encoding. | uint64 | long[^java] | int/long[^long] | uint64 | Bignum | ulong | integer/string[^5]
-| sint32 | Uses variable-length encoding. Signed int value. These more efficiently encode negative numbers than regular int32s. | int32 | int | int | int32 | Fixnum or Bignum (as required) | int | integer
-| sint64 | Uses variable-length encoding. Signed int value. These more efficiently encode negative numbers than regular int64s. | int64 | long | int/long[^long] | int64 | Bignum | long | integer/string[^intstring]
-| fixed32 | Always four bytes. More efficient than uint32 if values are often greater than 228. | uint32 | int[^java] | int | uint32 | Fixnum or Bignum (as required) | uint | integer
-| fixed64 | Always eight bytes. More efficient than uint64 if values are often greater than 256. | uint64 | long[^java] | int/long[^long] | uint64 | Bignum | ulong | integer/string[^intstring]
-| sfixed32 | Always four bytes. | int32 | int | int | int32 | Fixnum or Bignum (as required) | int | integer
-| sfixed64| Always eight bytes. | int64 | long | int/long[^long] | int64 | Bignum | long | integer/string[^intstring]
-| bool |  | bool | boolean | bool | bool | TrueClass/FalseClass | bool | boolean
-| string | A string must always contain UTF-8 encoded or 7-bit ASCII text. | string | String | str/unicode[^pythonstring] | string | String (UTF-8) | string | string
-| bytes | May contain any arbitrary sequence of bytes. | string | ByteString | str | []byte | String (ASCII-8BIT) | ByteString | string
+.proto Type | Notes | C++ Type | Java Type | Python Type[^[2]^](#type_2) | Go Type | Ruby Type | C# Type | PHP Type
+| - | - | - | - | - | - | - | - | - |
+double | | double | double | float | float64 | Float | double | float
+float |  | float | float | float | float32 | Float | float | float
+int32 | Uses variable-length encoding. Inefficient for encoding negative numbers – if your field is likely to have negative values, use sint32 instead. | int32 | int | int | int32 | Fixnum or Bignum (as required) | int | integer
+int64 | Uses variable-length encoding. Inefficient for encoding negative numbers – if your field is likely to have negative values, use sint64 instead. | int64 | long | int/long[^[3]^](#type_3) | int64 | Bignum | long | integer/string[^[5]^](#type_5)
+uint32 | Uses variable-length encoding. | uint32 | int[^[1]^](#type_1) | int/long[^[3]^](#type_3) | uint32 | Fixnum or Bignum (as required) | uint | integer
+uint64 | Uses variable-length encoding. | uint64 | long[^[1]^](#type_1) | int/long[^[3]^](#type_3) | uint64 | Bignum | ulong | integer/string[^[5]^](#type_5)
+sint32 | Uses variable-length encoding. Signed int value. These more efficiently encode negative numbers than regular int32s. | int32 | int | int | int32 | Fixnum or Bignum (as required) | int | integer
+sint64 | Uses variable-length encoding. Signed int value. These more efficiently encode negative numbers than regular int64s. | int64 | long | int/long[^[3]^](#type_3) | int64 | Bignum | long | integer/string[5]
+fixed32 | Always four bytes. More efficient than uint32 if values are often greater than 228. | uint32 | int[^[1]^](#type_1) | int | uint32 | Fixnum or Bignum (as required) | uint | integer
+fixed64 | Always eight bytes. More efficient than uint64 if values are often greater than 256. | uint64 | long[^[1]^](#type_1) | int/long[^[3]^](#type_3) | uint64 | Bignum | ulong | integer/string[^[5]^](#type_5)
+sfixed32 | Always four bytes. | int32 | int | int | int32 | Fixnum or Bignum (as required) | int | integer
+sfixed64 | Always eight bytes. | int64 | long | int/long[^[3]^](#type_3) | int64 | Bignum | long | integer/string[^[5]^](#type_5)
+bool |  | bool | boolean | bool | bool | TrueClass/FalseClass | bool | boolean
+string | A string must always contain UTF-8 encoded or 7-bit ASCII text. | string | String | str/unicode[^[4]^](#type_4) | string | String (UTF-8) | string | string
+bytes | May contain any arbitrary sequence of bytes. | string | ByteString | str | []byte | String (ASCII-8BIT) | ByteString | string
 
-[^java]: In Java, unsigned 32-bit and 64-bit integers are represented using their signed counterparts, with the top bit simply being stored in the sign bit.
-[^python]: In all cases, setting values to a field will perform type checking to make sure it is valid.
-[^long]: 64-bit or unsigned 32-bit integers are always represented as long when decoded, but can be an int if an int is given when setting the field. In all cases, the value must fit in the type represented when set. See [1].
-[^pythonstring]: Python strings are represented as unicode on decode but can be str if an ASCII string is given (this is subject to change).
-[^intstring]: Integer is used on 64-bit machines and string is used on 32-bit machines.
+<a name="type_1"></a>[1] In Java, unsigned 32-bit and 64-bit integers are represented using their signed counterparts, with the top bit simply being stored in the sign bit.
+<a name="type_2"></a>[2] In all cases, setting values to a field will perform type checking to make sure it is valid.
+<a name="type_3"></a>[3] 64-bit or unsigned 32-bit integers are always represented as long when decoded, but can be an int if an int is given when setting the field. In all cases, the value must fit in the type represented when set. See [[2]](#type_2).
+<a name="type_4"></a>[4] Python strings are represented as unicode on decode but can be str if an ASCII string is given (this is subject to change).
+<a name="type_5"></a>[5] Integer is used on 64-bit machines and string is used on 32-bit machines.
 
 #### message Verification
 
