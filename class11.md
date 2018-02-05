@@ -82,7 +82,7 @@ done
 
 Go 原本是沒有 dependency management 工具，因此社群很多第三方的工具，後來官方才出自己的版本。[go dep](https://github.com/golang/dep)
 
-原本 go 要用第三方套件時，都會使用 `go get -u 套件_URL[@版本]` 的方式，將 source code 下載到 $GOPATH/src 下。如果不同專案，使用到相同的套件，但不同版本時，就會很麻煩。
+原本 go 要用第三方套件時，都會使用 `go get -u 套件_URL` 的方式，將 source code 下載到 $GOPATH/src 下。如果不同專案，使用到相同的套件，但不同版本時，就會很麻煩。
 
 大多數的管理工具，包含官方工具，會在專案的目錄下，產生 `vendor` 的目錄，將第三方套件的 source code 下載到這個目錄下，專案有使用到時，則來這個目錄找。
 
