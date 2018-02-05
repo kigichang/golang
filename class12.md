@@ -16,17 +16,40 @@
 
 eg: 在專案的目錄下，放置一個 **config.json** 的設定檔，Viper 設定好目錄與設定檔名(**不含副檔名**)，呼叫 `ReadInConfig`，來載入設定檔。
 
+eg:
+
 ```go { .line-numbers }
-viper.SetConfigName("config") // name of config file (without extension)
-viper.AddConfigPath(".")      // path to look for the config file in
+package main
 
-err := viper.ReadInConfig()
+import (
+    "fmt"
+    "os"
 
-if err != nil {
-    fmt.Println("Config not found...")
-} else {
-    name := viper.GetString("name")
-    fmt.Println("Config found, name = ", name)
+    //"github.com/spf13/cobra"
+    "github.com/spf13/viper"
+)
+
+func main() {
+
+    viper.AddConfigPath(".")
+    viper.SetConfigName("config")
+
+    if err := viper.ReadInConfig(); err != nil {
+        fmt.Println(err)
+        os.Exit(1)
+    }
+    fmt.Println("abc: ", viper.GetString("abc"))
+    fmt.Println("aaa: ", viper.GetBool("aaa"))
+    fmt.Println("def: ", viper.GetString("cccccc"))
+}
+```
+
+設定檔 **config.json**:
+
+```json {.line-numbers}
+{
+    "abc": "def",
+    "aaa": true
 }
 ```
 
