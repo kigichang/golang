@@ -502,7 +502,7 @@ func main() {
         log.Fatalf("failed to serve: %v", err)
     }
     ```
-    
+
 ### gRPC client
 
 ```go { .line-numbers }
