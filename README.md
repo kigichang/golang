@@ -13,7 +13,7 @@
 1. [Go Class 01 開發環境與語言簡介](class01.md)
 1. [Go Class 02 Hello World](class02.md)
 1. [Go Class 03 程式結構與語法](class03.md)
-1. [Go Class 04 Data Type - Basic Types](class04.md)
+1. [Go Class 04 Data Types - Basic Types](class04.md)
 1. [Go Class 05 Data Types - Aggregate Types](class05.md)
 1. [Go Class 06 Data Types - Reference Types](class06.md)
 1. [Go Class 07 Functions and Methods](class07.md)

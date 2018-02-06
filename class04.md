@@ -1,4 +1,4 @@
-# Go Class 04 Data Type - Basic Types
+# Go Class 04 Data Types - Basic Types
 
 Go 的 Data Type 分成四個類別：
 
