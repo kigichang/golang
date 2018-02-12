@@ -22,8 +22,6 @@ ProtoBuf 本身支援多種常用的程式語言，也因此可以利用 ProtoBu
     1. `dep init`
     1. `dep ensure -add google.golang.org/grpc`
 
-
-
 ### .proto
 
 使用 protobuf 前，我們需要先定義資料格式，寫起來有點像在寫 struct。首先在專案目錄下，開一個目錄，如: `protos`，在 `protos` 下還可以依功能再細分。
@@ -459,7 +457,6 @@ import (
     "net"
 
     "google.golang.org/grpc"
-    "google.golang.org/grpc/reflection"
 )
 
 type helloService struct{}
@@ -482,8 +479,6 @@ func main() {
 
     service.RegisterHelloServiceServer(s, &helloService{})
 
-    reflection.Register(s)
-
     log.Println("serving...")
     if err := s.Serve(lis); err != nil {
         log.Fatalf("failed to serve: %v", err)
@@ -501,9 +496,8 @@ func main() {
 
     ```go { .line-numbers }
     service.RegisterHelloServiceServer(s, &helloService{})
-
-    reflection.Register(s)
     ```
+
 1. Serv:
 
     ```go { .line-numbers }
