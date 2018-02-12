@@ -17,6 +17,13 @@ ProtoBuf 本身支援多種常用的程式語言，也因此可以利用 ProtoBu
 1. 到 [protoc release](https://github.com/google/protobuf/releases) 下載對應平台的執行檔。
 1. 執行 `go get -u github.com/golang/protobuf/protoc-gen-go` 下載 protoc 的 go plugin。
 
+1. 使用 `dep` 加入 grpc
+
+    1. `dep init`
+    1. `dep ensure -add google.golang.org/grpc`
+
+
+
 ### .proto
 
 使用 protobuf 前，我們需要先定義資料格式，寫起來有點像在寫 struct。首先在專案目錄下，開一個目錄，如: `protos`，在 `protos` 下還可以依功能再細分。
@@ -47,7 +54,7 @@ syntax = "proto3";
 
 package protos;
 
-import "google/protobuf/timestamp.proto";
+import "github.com/golang/protobuf/ptypes/timestamp/timestamp.proto";
 
 message Hello {
   string name = 1;
@@ -59,8 +66,10 @@ message Hello {
 
 1. syntax: `syntax = "proto3";` 指定 protobuf 的版本，目前有 proto2 與 proto3。建議用 proto3.
 1. package: 定義程式的 package, eg: `package protos;`
-1. import: 如果有用到其他的 protobuf 資料型別，一樣需要 import, eg: `import "google/protobuf/timestamp.proto";`
+1. import: 如果有用到其他的 protobuf 資料型別，一樣需要 import, eg: `import "github.com/golang/protobuf/ptypes/timestamp/timestamp.proto";`
 1. message: 定義資料結構 `message 資料名稱`
+
+p.s. `github.com/golang/protobuf/ptypes/timestamp/timestamp.proto` 是在 `class14/vendor` 下。
 
 ### 資料型別
 
