@@ -2,6 +2,16 @@
 
 Go 有自帶一個 Unit Test 的工具包。程式寫作時，可以自動做 unit test。使用上的慣例：在當下的目錄下，為每一個程式檔案，再新增一個 xxx_test.go 的檔案，裏面撰寫 unit test 程式。
 
+VSCode Go Plugins 設定：
+
+```json
+{
+    "terminal.integrated.shell.osx": "/bin/zsh",
+    "go.coverOnSave": true,
+    "go.coverageDecorator": "gutter"
+}
+```
+
 eg: 專案目錄是 `class10`
 
 ```text
