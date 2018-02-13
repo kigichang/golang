@@ -14,7 +14,7 @@ ProtoBuf 本身支援多種常用的程式語言，也因此可以利用 ProtoBu
 
 **protoc** 是 Protobuf 的工具，主要是將 protobuf 的定義檔 (.proto) 轉成對應的程式語言。
 
-1. 到 [protoc release](https://github.com/google/protobuf/releases) 下載對應平台的執行檔。
+1. 到 [protoc release](https://github.com/google/protobuf/releases) 下載對應作業系統 (Linux, OSX, Win32) 的執行檔。
 1. 執行 `go get -u github.com/golang/protobuf/protoc-gen-go` 下載 protoc 的 go plugin。
 
 1. 使用 `dep` 加入 grpc
