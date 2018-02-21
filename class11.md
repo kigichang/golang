@@ -93,7 +93,7 @@ Go 原本是沒有 dependency management 工具，因此社群很多第三方的
 1. 需要用到某個套件前(還沒開始寫 import), 執行 `dep ensure -add 套件_URI[@版本]`[^dep_version]。會發現在 `Gopkg.toml` 加入設定，以及下載套件到 `vendor` 目錄下。
 1. 繼續寫程式
 
-[^dep_version]: 如果沒有要指定版本，則會抓 master，如要指定版本，請在 URL 後, 加版本號碼, eg: `@v1.0.0`)
+[^dep_version]: 如要指定版本，請在 URL 後, 加版本號碼, eg: `@v1.0.0`
 
 常用指令：
 
