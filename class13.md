@@ -4,6 +4,25 @@
 
 與 Java JDBC 類似，Go 有定義一套 interface，所有要連 DB 的 driver，都需要實作這些 interface (["database/sql/driver"](https://golang.org/pkg/database/sql/driver/))。以下我是用 [go-sql-driver/mysql](https://github.com/go-sql-driver/mysql)
 
+**Schedule schema** (MySQL):
+
+```sql
+CREATE TABLE `schedule` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `url` text NOT NULL,
+  `referer` text NOT NULL,
+  `count` int(10) unsigned NOT NULL,
+  `start` datetime NOT NULL,
+  `current` int(10) unsigned NOT NULL DEFAULT '0',
+  `success` int(10) unsigned NOT NULL DEFAULT '0',
+  `failed` int(10) unsigned NOT NULL DEFAULT '0',
+  `status` smallint(6) NOT NULL DEFAULT '0',
+  `created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+```
+
 **Select** sample code:
 
 ```go { .line-numbers }
@@ -279,17 +298,14 @@ Go 有內建撰寫 Web Server 的套件，可以自己實作一套 AP server。�
 
 ```text
 web
-├── db.go
-├── index.go
 ├── main.go
 ├── public
 │   └── db.png
 └── templates
-    ├── add.html
-    ├── added.html
     ├── index.html
     ├── layout.html
-    └── nav.html
+    ├── nav.html
+    └── test.html
 ```
 
 目錄說明
@@ -309,14 +325,78 @@ import (
     "net/http"
 )
 
+func generateHTML(w http.ResponseWriter, data interface{}, files ...string) {
+    var tmp []string
+    for _, f := range files {
+        tmp = append(tmp, fmt.Sprintf("templates/%s.html", f))
+    }
+
+    tmpl := template.Must(template.ParseFiles(tmp...))
+    tmpl.ExecuteTemplate(w, "layout", data)
+}
+
+// MyData ...
+type MyData struct {
+    Title string
+    Nav   string
+    Data  interface{}
+}
+
+func test(w http.ResponseWriter, r *http.Request) {
+    data := &MyData{
+        Title: "測試",
+        Nav:   "test",
+    }
+
+    data.Data = struct {
+        TestString   string
+        SimpleString string
+        TestStruct   struct{ A, B string }
+        TestArray    []string
+        TestMap      map[string]string
+        Num1, Num2   int
+        EmptyArray   []string
+        ZeroInt      int
+    }{
+        `O'Reilly: How are <i>you</i>?`,
+        "中文測試",
+        struct{ A, B string }{"foo", "boo"},
+        []string{"Hello", "World", "Test"},
+        map[string]string{"A": "B", "abc": "DEF"},
+        10,
+        101,
+        []string{},
+        0,
+    }
+
+    //data.Data.TestMap["abc"] = "abc"
+
+    generateHTML(w, data, "layout", "nav", "test")
+}
+
+func index(w http.ResponseWriter, r *http.Request) {
+    var tmp = "Hello World!!!"
+
+    if r.FormValue("name") != "" {
+        tmp = "Hi, " + r.FormValue("name")
+    }
+
+    data := &MyData{
+        Title: "首頁",
+        Nav:   "home",
+        Data:  tmp,
+    }
+
+    generateHTML(w, data, "layout", "nav", "index")
+}
+
 func main() {
     mux := http.NewServeMux()
     files := http.FileServer(http.Dir("./public"))
 
     mux.Handle("/static/", http.StripPrefix("/static/", files))
-
-    mux.HandleFunc("/add", add)
     mux.HandleFunc("/", index)
+    mux.HandleFunc("/test", test)
 
     server := &http.Server{
         Addr:    "0.0.0.0:8080",
@@ -327,6 +407,8 @@ func main() {
     if err != nil {
         log.Fatalln(err)
     }
+
+    log.Println("start...")
 }
 ```
 
@@ -353,8 +435,8 @@ func main() {
 
     mux.Handle("/static/", http.StripPrefix("/static/", files))
 
-    mux.HandleFunc("/add", add)
     mux.HandleFunc("/", index)
+    mux.HandleFunc("/test", test)
     ```
 
     1. http.NewServMux(): 產生 `ServMux` 物件，用來處理 url routing 的工作。
@@ -371,8 +453,8 @@ func main() {
 1. 其他 URL 的 routing: 利用 `HandleFunc` 來設定 URL 與處理 function 的關係。以下的 sample，`/add` 會執行 `add`, `/` 會執行 `index`
 
     ```go { .line-numbers }
-    mux.HandleFunc("/add", add)
     mux.HandleFunc("/", index)
+    mux.HandleFunc("/test", test)
     ```
 
 1. 綁定 port 並啟動 web server
@@ -402,21 +484,20 @@ func name(w http.ResponseWriter, r *http.Request) {
 eg:
 
 ```go { .line-numbers }
-func add(w http.ResponseWriter, r *http.Request) {
+func index(w http.ResponseWriter, r *http.Request) {
+    var tmp = "Hello World!!!"
 
-    // ...
-    if r.Method == "GET" {
-        generateHTML(w, data, "layout", "nav", "add")
-    } else if r.Method == "POST" {
-        // ...
-        url := r.PostFormValue("myurl")
-        if !strings.HasPrefix(url, "http") {
-            url = "http://" + url
-        }
-
-        generateHTML(w, data, "layout", "nav", "added")
-
+    if r.FormValue("name") != "" {
+        tmp = "Hi, " + r.FormValue("name")
     }
+
+    data := &MyData{
+        Title: "首頁",
+        Nav:   "home",
+        Data:  tmp,
+    }
+
+    generateHTML(w, data, "layout", "nav", "index")
 }
 ```
 
