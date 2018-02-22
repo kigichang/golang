@@ -51,7 +51,7 @@ s = nil
 fmt.Println(s, s == nil, len(s), cap(s))    // [] true 0 0
 
 s = []int(nil)
-fmt.Println(s, s == nil, len(s), cap(s))    // [] true 0 0 
+fmt.Println(s, s == nil, len(s), cap(s))    // [] true 0 0
 
 s = []int{}
 fmt.Println(s, s == nil, len(s), cap(s))    // [] false 0 0

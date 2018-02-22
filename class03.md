@@ -42,21 +42,21 @@ panic  recover
 var name type = expression
 ```
 
-sample 1:
+**sample 1:**
 
 ```go { .line-numbers }
 var s string
 fmt.Println(s) // ""
 ```
 
-sample 2:
+**sample 2:**
 
 ```go { .line-numbers }
 var i, j, k int                 // int, int, int
 var b, f, s = true, 2.3, "four" // bool, float64, string
 ```
 
-sample 3:
+**sample 3:**
 
 ```go { .line-numbers }
 var f, err = os.Open(name) // os.Open returns a file and an error
@@ -68,7 +68,7 @@ var f, err = os.Open(name) // os.Open returns a file and an error
 name := expression
 ```
 
-sample 1:
+**sample 1:**
 
 ```go { .line-numbers }
 anim := gif.GIF{LoopCount: nframes}
@@ -76,18 +76,18 @@ freq := rand.Float64() * 3.0
 t := 0.0
 ```
 
-sample 2:
+**sample 2:**
 
 ```go { .line-numbers }
 i, j := 0, 1
 ```
 
-sample 3:
+**sample 3:**
 
 ```go { .line-numbers }
 f, err := os.Open(name)
 if err != nil {
-    return err 
+    return err
 }
 
 // ...use f...
@@ -107,7 +107,7 @@ s := ""     // string
 
 使用 `:=` 時，左邊的變數，至少要有一個是新的變數名稱。
 
-sample 1:
+**sample 1:**
 
 ```go { .line-numbers }
 in, err := os.Open(infile)
@@ -117,7 +117,7 @@ out, err := os.Create(outfile)
 
 以上，雖然 `err` 重覆，但 `out` 是新的變數名稱，所以 compile 會過。
 
-sample 2:
+**sample 2:**
 
 ```go { .line-numbers }
 f, err := os.Open(infile)
@@ -126,7 +126,6 @@ f, err := os.Create(outfile) // compile error: no new variables
 ```
 
 以上，`f` 與 `err` 都是舊的變數，所以在第二次，還是使用 `:=` 時，compile 會錯。
-
 通常 compile 會報錯，都不是什麼大問題，修正就好了。
 
 ## 指標 (Pointer)
@@ -135,7 +134,7 @@ f, err := os.Create(outfile) // compile error: no new variables
 
 eg:
 
-sample 1:
+**sample 1:**
 
 ```go { .line-numbers }
 x := 1
@@ -162,7 +161,7 @@ x, y = y, x
 a[i], a[j] = a[j], a[i]
 ```
 
-GCD sample:
+**GCD sample:**
 
 ```go { .line-numbers }
 func gcd(x, y int) int {
@@ -189,7 +188,7 @@ Go 可以使用 `type`，利用原有的資料型別，宣告一個新的資料�
 
 eg:
 
-sample 1:
+**sample 1:**
 
 ```go { .line-numbers }
 package tempconv
@@ -209,7 +208,7 @@ func CToF(c Celsius) Fahrenheit { return Fahrenheit(c*9/5 + 32) }
 func FToC(f Fahrenheit) Celsius { return Celsius((f - 32) * 5 / 9) }
 ```
 
-sample 2:
+**sample 2:**
 
 ```go { .line-numbers }
 fmt.Printf("%g\n", BoilingC-FreezingC) // "100" °C
@@ -218,7 +217,7 @@ fmt.Printf("%g\n", boilingF-CToF(FreezingC)) // "180" °F
 fmt.Printf("%g\n", boilingF-FreezingC)       // compile error: type mismatch
 ```
 
-sample 3:
+**sample 3:**
 
 ```go { .line-numbers }
 var c Celsius
@@ -268,9 +267,9 @@ eg:
     └── utils.go
 ```
 
-程式碼：
+#### 程式碼：
 
-utils.go
+**utils.go:**
 
 ```go { .line-numbers }
 package test
@@ -288,7 +287,7 @@ func Println(s string) {
 
 ```
 
-main.go
+**main.go:**
 
 ```go { .line-numbers }
 package main

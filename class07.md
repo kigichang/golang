@@ -10,9 +10,7 @@ func name(parameter-list) (result-list) {
 }
 ```
 
-eg:
-
-sample 1:
+**sample 1:**
 
 ```go { .line-numbers }
 func hypot(x, y float64) float64 {
@@ -22,14 +20,14 @@ func hypot(x, y float64) float64 {
 fmt.Println(hypot(3, 4)) // "5"
 ```
 
-sample 2:
+**sample 2:**
 
 ```go { .line-numbers }
 func f(i, j, k int, s, t string)                { /* ... */ }
 func f(i int, j int, k int, s string, t string) { /* ... */ }
 ```
 
-sample 3:
+**sample 3:**
 
 ```go { .line-numbers }
 func add(x int, y int) int { return x+y }
@@ -48,7 +46,7 @@ Go 在傳遞參數時，是以 **by value** 的方式進行，也就是說在傳
 
 - Reference Types (Pointer, Slice, Map, Function, Channel)，一樣在傳入 function 時，會複製新的值給 function，只是這新的值，只是 copy 原本的參照值(reference, 可以當作記憶體位址)，因此 function 做任何修改時，也都是透過原來的參照值在做資料異動，會修改到原本的資料，要特別小心。
 
-struct sample:
+**struct sample:**
 
 ```go { .line-numbers }
 type Test struct {
@@ -79,7 +77,7 @@ testByPtr(&t)       // 改用 pointer
 fmt.Println(t)      // {1 Test by test}
 ```
 
-array sample:
+**array sample:**
 
 ```go { .line-numbers }
 func arrTest(a [3]int) {
@@ -289,7 +287,7 @@ if err := WaitForServer(url); err != nil {
 
 #### Panic
 
-與 Java Exception 類似，但是 `panic` 會導致程式中斷。在 Go 的設計中，除非是很嚴重的錯誤，才會使用 **panic**，如像 I/O, 設定檔錯誤，可以預期到，可以在撰寫程式時，可以檢查的，則儘量用 **error** 來處理。
+與 Java Exception 類似，但是 `panic` 會導致程式中斷。在 Go 的設計中，除非是很嚴重的錯誤，才會使用 **panic**，如像 I/O, 設定檔錯誤等。如是預期到，可以在撰寫程式時，可以檢查的，則儘量用 **error** 來處理。
 
 ##### Panic 現像：
 

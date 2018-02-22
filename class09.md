@@ -97,7 +97,7 @@ func main() {
 
 1. `waitGroup := sync.WaitGroup{}`: 產生一個 wait group
 1. `waitGroup.Add(10)`: 告知 wait group 要等幾個 goroutine。
-1. 產生 10 個 goroutine，並 `defer waitGroup.Done()`，確保 function 結束後，會告知 wait group 有 goroutine 結束了。 
+1. 產生 10 個 goroutine，並 `defer waitGroup.Done()`，確保 function 結束後，會告知 wait group 有 goroutine 結束了。
 
     ```go { .line-numbers }
     for i := 0; i < 10; i++ {

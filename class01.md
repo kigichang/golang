@@ -10,7 +10,7 @@
 
 Books:
 
-1. [The Go Programming Language](https://www.amazon.com/Programming-Language-Addison-Wesley-Professional-Computing-ebook/dp/B0184N7WWS) [<sub>中文版<sub>](https://www.gitbook.com/book/wizardforcel/gopl-zh/details)
+1. [The Go Programming Language](https://www.amazon.com/Programming-Language-Addison-Wesley-Professional-Computing-ebook/dp/B0184N7WWS) [~中文版~](https://www.gitbook.com/book/wizardforcel/gopl-zh/details)
 1. [Go Web Programming](https://www.manning.com/books/go-web-programming)
 1. [Go System Programming](https://www.packtpub.com/networking-and-servers/go-systems-programming)
 
@@ -18,7 +18,7 @@ Books:
 
 ## 環境設定
 
-1. 下載 golang。[<sub>下載連結</sub>](https://golang.org/dl/)
+1. 下載 golang。[~下載連結~](https://golang.org/dl/)
 1. 設定環境變數 **\$GOPATH**: `$GOPATH` 是專門放 Go 開發專案的目錄，所有 Go 相關的工具，也會一併裝在這個目錄。
 
 ## IDE 建議
@@ -48,7 +48,7 @@ Books:
 
 ### Soruce code 放法
 
-1. 在 src 下，每個專案自己開一個目錄。自己有各自的 git。
+1. 在 src 下，每個專案自己開一個目錄。自己有各自的 git repo。
 1. 專案的主目錄下，每個 package 開一個目錄。
 1. 一個目錄只能有一個 package。
 

@@ -248,7 +248,7 @@ if err != nil {
 fmt.Println("movie1", movie1)
 ```
 
-1. 在宣告 struct 時，加入 json 的 annotation. 如: `json:"color,omitempty`, `color` 是指 json 的欄位名稱，`omitempty` 是指如果該欄位值是 **zero value**，則不輸出 json。
+1. 在宣告 struct 時，加入 json 的 annotation. 如: `json:"color,omitempty"`, `color` 是指 json 的欄位名稱，`omitempty` 是指如果該欄位值是 **zero value**，則不輸出 json。
 1. 如果沒有寫 json 的 annotation, 則直接用變數名稱。建議還是都加 annotation 重新定義。
 1. 使用 json.Umarshal 來取得資料。
 1. 使用 json.Marshal 來輸出 json 資料。
