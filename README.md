@@ -24,3 +24,6 @@
 1. [Go Class 12 spf13 Cobra and Viper](class12.md)
 1. [Go Class 13 MySQL and Web](class13.md)
 1. [Go Class 14 Protobuf and gRPC](class14.md)
+1. [Go Class 15 Reflection and Struct Tag](class15.md)
+1. [Go Class 16 Fake Inherit in Golang](class16.md)
+1. [Go Class 17 Cowork with C/C++](class17.md)
