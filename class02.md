@@ -1,48 +1,324 @@
-# Go Class 02 Hello World
+# 02 程式結構與語法
 
-## Hello World
+## 關鍵字
 
-1. 在 src 下開一個目錄
-1. 產生一個檔案 `main.go` 內容如下：
+```go
+break    default     func   interface select
+case     defer       go     map       struct
+chan     else        goto   package   switch
+const    fallthrough if     range     type
+continue for         import return    var
+```
 
-    ```go { .line-numbers }
-    package main
+## 內建常數
+
+```go
+true  false  iota  nil
+```
+
+## 資料型別
+
+```go
+int  int8  int16  int32  int64 uint  uint8  uint16  uint32  uint64 uintptr
+float32  float64  complex64  complex128
+bool  byte  rune  string  error
+```
+
+## 內建 Function
+
+```go
+make  len  cap  new  append  copy
+delete
+close
+complex  real  imag
+panic  recover
+```
+
+## 宣告 Declaraion
+
+### 完整寫法
+
+```go
+var name type = expression
+```
+
+1. 宣告變數，不給初始值
+
+    ```go
+    var s string
+    fmt.Println(s) // ""
+    ```
+
+1. 一次宣告多個變數，並給初始值(可省略型別)
+
+    ```go
+    var i, j, k int                 // int, int, int
+    var b, f, s = true, 2.3, "four" // bool, float64, string
+    ```
+
+1. 接收 return 值
+
+    ```go
+    var f, err = os.Open(name) // os.Open returns a file and an error
+    ```
+
+### 簡寫
+
+宣告時，省略 `var`。
+
+```go
+name := expression
+```
+
+1. 省略型別宣告
+
+    ```go
+    i, j := 0, 1
+    ```
+
+1. 接收 return 值
+
+    ```go
+    anim := gif.GIF{LoopCount: nframes}
+    freq := rand.Float64() * 3.0
+    t := 0.0
+
+    f, err := os.Open(name)
+    if err != nil {
+        return err
+    }
+
+    // ...use f...
+
+    f.Close()
+    ```
+
+#### Default Type
+
+當省略型別時，
+
+- 整數型別預設是 int
+- 浮點數預設是 float64
+
+```go
+i := 0      // int
+f := 0.0    // float64
+s := ""     // string
+```
+
+##### 注意事項
+
+使用 `:=` 時，左邊的變數名稱，至少要有一個是新的。
+
+1. 至少要有一個是新的變數名稱
+
+    ```go
+    in, err := os.Open(infile)
+    // ...
+    out, err := os.Create(outfile)
+    ```
+
+    以上，雖然 `err` 重覆，但 `out` 是新的變數名稱，compile 會過。
+
+1. 都是舊的
+
+    ```go
+    f, err := os.Open(infile)
+    // ...
+    f, err := os.Create(outfile) // compile error: no new variables
+    ```
+
+    以上，`f` 與 `err` 都是舊的變數，所以在第二次，還是使用 `:=` 時，compile 會錯。通常 compile 會報錯，都不是什麼大問題，修正就好了。
+
+## 指標 (Pointer)
+
+使用方法及觀念與 C 相同，`&` 取變數的指標，`*` 取指標內的值；需注意的是，C 可以對指標做位移，但 Go 不行。[^unsafe]
+
+[^unsafe]: Golang 有 `unsafe` 套件，專門用在與 C 串接。需轉成 unsafe 的 pointer 才能做指標位移。
+
+1. 用法
+
+    ```go
+    x := 1
+    p := &x         // p, of type *int, points to x
+    fmt.Println(*p) // "1"
+    *p = 2          // equivalent to x = 2
+    fmt.Println(x)  // "2"
+    ```
+
+1. 不可做指標位移:
+
+    ```go
+    a := 10
+    b := &a
+    b++     // invalid operation: b++ (non-numeric type *int)
+    ```
+
+## Tuple
+
+數組
+
+1. Tuple Assignment (1)
+
+    ```go
+    x, y = y, x
+    a[i], a[j] = a[j], a[i]
+    ```
+
+1. Tuple Assignment (2): GCD sample
+
+    ```go
+    func gcd(x, y int) int {
+
+        for y != 0 {
+            x, y = y, x%y
+        }
+
+        return x
+    }
+    ```
+
+1. Return Tuple
+
+    ```go
+    func swap(x, y int) (int, int) {
+        return y, x
+    }
+    ```
+
+## Type Declaration
+
+Go 可以使用 `type`，利用原有的資料型別，宣告一個新的資料型別，最常用在 `struct` 宣告，使用 `type` 重新宣告資料型別，可以增加程式碼的可讀性。
+
+eg:
+
+1. 華氏、攝氏型別宣告與轉換
+
+    ```go
+    package tempconv
 
     import "fmt"
 
-    func main() {
-        fmt.Println("Hello, 世界")
-    }
+    type Celsius float64
+    type Fahrenheit float64
+    const (
+        AbsoluteZeroC Celsius = -273.15
+        FreezingC     Celsius = 0
+        BoilingC      Celsius = 100
+    )
+
+    func CToF(c Celsius) Fahrenheit { return Fahrenheit(c*9/5 + 32) }
+
+    func FToC(f Fahrenheit) Celsius { return Celsius((f - 32) * 5 / 9) }
     ```
-1. 在目錄下，可執行 `go run main.go`，可以看到結果。
-1. 在目錄下，可執行 `go build`，編繹成執行檔。
 
-### 說明
+1. Strong Type Detection
+    雖然 `Celsius` 與 `Fahrenheit` 都是 `float64`，但還是遵守 **Strong Type** 原則，兩者不能直接做運算。如下：
 
-1. 寫執行檔的程式，檔名不一定要命名成 `main.go`，但程式碼的 package 宣告一定要是 **main**。
-1. 經過 build 之後，產生的執行檔名，會是目錄的名稱。
-1. 可以使用 `go run main.go` 直接執行程式，如果程式是拆分成多個 .go 的檔案，則需要將每個檔名也加入。eg: `go run main.go a.go b.go`
-1. `import` 是將會用到的 package 加入，跟 Java 一樣，有用到的 package 用 import 加入。Go 的工具，會幫忙找內建的 package ，自動加入到程式碼中，很方便；但如果是第三方的套件，就要自己寫。第三方套件 import 路徑，是從 `$GOPATH/src` 以下。eg: 程式放在 `$GOPATH/src/a/b/c` 則 import 路徑是 `import "a/b/c"`。
-1. 程式的進入點 (Entry point): `func main()`，跟大多數的程式語言一樣，寫執行檔都會需要有一個主函式 **main**
+    ```go
+    fmt.Printf("%g\n", BoilingC-FreezingC) // "100" °C
+    boilingF := CToF(BoilingC)
+    fmt.Printf("%g\n", boilingF-CToF(FreezingC)) // "180" °F
+    fmt.Printf("%g\n", boilingF-FreezingC)       // compile error: type mismatch
+    ```
 
-## Arguemnts
+1. 型別轉換(cast)
 
-重覆上述的動作，sample code 如下：
+    ```go
+    var c Celsius
+    var f Fahrenheit
+    fmt.Println(c == 0)             // "true"
+    fmt.Println(f >= 0)             // "true"
+    fmt.Println(c == f)             // compile error: type mismatch
+    fmt.Println(c == Celsius(f))    // "true"!
+    ```
 
-```go { .line-numbers }
-package main
+    注意，雖然 `Celsius` 及 `Fahrenheit` 底層都是 `float64`，但都還是要視為不同的型別。
 
-import (
-    "fmt"
-    "os"
-)
+## Package and Imports
 
-func main() {
-    if len(os.Args) > 1 {
-        fmt.Println("hi, ", os.Args[1])
-    }
-    fmt.Println("hello world")
-}
+Go Package 概念跟 Java package, C/PHP namespace 類似。主要用意：
+
+1. Modularity
+1. Encapsulation
+1. Reuse
+
+package 命名時要注意，除了 `main` 之外，目錄的名稱要與 package 相同。
+
+import 的路徑，由 `$GOPATH/src` 以下目錄開始。
+
+比如有一個專案路徑 `gopl.io/ch1/`，package 命名 `helloworld`, 則開一個 `helloworld` 目錄。完整路徑 `$GOPATH/src/gopl.io/ch1/helloworld`
+
+import 則用
+
+```go
+import "gopl.io/ch1/helloworld"
 ```
 
-利用 `os.Args` 來接 command line 傳進來的參數。`os.Args[0]` 是執行檔的完整檔名，所以傳入的參數值要從 `os.Args[1]` 開始。如果要寫較複雜的 command line 程式，建議用 [spf13/cobra](https://github.com/spf13/cobra) 這個套件來管理參數。
+### Package Initialization
+
+package 中，可以在某一個程式檔案，定義 `func init()`。當 package 被載入時，會先執行 `init` 的程式碼。
+
+#### 目錄結構：
+
+```text
+.
+├── main.go
+└── test
+    └── utils.go
+```
+
+#### 程式碼：
+
+- utils.go
+
+    ```go
+    package test
+
+    import "fmt"
+
+    func init() {
+        fmt.Println("test package init")
+    }
+
+    // Println ...
+    func Println(s string) {
+        fmt.Println(s)
+    }
+    ```
+
+- main.go
+
+    ```go
+    package main
+
+    import (
+        "fmt"
+        "go_test/class02/test"
+    )
+
+    func main() {
+        fmt.Println("start...")
+        test.Println("hello world!!!")
+    }
+    ```
+
+- 結果
+
+    ```text
+    test package init
+    start...
+    hello world!!!
+    ```
+
+## 變數 Visible
+
+Go 沒有 `private` and `public` 關鍵字，而是利用字母的大、小寫來區分 `private` 及 `public`。如果變數或 function 是小寫開頭，則為 **private**，反之，大寫就是 **public**。
+
+注意 private 變數，在同 package 下，存取不同 struct private 變數。
+
+## 變數 Scope
+
+與其他語言相同，與 java 不同點是有 global 變數。
+
+變數找尋的順序：local block -> function block -> global
