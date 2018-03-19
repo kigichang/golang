@@ -12,7 +12,7 @@
 
 eg:
 
-```go { .line-numbers }
+```go
 package main
 
 import (
@@ -37,7 +37,7 @@ func main() {
 
 1. 先定義一組 function，之後要用 goroutine 來執行。function 故意延遲 3 秒。
 
-    ```go { .line-numbers }
+    ```go
     func namedFunction() {
         time.Sleep(3 * time.Second)
         fmt.Println("Printing from namedFunction!")
@@ -48,17 +48,17 @@ func main() {
 1. 主程式故意延遲 5 秒。否則 goroutine 會來不及執行。
 1. 也可用 anonymous function
 
-```go { .line-numbers }
-func main() {
-    go func() {
-        time.Sleep(3 * time.Second)
-        fmt.Println("Printing from anonymous")
-    }()
+    ```go
+    func main() {
+        go func() {
+            time.Sleep(3 * time.Second)
+            fmt.Println("Printing from anonymous")
+        }()
 
-    time.Sleep(5 * time.Second)
-    fmt.Println("Exiting....")
-}
-```
+        time.Sleep(5 * time.Second)
+        fmt.Println("Exiting....")
+    }
+    ```
 
 ### Wait for goroutine
 
@@ -66,7 +66,7 @@ func main() {
 
 eg 1:
 
-```go { .line-numbers }
+```go
 package main
 
 import (
@@ -99,7 +99,7 @@ func main() {
 1. `waitGroup.Add(10)`: 告知 wait group 要等幾個 goroutine。
 1. 產生 10 個 goroutine，並 `defer waitGroup.Done()`，確保 function 結束後，會告知 wait group 有 goroutine 結束了。
 
-    ```go { .line-numbers }
+    ```go
     for i := 0; i < 10; i++ {
         go func(x int) {
             defer waitGroup.Done()
@@ -115,7 +115,7 @@ func main() {
 
 eg 2:
 
-```go { .line-numbers }
+```go
 package main
 
 import (
@@ -170,7 +170,7 @@ channel 的注意事項：
 
 eg:<a name="channel_with_goroutine"></a>
 
-```go { .line-numbers }
+```go
 package main
 
 import (
@@ -217,7 +217,7 @@ func main() {
 1. `c := make(chan int)`: 產生一個 channel 且 data type 是 `int`。並 `defer close(c)` 確保 channel 會被關閉。
 1. `go readChannel(c)`: goroutine 執行 readChannel。
 
-    ```go { .line-numbers }
+    ```go
     func readChannel(c <-chan int) {
         log.Println("reading from channel")
         defer waitGroup.Done()
@@ -230,7 +230,7 @@ func main() {
 
 1. `go writeChannel(c, 10)`: goroutine 執行 writeChannel。
 
-    ```go { .line-numbers }
+    ```go
     func writeChannel(c chan<- int, x int) {
         defer waitGroup.Done()
 
@@ -248,7 +248,7 @@ func main() {
 
 eg:
 
-```go { .line-numbers }
+```go
 package main
 
 import (
@@ -301,7 +301,7 @@ exit status 2
 
 eg:
 
-```go { .line-numbers }
+```go
 func main() {
     c := make(chan int, 1)
     defer close(c)
@@ -339,7 +339,7 @@ Producer/Consumer 是 channel 最常用的實作模型。概念是一端產出�
 
 eg 利用 goroutine 執行 1 個 producer 及 2 個 consumer:
 
-```go { .line-numbers }
+```go
 package main
 
 import (
@@ -397,7 +397,7 @@ func main() {
 
 eg:
 
-```go { .line-numbers }
+```go
 func producer(min, max int, c chan<- int) {
     defer waitGroup.Done()
     log.Println("producer start...")
@@ -467,7 +467,7 @@ Actor Pattern 與 Producer/Consumer Pattern 類似，概念是每一個 Actor �
 
 eg:
 
-```go { .line-numbers }
+```go
 package main
 
 import (
@@ -599,7 +599,7 @@ func main() {
 
 eg:
 
-```go { .line-numbers }
+```go
 package main
 
 import (

@@ -19,7 +19,7 @@ Books:
 ## 環境設定
 
 1. 下載 golang。[~下載連結~](https://golang.org/dl/)
-1. 設定環境變數 **\$GOPATH**: `$GOPATH` 是專門放 Go 開發專案的目錄，所有 Go 相關的工具，也會一併裝在這個目錄。
+1. 設定環境變數 **`$GOPATH`**: `$GOPATH` 是專門放 Go 開發專案的目錄，所有 Go 相關的工具，也會一併裝在這個目錄。
 
 ## IDE 建議
 
@@ -95,7 +95,7 @@ Books:
 1. 在 src 下開一個目錄
 1. 產生一個檔案 `main.go` 內容如下：
 
-    ```go
+    ```go {.line-numbers}
     package main
 
     import "fmt"
@@ -119,7 +119,7 @@ Books:
 
 重覆上述的動作，sample code 如下：
 
-```go
+```go {.line-numbers}
 package main
 
 import (
