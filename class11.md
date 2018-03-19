@@ -1,143 +1,352 @@
-# Go Class 11 Build and Dependency Management
+# 11 flag and spf13 Cobra/Viper
 
-## Build
+## flag
 
-資料來源：[How To Build Go Executables for Multiple Platforms on Ubuntu 16.04](https://www.digitalocean.com/community/tutorials/how-to-build-go-executables-for-multiple-platforms-on-ubuntu-16-04)
+TODO
 
-執行指令：`env GOOS=target-OS GOARCH=target-architecture go build package-import-path`
+## Viper
 
-平台列表
+- [Viper](https://github.com/spf13/viper) 設定檔套件。
+- 支援 JSON, TOML, YAML, HCL, and Java properties 等格式
+- 可設定預設值
 
-| GOOS - Target Operating System | GOARCH - Target Platform |
-| - | -
-| android | arm
-| darwin | 386
-| darwin | amd64
-| darwin | arm
-| darwin | arm64
-| dragonfly | amd64
-| freebsd | 386
-| freebsd | amd64
-| freebsd | arm
-| linux | 386
-| linux | amd64
-| linux | arm
-| linux | arm64
-| linux | ppc64
-| linux | ppc64le
-| linux | mips
-| linux | mipsle
-| linux | mips64
-| linux | mips64le
-| netbsd | 386
-| netbsd | amd64
-| netbsd | arm
-| openbsd | 386
-| openbsd | amd64
-| openbsd | arm
-| plan9 | 386
-| plan9 | amd64
-| solaris | amd64
-| windows | 386
-| windows | amd64
+在 import viper 後，會有一個 global 變數 **viper**，可以直接用。在使用前，需先設定要載入的檔名以及設定檔放的路徑，最後再執行讀取。
 
-**Warning: Cross-compiling executables for Android requires the Android NDK, and some additional setup which is beyond the scope of this tutorial.**
-
-作者的文章中，有提到 ubuntu 環境的 script，以此，修改 mac 的版本：
-
-```bash
-#!/usr/bin/env bash
-
-package=$1
-if [[ -z "$package" ]]; then
-  echo "usage: $0 <package-name>"
-  exit 1
-fi
-package_split=(${package//\// })
-package_split_len=${#package_split[@]}
-package_split_last=`expr $package_split_len - 1`
-package_name=${package_split[$package_split_last]}
-platforms=("windows/amd64" "windows/386" "darwin/amd64")
-
-for platform in "${platforms[@]}"
-do
-    platform_split=(${platform//\// })
-    GOOS=${platform_split[0]}
-    GOARCH=${platform_split[1]}
-    output_name='../build/'$package_name'-'$GOOS'-'$GOARCH
-    if [ $GOOS = "windows" ]; then
-        output_name+='.exe'
-    fi
-
-    echo 'build '$output_name
-    env GOOS=$GOOS GOARCH=$GOARCH go build -o $output_name $package
-    if [ $? -ne 0 ]; then
-        echo 'An error has occurred! Aborting the script execution...'
-        exit 1
-    fi
-done
-```
-
-## Dependency Management
-
-Go 原本是沒有 dependency management 工具，因此社群很多第三方的工具，後來官方才出自己的版本。[go dep](https://github.com/golang/dep)
-
-原本 go 要用第三方套件時，都會使用 `go get -u 套件_URL` 的方式，將 source code 下載到 $GOPATH/src 下。如果不同專案，使用到相同的套件，但不同版本時，就會很麻煩。
-
-大多數的管理工具，包含官方工具，會在專案的目錄下，產生 `vendor` 的目錄，將第三方套件的 source code 下載到這個目錄下，專案有使用到時，則來這個目錄找。
-
-使用方式：
-
-1. 一開始在專案的目錄下，執行 `dep init`，會產生 `Gopkg.toml`, `Gopkg.lock` 及 `vendor`
-1. 產生一個 go 的程式檔案
-1. 需要用到某個套件前(還沒開始寫 import), 執行 `dep ensure -add 套件_URI[@版本]`[^dep_version]。會發現在 `Gopkg.toml` 加入設定，以及下載套件到 `vendor` 目錄下。
-1. 繼續寫程式
-
-[^dep_version]: 如要指定版本，請在 URL 後, 加版本號碼, eg: `@v1.0.0`
-
-常用指令：
-
-- `dep init`: 第一次使用管理工具時，請先執行，會自動產生 `Gopkg.toml` 檔案，裏面會去掃描有用到的第三方工具，並下載。
-- `dep ensure`: 之後有異動 `Gopkg.toml`，再執行，會去更新 `vendor` 目錄
-
-### Gopkg.toml 格式
-
-```toml
-# Gopkg.toml example
-#
-# Refer to https://github.com/golang/dep/blob/master/docs/Gopkg.toml.md
-# for detailed Gopkg.toml documentation.
-#
-# required = ["github.com/user/thing/cmd/thing"]
-# ignored = ["github.com/user/project/pkgX", "bitbucket.org/user/project/pkgA/pkgY"]
-#
-# [[constraint]]
-#   name = "github.com/user/project"
-#   version = "1.0.0"
-#
-# [[constraint]]
-#   name = "github.com/user/project2"
-#   branch = "dev"
-#   source = "github.com/myfork/project2"
-#
-# [[override]]
-#  name = "github.com/x/y"
-#  version = "2.4.0"
-```
-
-最常用的是 **``[[constraint]]``**
+eg: 在專案的目錄下，放置一個 **config.json** 的設定檔，Viper 設定好目錄與設定檔名(**不含副檔名**)，呼叫 `ReadInConfig`，來載入設定檔。
 
 eg:
 
-```toml
-[[constraint]]
-  name = "google.golang.org/grpc"
-  version = "1.7.1"
+```go { .line-numbers }
+package main
 
-[[constraint]]
-  name = "golang.org/x/net"
-  branch = "master"
+import (
+    "fmt"
+    "os"
+
+    //"github.com/spf13/cobra"
+    "github.com/spf13/viper"
+)
+
+func main() {
+
+    viper.AddConfigPath(".")
+    viper.SetConfigName("config")
+
+    if err := viper.ReadInConfig(); err != nil {
+        fmt.Println(err)
+        os.Exit(1)
+    }
+    fmt.Println("abc: ", viper.GetString("abc"))
+    fmt.Println("aaa: ", viper.GetBool("aaa"))
+    fmt.Println("def: ", viper.GetString("cccccc"))
+}
 ```
 
-- version: 指定要用那個一版本。
-- branch: 指定要用那一個分支，通常不指定 version 時，會直接用 master 分支。直接用 master 分支。
+設定檔 **config.json**:
+
+```json {.line-numbers}
+{
+    "abc": "def",
+    "aaa": true
+}
+```
+
+### 自定 Viper, 不使用預設的 viper
+
+Viper 也允許自己產生一個全新的 viper，方便管理不同的設定檔。
+
+eg:
+
+```go { .line-numbers }
+package config
+
+import "github.com/spf13/viper"
+
+var config *viper.Viper
+
+func init() {
+    config = viper.New()
+    config.AddConfigPath(".")
+    config.SetConfigName("config")
+}
+
+// Load load a default configuration file
+func Load() (*viper.Viper, error) {
+    if err := config.ReadInConfig(); err != nil {
+        return nil, err
+    }
+
+    return config, nil
+}
+
+// LoadFile create a new Viper to load specific configuration file
+func LoadFile(config string) (*viper.Viper, error) {
+    v := viper.New()
+
+    v.SetConfigFile(config)
+    if err := v.ReadInConfig(); err != nil {
+        return nil, err
+    }
+    return v, nil
+}
+```
+
+### 取值
+
+```go { .line-numbers }
+Get(key string) : interface{}
+GetBool(key string) : bool
+GetFloat64(key string) : float64
+GetInt(key string) : int
+GetString(key string) : string
+GetStringMap(key string) : map[string]interface{}
+GetStringMapString(key string) : map[string]string
+GetStringSlice(key string) : []string
+GetTime(key string) : time.Time
+GetDuration(key string) : time.Duration
+IsSet(key string) : bool
+```
+
+注意：Viper 取值時，如果 key 不存在，會回傳 zero value。所以要特別小心。
+
+[詳細說明](https://github.com/spf13/viper#getting-values-from-viper)
+
+## Cobra
+
+[Cobra](https://github.com/spf13/cobra)
+
+管理 Command line 程式參數的套件，雖然 Go 已有內建 Flag 套件，但很多第三方套件還是用 Cobra。
+
+### Cobra 參數管理方式
+
+以 docker 為例，當執行 `docker` 時：
+
+```text
+Usage:  docker COMMAND
+
+A self-sufficient runtime for containers
+
+Options:
+      --config string      Location of client config files (default "/Users/kigi/.docker")
+  -D, --debug              Enable debug mode
+  -H, --host list          Daemon socket(s) to connect to
+  -l, --log-level string   Set the logging level ("debug"|"info"|"warn"|"error"|"fatal") (default "info")
+      --tls                Use TLS; implied by --tlsverify
+      --tlscacert string   Trust certs signed only by this CA (default "/Users/kigi/.docker/ca.pem")
+      --tlscert string     Path to TLS certificate file (default "/Users/kigi/.docker/cert.pem")
+      --tlskey string      Path to TLS key file (default "/Users/kigi/.docker/key.pem")
+      --tlsverify          Use TLS and verify the remote
+  -v, --version            Print version information and quit
+
+Management Commands:
+  checkpoint  Manage checkpoints
+  config      Manage Docker configs
+  container   Manage containers
+  ...
+
+Commands:
+  attach      Attach local standard input, output, and error streams to a running container
+  build       Build an image from a Dockerfile
+  commit      Create a new image from a container's changes
+  ...
+
+Run 'docker COMMAND --help' for more information on a command
+```
+
+`docker` 是主程式，之後會再接 command，在 cobra 的設計中，`docker` 是 root command，以下的 command 稱做 sub command。
+
+`docker run --help` 為例:
+
+```text
+Usage:  docker run [OPTIONS] IMAGE [COMMAND] [ARG...]
+
+Run a command in a new container
+
+Options:
+      --add-host list                  Add a custom host-to-IP mapping (host:ip)
+  -a, --attach list                    Attach to STDIN, STDOUT or STDERR
+      --blkio-weight uint16            Block IO (relative weight), between 10 and 1000, or 0 to disable (default 0)
+      --blkio-weight-device list       Block IO weight (relative device weight) (default [])
+  ...
+```
+
+`--xxx` 與 `-x` 是指傳入的 flag，一個 flag 可以有 longterm (`--xxx` 表示)，與 shortterm (`-x` 表示)，變數可以是 string, numbers, boolean 等資料型別。
+
+以下，是模擬以上的效果。
+
+### Step 1 Sub commands
+
+先產生 root 及 sub commands
+
+eg:
+
+```go { .line-numbers }
+package main
+
+import (
+    "github.com/spf13/cobra"
+)
+
+func main() {
+    rootCmd := &cobra.Command{Use: "myapp"}
+
+    createCmd := &cobra.Command{Use: "create"}
+
+    updateCmd := &cobra.Command{Use: "update"}
+
+    rootCmd.AddCommand(createCmd, updateCmd)
+
+    rootCmd.Execute()
+}
+```
+
+在專案目錄下，執行 `go run main.go` 結果是：
+
+```text
+Usage:
+
+Flags:
+  -h, --help   help for myapp
+
+Additional help topics:
+  myapp create
+  myapp update
+```
+
+執行 `go run main.go create` or `go run main.go update` 會立即執行完畢，因為我們還沒定義 sub command 要做什麼事情。
+
+### 定義 flag，參數與工作
+
+接下來定義每個 sub command 需要的 flag, 參數與工作。
+
+```go { .line-numbers }
+package main
+
+import (
+    "fmt"
+
+    "github.com/spf13/cobra"
+)
+
+var (
+    name  string
+    proxy bool
+)
+
+func main() {
+    rootCmd := &cobra.Command{Use: "myapp"}
+
+    createCmd := &cobra.Command{Use: "create"}
+
+    updateCmd := &cobra.Command{Use: "update"}
+
+    createCmd.Flags().StringVarP(&name, "name", "n", "myname", "assign a name")
+    createCmd.Flags().BoolVarP(&proxy, "proxy", "p", false, "use proxy to connect")
+
+    createCmd.Args = cobra.ExactArgs(1)
+
+    createCmd.Run = func(cmd *cobra.Command, args []string) {
+        fmt.Println("creating")
+        fmt.Println("name:", name)
+        fmt.Println("proxy:", proxy)
+        fmt.Println("args:", args)
+    }
+
+    rootCmd.AddCommand(createCmd, updateCmd)
+
+    rootCmd.Execute()
+}
+```
+
+1. 定義兩個 flag，`name` 及 `proxy`
+
+    ```go { .line-numbers }
+    createCmd.Flags().StringVarP(&name, "name", "n", "myname", "assign a name")
+    createCmd.Flags().BoolVarP(&proxy, "proxy", "p", false, "use proxy to connect")
+    ```
+
+1. 設定只能有一個參數。詳細設定，請見：[cobra#Positional and Custom Arguments](https://github.com/spf13/cobra#positional-and-custom-arguments)
+
+    ```go { .line-numbers }
+    createCmd.Args = cobra.ExactArgs(1)
+    ```
+
+1. 設定執行動作
+
+    ```go { .line-numbers }
+    createCmd.Run = func(cmd *cobra.Command, args []string) {
+        fmt.Println("creating")
+        fmt.Println("name:", name)
+        fmt.Println("proxy:", proxy)
+        fmt.Println("args:", args)
+    }
+    ```
+
+### 測試
+
+1. `go run main.go create`
+
+    ```text
+    Error: accepts 1 arg(s), received 0
+    Usage:
+        myapp create [flags]
+
+    Flags:
+        -h, --help          help for create
+        -n, --name string   assign a name (default "myname")
+        -p, --proxy         use proxy to connect
+    ```
+
+    會發現回傳錯誤，並沒有執行動作。因為我們並沒有傳入任何參數。
+
+1. `go run main.go create abc`
+
+    ```text
+    creating
+    name: myname
+    proxy: false
+    args: [abc]
+    ```
+
+    執行成功，並使用預設值
+
+1. `go run main.go create abc def`
+
+    ```text
+    Error: accepts 1 arg(s), received 2
+    Usage:
+        myapp create [flags]
+
+    Flags:
+        -h, --help          help for create
+        -n, --name string   assign a name (default "myname")
+        -p, --proxy         use proxy to connect
+    ```
+
+    執行失敗，因為多傳了一個參數。
+
+1. `go run main.go create --name=bob --proxy abc` or `go run main.go create -n bob -p abc`
+
+    ```text
+    creating
+    name: bob
+    proxy: true
+    args: [abc]
+    ```
+
+    boolean 型別的 flag，後面可以不用接值。
+
+### 與 Viper 結合
+
+可以將 flag 當作設定檔的資料。如此一來，在大型的程式中，就可以統一都使用 Viper 來當共用設定，而這些設定可以是來自設定檔或者是 command line 的 flag。
+
+請使用 `PersistentFlags` 撘配 `Viper` 使用。
+
+eg:
+
+```go { .line-numbers }
+rootCmd.PersistentFlags().StringVarP(&test, "test", "t", "my test", "test string")
+viper.BindPFlag("test", rootCmd.PersistentFlags().Lookup("test"))
+
+fmt.Println("viper test:", viper.GetString("test"))
+```

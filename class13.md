@@ -1,1085 +1,546 @@
-# Go Class 13 MySQL and Web
+# 13 Protobuf and gRPC
 
-## MySQL
+[Protocol Buffers (ProtoBuf) 官網](https://developers.google.com/protocol-buffers/)
 
-與 Java JDBC 類似，Go 有定義一套 interface，所有要連 DB 的 driver，都需要實作這些 interface (["database/sql/driver"](https://golang.org/pkg/database/sql/driver/))。以下我是用 [go-sql-driver/mysql](https://github.com/go-sql-driver/mysql)
+[Developer Guide](https://developers.google.com/protocol-buffers/docs/overview)
 
-**Schedule schema** (MySQL):
+[Protocol Buffer Basics: Go](https://developers.google.com/protocol-buffers/docs/gotutorial)
 
-```sql
-CREATE TABLE `schedule` (
-  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `url` text NOT NULL,
-  `referer` text NOT NULL,
-  `count` int(10) unsigned NOT NULL,
-  `start` datetime NOT NULL,
-  `current` int(10) unsigned NOT NULL DEFAULT '0',
-  `success` int(10) unsigned NOT NULL DEFAULT '0',
-  `failed` int(10) unsigned NOT NULL DEFAULT '0',
-  `status` smallint(6) NOT NULL DEFAULT '0',
-  `created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+ProtoBuf 是 Google 開發的工具，主要來取代 JSON, 與 XML，通常會用在 RPC (Remote Procedure Call) 上，也因此 ProtoBuf 會撘配 Google 開發的 gRPC 使用。
+
+ProtoBuf 本身支援多種常用的程式語言，也因此可以利用 ProtoBuf 當作中介的橋樑，在不同的程式語言間，交換資料。
+
+## protoc
+
+**protoc** 是 Protobuf 的工具，主要是將 protobuf 的定義檔 (.proto) 轉成對應的程式語言。
+
+1. 到 [protoc release](https://github.com/google/protobuf/releases) 下載對應作業系統 (Linux, OSX, Win32) 的執行檔。
+1. 執行 `go get -u github.com/golang/protobuf/protoc-gen-go` 下載 protoc 的 go plugin。
+
+1. 使用 `dep` 加入 grpc
+
+    1. `dep init`
+    1. `dep ensure -add google.golang.org/grpc`
+
+### .proto
+
+使用 protobuf 前，我們需要先定義資料格式，寫起來有點像在寫 struct。首先在專案目錄下，開一個目錄，如: `protos`，在 `protos` 下還可以依功能再細分。
+
+```text
+go_test/class14
+├── Gopkg.lock
+├── Gopkg.toml
+├── hello_client
+│   └── main.go
+├── hello_service
+│   └── main.go
+├── protos
+│   ├── test.go
+│   ├── test.pb.go
+│   └── test.proto
+└── service
+    ├── service.pb.go
+    └── service.proto
 ```
 
-**Select** sample code:
+撰寫 .proto
+
+eg: protos/test.proto
+
+```protobuf
+syntax = "proto3";
+
+package protos;
+
+import "github.com/golang/protobuf/ptypes/timestamp/timestamp.proto";
+
+message Hello {
+  string name = 1;
+  google.protobuf.Timestamp time = 99;
+}
+```
+
+組成元素：
+
+1. syntax: `syntax = "proto3";` 指定 protobuf 的版本，目前有 proto2 與 proto3。建議用 proto3.
+1. package: 定義程式的 package, eg: `package protos;`
+1. import: 如果有用到其他的 protobuf 資料型別，一樣需要 import, eg: `import "github.com/golang/protobuf/ptypes/timestamp/timestamp.proto";`
+1. message: 定義資料結構 `message 資料名稱`
+
+p.s. `github.com/golang/protobuf/ptypes/timestamp/timestamp.proto` 是在 `class14/vendor` 下。
+
+### 資料型別
+
+[proto3](https://developers.google.com/protocol-buffers/docs/proto3)
+
+對應表：
+
+.proto Type | Notes | C++ Type | Java Type | Python Type[^[2]^](#type_2) | Go Type | Ruby Type | C# Type | PHP Type
+| - | - | - | - | - | - | - | - | - |
+double | | double | double | float | float64 | Float | double | float
+float |  | float | float | float | float32 | Float | float | float
+int32 | Uses variable-length encoding. Inefficient for encoding negative numbers – if your field is likely to have negative values, use sint32 instead. | int32 | int | int | int32 | Fixnum or Bignum (as required) | int | integer
+int64 | Uses variable-length encoding. Inefficient for encoding negative numbers – if your field is likely to have negative values, use sint64 instead. | int64 | long | int/long[^[3]^](#type_3) | int64 | Bignum | long | integer/string[^[5]^](#type_5)
+uint32 | Uses variable-length encoding. | uint32 | int[^[1]^](#type_1) | int/long[^[3]^](#type_3) | uint32 | Fixnum or Bignum (as required) | uint | integer
+uint64 | Uses variable-length encoding. | uint64 | long[^[1]^](#type_1) | int/long[^[3]^](#type_3) | uint64 | Bignum | ulong | integer/string[^[5]^](#type_5)
+sint32 | Uses variable-length encoding. Signed int value. These more efficiently encode negative numbers than regular int32s. | int32 | int | int | int32 | Fixnum or Bignum (as required) | int | integer
+sint64 | Uses variable-length encoding. Signed int value. These more efficiently encode negative numbers than regular int64s. | int64 | long | int/long[^[3]^](#type_3) | int64 | Bignum | long | integer/string[5]
+fixed32 | Always four bytes. More efficient than uint32 if values are often greater than 228. | uint32 | int[^[1]^](#type_1) | int | uint32 | Fixnum or Bignum (as required) | uint | integer
+fixed64 | Always eight bytes. More efficient than uint64 if values are often greater than 256. | uint64 | long[^[1]^](#type_1) | int/long[^[3]^](#type_3) | uint64 | Bignum | ulong | integer/string[^[5]^](#type_5)
+sfixed32 | Always four bytes. | int32 | int | int | int32 | Fixnum or Bignum (as required) | int | integer
+sfixed64 | Always eight bytes. | int64 | long | int/long[^[3]^](#type_3) | int64 | Bignum | long | integer/string[^[5]^](#type_5)
+bool |  | bool | boolean | bool | bool | TrueClass/FalseClass | bool | boolean
+string | A string must always contain UTF-8 encoded or 7-bit ASCII text. | string | String | str/unicode[^[4]^](#type_4) | string | String (UTF-8) | string | string
+bytes | May contain any arbitrary sequence of bytes. | string | ByteString | str | []byte | String (ASCII-8BIT) | ByteString | string
+
+<a name="type_1"></a>[1] In Java, unsigned 32-bit and 64-bit integers are represented using their signed counterparts, with the top bit simply being stored in the sign bit.
+<a name="type_2"></a>[2] In all cases, setting values to a field will perform type checking to make sure it is valid.
+<a name="type_3"></a>[3] 64-bit or unsigned 32-bit integers are always represented as long when decoded, but can be an int if an int is given when setting the field. In all cases, the value must fit in the type represented when set. See [[2]](#type_2).
+<a name="type_4"></a>[4] Python strings are represented as unicode on decode but can be str if an ASCII string is given (this is subject to change).
+<a name="type_5"></a>[5] Integer is used on 64-bit machines and string is used on 32-bit machines.
+
+#### message Hello
+
+eg:
+
+```protobuf
+message Hello {
+  string name = 1;
+  google.protobuf.Timestamp time = 99;
+}
+```
+
+欄位定義，每一組欄位定義後面都會有個數字。eg：`string name = 1;`。這個數字是指這個欄位的流水號，有點像資料庫的 primary key 的流水號。因此定義之後，不能再異動這個欄位的定義，否則會有相容性的問題。但可以移除這個欄位。如果有需要異動時，應該是再往下加新的欄位。
+
+在相容性上，如果傳來的資料，缺少欄位的資料時，protobuf 會改成帶該欄位的 zero value。
+
+### 轉成 Go 程式
+
+1. 目錄切到 `$GOPATH/src`
+1. 執行 `protoc --go_out=. go_test/class14/protos/*.proto`
+
+在 `go_test/class14/protos` 的目錄下，會產生 `test.pb.go` 檔案。
+
+eg:
+
+```go { .line-numbers }
+// Code generated by protoc-gen-go. DO NOT EDIT.
+// source: go_test/class14/protos/test.proto
+
+/*
+Package protos is a generated protocol buffer package.
+
+It is generated from these files:
+    go_test/class14/protos/test.proto
+
+It has these top-level messages:
+    Hello
+*/
+package protos
+
+import proto "github.com/golang/protobuf/proto"
+import fmt "fmt"
+import math "math"
+import google_protobuf "github.com/golang/protobuf/ptypes/timestamp"
+
+// Reference imports to suppress errors if they are not otherwise used.
+var _ = proto.Marshal
+var _ = fmt.Errorf
+var _ = math.Inf
+
+// This is a compile-time assertion to ensure that this generated file
+// is compatible with the proto package it is being compiled against.
+// A compilation error at this line likely means your copy of the
+// proto package needs to be updated.
+const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
+
+type Hello struct {
+    Name string                     `protobuf:"bytes,1,opt,name=name" json:"name,omitempty"`
+    Time *google_protobuf.Timestamp `protobuf:"bytes,99,opt,name=time" json:"time,omitempty"`
+}
+
+func (m *Hello) Reset()                    { *m = Hello{} }
+func (m *Hello) String() string            { return proto.CompactTextString(m) }
+func (*Hello) ProtoMessage()               {}
+func (*Hello) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{0} }
+
+func (m *Hello) GetName() string {
+    if m != nil {
+        return m.Name
+    }
+    return ""
+}
+
+func (m *Hello) GetTime() *google_protobuf.Timestamp {
+    if m != nil {
+        return m.Time
+    }
+    return nil
+}
+
+func init() {
+    proto.RegisterType((*Hello)(nil), "protos.Hello")
+}
+
+func init() { proto.RegisterFile("go_test/class14/protos/test.proto", fileDescriptor0) }
+
+var fileDescriptor0 = []byte{
+    // 140 bytes of a gzipped FileDescriptorProto
+    // ....
+}
+
+```
+
+如果要需要新增功能，不要修改在這個檔案。要另外開檔案來處理。如: `test.go`. 否則更新 protobuf 定義時，會重新產生新的檔案，會原本修改的內容去除。
+
+eg: test.go
+
+```go {.line-numbers}
+package protos
+
+import (
+    proto "github.com/golang/protobuf/proto"
+    "github.com/golang/protobuf/ptypes"
+)
+
+// CreateHello ...
+func CreateHello(name string) *Hello {
+    return &Hello{
+        Name: name,
+        Time: ptypes.TimestampNow(),
+    }
+}
+
+// UnmarshalHello ...
+func UnmarshalHello(data []byte) (*Hello, error) {
+    ret := &Hello{}
+
+    if err := proto.Unmarshal(data, ret); err != nil {
+        return nil, err
+    }
+
+    return ret, nil
+}
+
+// MarshalHello ...
+func MarshalHello(data *Hello) ([]byte, error) {
+    return proto.Marshal(data)
+}
+```
+
+### Marshal / Unmarshal
+
+使用 protobuf 與 JSON 類似。
+
+eg:
 
 ```go { .line-numbers }
 import (
-    "database/sql"
-    _ "github.com/go-sql-driver/mysql"
+    proto "github.com/golang/protobuf/proto"
 )
+// UnmarshalHello ...
+func UnmarshalHello(data []byte) (*Hello, error) {
+    ret := &Hello{}
 
-// Schedule ...
-type Schedule struct {
-    ID      int64
-    URL     string
-    Referer string
-    Count   int64
-    Start   string
-    Current int64
-    Success int64
-    Failed  int64
-    Status  int32
-}
-
-
-// Connect ...
-func Connect(driver, uri string) (*sql.DB, error) {
-    db, err := sql.Open(driver, uri)
-    if err != nil {
+    if err := proto.Unmarshal(data, ret); err != nil {
         return nil, err
     }
 
-    if err := db.Ping(); err != nil {
-        return nil, err
-    }
-    return db, nil
+    return ret, nil
 }
 
-// RowScanSchedule ...
-func RowScanSchedule(rows *sql.Rows) (*Schedule, error) {
-    tmp := &Schedule{}
-    if err := rows.Scan(&tmp.ID, &tmp.URL, &tmp.Referer, &tmp.Count, &tmp.Start, &tmp.Current, &tmp.Success, &tmp.Failed, &tmp.Status); err != nil {
-        return nil, err
-    }
-    return tmp, nil
-}
-
-db, err := Connect("mysql", "crawler:1234@/crawler")
-
-if err != nil {
-    // ...
-    return
-}
-
-defer db.Close()
-
-sel, err := db.Prepare("select id, url, referer, count, start, current, success, failed, status from schedule where status = ? order by start desc")
-
-if err != nil {
-    // ...
-    return
-}
-defer sel.Close()
-
-rows, err := sel.Query(1)
-if err != nil {
-    // ...
-    return
-}
-defer rows.Close()
-
-for rows.Next() {
-    tmp, err := RowScanSchedule(rows)
-    if err != nil {
-        // ...
-        return
-    }
-    // ...
+// MarshalHello ...
+func MarshalHello(data *Hello) ([]byte, error) {
+    return proto.Marshal(data)
 }
 ```
 
-說明：
+## gRPC
 
-1. import package.
+也是撰寫 .proto ，建議定義 gRPC service 要與資料 message 分開, 只放 service 會用到的 message，一來程式管理比較方便，二來也避免互相干擾。
 
-    ```go { .line-numbers }
-    import (
-        "database/sql"
-        _ "github.com/go-sql-driver/mysql"
-    )
-    ```
+eg: service/service.proto
 
-    1. `"database/sql"` 是 go 定義 sql interface 的 package
-    1. `_ "github.com/go-sql-driver/mysql"` mysql driver package
+```protobuf
+syntax = "proto3";
 
-1. 定義資料的 struct，類似要做 ORM 的動作，當然也可以不要這個定義，都用變數來存資料。
+package service;
 
-    ```go { .line-numbers }
-    // Schedule ...
-    type Schedule struct {
-        // ...
-    }
-    ```
+import "go_test/class14/protos/test.proto";
 
-1. 連線資料庫
+message Request {
+    string name = 1;
+}
 
-    ```go { .line-numbers }
-    func Connect(driver, uri string) (*sql.DB, error) {
-        db, err := sql.Open(driver, uri)
-        if err != nil {
-            return nil, err
-        }
+service HelloService {
+    rpc Hello(Request) returns (protos.Hello) {}
+}
+```
 
-        if err := db.Ping(); err != nil {
-            return nil, err
-        }
-        return db, nil
-    }
-
-    db, err := Connect("mysql", "crawler:1234@/crawler")
-
-    if err != nil {
-        // ...
-        return
-    }
-
-    defer db.Close()
-    ```
-
-    與 JDBC 連線類似，指定 driver 的種類，並傳入一組 url 的設定, 格式是：`[username[:password]@][protocol[(address)]]/dbname[?param1=value1&...&paramN=valueN]`。詳細的說明，請見：[DSN (Data Source Name)](https://github.com/go-sql-driver/mysql#dsn-data-source-name)。我在連線後，多做了 Ping 的動作，如下：
-
-    ```go { .line-numbers }
-    if err := db.Ping(); err != nil {
-        return nil, err
-    }
-    ```
-
-    記得取的 db 連線後，立即下 `defer db.Close()`，確保程式在結束後，會關閉連線。
-
-1. 下 SQL，與 Java 的 PreparedStatement 類似。
-
-    ```go { .line-numbers }
-    sel, err := db.Prepare("select id, url, referer, count, start, current, success, failed, status from schedule where status = ? order by start desc")
-
-    if err != nil {
-        // ...
-        return
-    }
-    defer sel.Close()
-    ```
-
-    與上述 db 類似，取得連線後，記得下 `defer sel.Close()` 確保程式結束後，會關閉 statement 連線。
-
-1. 透過 Stmt 取得資料。
-
-    ```go { .line-numbers }
-    rows, err := sel.Query(1)
-    if err != nil {
-        // ...
-        return
-    }
-    defer rows.Close()
-
-    for rows.Next() {
-        tmp, err := RowScanSchedule(rows)
-        if err != nil {
-            // ...
-            return
-        }
-        // ...
-    }
-    ```
-
-    1. 使用 Stmt.Query 方式，取得 Rows
-
-        ```go { .line-numbers }
-        rows, err := sel.Query(1)
-        if err != nil {
-            // ...
-            return
-        }
-        defer rows.Close()
-        ```
-
-        與上述取得連線一樣，立即下 `defer rows.Close()` 確保程式結束後，會關閉 rows。(說明文件說，會[自動關閉](https://golang.org/pkg/database/sql/#Rows.Close)。這部分就看自己的習慣了。但 DB 與 Stmt 一定要記得關。)
-
-    1. 跟 JDBC 一樣，一定要先執行 **Next** 才能取資料。
-
-        ```go { .line-numbers }
-        for rows.Next() {
-            tmp, err := RowScanSchedule(rows)
-            if err != nil {
-                // ...
-                return
-            }
-            // ...
-        }
-        ```
-
-    1. 透過 Rows.Scan 取得資料。
-
-        ```go { .line-numbers }
-        func RowScanSchedule(rows *sql.Rows) (*Schedule, error) {
-            tmp := &Schedule{}
-            if err := rows.Scan(&tmp.ID, &tmp.URL, &tmp.Referer, &tmp.Count, &tmp.Start, &tmp.Current, &tmp.Success, &tmp.Failed, &tmp.Status); err != nil {
-                return nil, err
-            }
-            return tmp, nil
-        }
-        ```
-
-**Insert** sample code:
+主要 gRPC 的定義是這一段：
 
 ```go { .line-numbers }
-db, err := Connect("mysql", "crawler:1234@/crawler")
-if err != nil {
-    fmt.Fprintln(w, err)
-    return
-}
-defer db.Close()
-
-ins, err := db.Prepare("insert into schedule (url, referer, count, start) values(?,?,?,?)")
-if err != nil {
-    // ...
-    return
-}
-defer ins.Close()
-
-result, err := ins.Exec(url, referer, count, date+" "+time)
-if err != nil {
-    fmt.Fprintln(w, err)
-    return
-}
-
-lastID, err := result.LastInsertId()
-if err != nil {
-    // ...
-    return
+service HelloService {
+    rpc Hello(Request) returns (protos.Hello) {}
 }
 ```
 
-說明：
+用 `rpc` 與 `returns` 這兩個關鍵字來定義 service.
 
-1. 前半與上述 Select 相同都需要 import 及連線資料庫，記得下 `defer db.Close()`
-1. 利用 DB.Pepare 建立一個 PreparedStatement 連線，記得下 `defer ins.Close()`
-1. 與 Select 不同，使用 Stmt.Exec 執行指 SQL 指令。
+與上述動作一樣，切換到 $GOPATH/src，執行 `protoc --go_out=plugins=grpc:. go_test/class14/service/*.proto`。與上述不一樣的地方，是在 `--go_out` 這個多了 `plugins=grpc` 設定。
 
-    ```go { .line-numbers }
-    result, err := ins.Exec(url, referer, count, date+" "+time)
-    if err != nil {
-        fmt.Fprintln(w, err)
-        return
+在 `go_test/class14/service` 的目錄下，會產生 `service.pb.go`，一樣不建議直接修改 `service.pb.go`，有新加功能，都另開檔案來處理，eg: `service.go`
+
+eg: service.pb.go
+
+```go { .line-numbers }
+// Code generated by protoc-gen-go. DO NOT EDIT.
+// source: go_test/class14/service/service.proto
+
+/*
+Package service is a generated protocol buffer package.
+
+It is generated from these files:
+    go_test/class14/service/service.proto
+
+It has these top-level messages:
+    Request
+*/
+package service
+
+import proto "github.com/golang/protobuf/proto"
+import fmt "fmt"
+import math "math"
+import protos "go_test/class14/protos"
+
+import (
+    context "golang.org/x/net/context"
+    grpc "google.golang.org/grpc"
+)
+
+// Reference imports to suppress errors if they are not otherwise used.
+var _ = proto.Marshal
+var _ = fmt.Errorf
+var _ = math.Inf
+
+// This is a compile-time assertion to ensure that this generated file
+// is compatible with the proto package it is being compiled against.
+// A compilation error at this line likely means your copy of the
+// proto package needs to be updated.
+const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
+
+type Request struct {
+    Name string `protobuf:"bytes,1,opt,name=name" json:"name,omitempty"`
+}
+
+func (m *Request) Reset()                    { *m = Request{} }
+func (m *Request) String() string            { return proto.CompactTextString(m) }
+func (*Request) ProtoMessage()               {}
+func (*Request) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{0} }
+
+func (m *Request) GetName() string {
+    if m != nil {
+        return m.Name
     }
+    return ""
+}
 
-    lastID, err := result.LastInsertId()
+func init() {
+    proto.RegisterType((*Request)(nil), "service.Request")
+}
+
+// Reference imports to suppress errors if they are not otherwise used.
+var _ context.Context
+var _ grpc.ClientConn
+
+// This is a compile-time assertion to ensure that this generated file
+// is compatible with the grpc package it is being compiled against.
+const _ = grpc.SupportPackageIsVersion4
+
+// Client API for HelloService service
+
+type HelloServiceClient interface {
+    Hello(ctx context.Context, in *Request, opts ...grpc.CallOption) (*protos.Hello, error)
+}
+
+type helloServiceClient struct {
+    cc *grpc.ClientConn
+}
+
+func NewHelloServiceClient(cc *grpc.ClientConn) HelloServiceClient {
+    return &helloServiceClient{cc}
+}
+
+func (c *helloServiceClient) Hello(ctx context.Context, in *Request, opts ...grpc.CallOption) (*protos.Hello, error) {
+    out := new(protos.Hello)
+    err := grpc.Invoke(ctx, "/service.HelloService/Hello", in, out, c.cc, opts...)
     if err != nil {
-        // ...
-        return
+        return nil, err
     }
-    ```
+    return out, nil
+}
 
-    Result 功能：
+// Server API for HelloService service
 
-    1. LastInsertId(): 取得 **auto_increment** 的 id
-    1. RowsAffected(): 取得異動的資料筆數，注意，[文件](https://golang.org/pkg/database/sql/#Result)上說並非所有的 driver 都會實作。
+type HelloServiceServer interface {
+    Hello(context.Context, *Request) (*protos.Hello, error)
+}
 
-**Update/Delete** 與 Insert 類似。
+func RegisterHelloServiceServer(s *grpc.Server, srv HelloServiceServer) {
+    s.RegisterService(&_HelloService_serviceDesc, srv)
+}
 
-### Connect, Prepared Statement, Rows, Cursor 關係
+func _HelloService_Hello_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+    in := new(Request)
+    if err := dec(in); err != nil {
+        return nil, err
+    }
+    if interceptor == nil {
+        return srv.(HelloServiceServer).Hello(ctx, in)
+    }
+    info := &grpc.UnaryServerInfo{
+        Server:     srv,
+        FullMethod: "/service.HelloService/Hello",
+    }
+    handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+        return srv.(HelloServiceServer).Hello(ctx, req.(*Request))
+    }
+    return interceptor(ctx, in, info, handler)
+}
 
-![DB](db.png)
+var _HelloService_serviceDesc = grpc.ServiceDesc{
+    ServiceName: "service.HelloService",
+    HandlerType: (*HelloServiceServer)(nil),
+    Methods: []grpc.MethodDesc{
+        {
+            MethodName: "Hello",
+            Handler:    _HelloService_Hello_Handler,
+        },
+    },
+    Streams:  []grpc.StreamDesc{},
+    Metadata: "go_test/class14/service/service.proto",
+}
 
-## Web
+func init() { proto.RegisterFile("go_test/class14/service/service.proto", fileDescriptor0) }
 
-Go 有內建撰寫 Web Server 的套件，可以自己實作一套 AP server。因為 web 還會用到版型與靜態資料，因此在專案目錄的配置建議如下：
-
-```text
-web
-├── main.go
-├── public
-│   └── db.png
-└── templates
-    ├── index.html
-    ├── layout.html
-    ├── nav.html
-    └── test.html
+var fileDescriptor0 = []byte{
+    // 140 bytes of a gzipped FileDescriptorProto
+    // ...
+}
 ```
 
-目錄說明
-
-1. public: 放置靜態資料，實際運作上，AP server 可以不用處理靜態資料。
-1. templates: 放置版型
+主要會定義 server 與 client 的 interface。
 
 eg:
+
+```go { .line-numbers }
+type HelloServiceClient interface {
+    Hello(ctx context.Context, in *Request, opts ...grpc.CallOption) (*protos.Hello, error)
+}
+
+type HelloServiceServer interface {
+    Hello(context.Context, *Request) (*protos.Hello, error)
+}
+```
+
+### gRPC Service
 
 ```go { .line-numbers }
 package main
 
 import (
+    "context"
     "fmt"
-    "html/template"
+    "go_test/class14/protos"
+    "go_test/class14/service"
     "log"
-    "net/http"
+    "net"
+
+    "google.golang.org/grpc"
 )
 
-func generateHTML(w http.ResponseWriter, data interface{}, files ...string) {
-    var tmp []string
-    for _, f := range files {
-        tmp = append(tmp, fmt.Sprintf("templates/%s.html", f))
+type helloService struct{}
+
+func (h *helloService) Hello(ctx context.Context, req *service.Request) (*protos.Hello, error) {
+    if req == nil || "" == req.Name {
+        return nil, fmt.Errorf("request is not ok: %v", req)
     }
 
-    tmpl := template.Must(template.ParseFiles(tmp...))
-    tmpl.ExecuteTemplate(w, "layout", data)
-}
-
-// MyData ...
-type MyData struct {
-    Title string
-    Nav   string
-    Data  interface{}
-}
-
-func test(w http.ResponseWriter, r *http.Request) {
-    data := &MyData{
-        Title: "測試",
-        Nav:   "test",
-    }
-
-    data.Data = struct {
-        TestString   string
-        SimpleString string
-        TestStruct   struct{ A, B string }
-        TestArray    []string
-        TestMap      map[string]string
-        Num1, Num2   int
-        EmptyArray   []string
-        ZeroInt      int
-    }{
-        `O'Reilly: How are <i>you</i>?`,
-        "中文測試",
-        struct{ A, B string }{"foo", "boo"},
-        []string{"Hello", "World", "Test"},
-        map[string]string{"A": "B", "abc": "DEF"},
-        10,
-        101,
-        []string{},
-        0,
-    }
-
-    //data.Data.TestMap["abc"] = "abc"
-
-    generateHTML(w, data, "layout", "nav", "test")
-}
-
-func index(w http.ResponseWriter, r *http.Request) {
-    var tmp = "Hello World!!!"
-
-    if r.FormValue("name") != "" {
-        tmp = "Hi, " + r.FormValue("name")
-    }
-
-    data := &MyData{
-        Title: "首頁",
-        Nav:   "home",
-        Data:  tmp,
-    }
-
-    generateHTML(w, data, "layout", "nav", "index")
+    return protos.CreateHello(req.Name), nil
 }
 
 func main() {
-    mux := http.NewServeMux()
-    files := http.FileServer(http.Dir("./public"))
-
-    mux.Handle("/static/", http.StripPrefix("/static/", files))
-    mux.HandleFunc("/", index)
-    mux.HandleFunc("/test", test)
-
-    server := &http.Server{
-        Addr:    "0.0.0.0:8080",
-        Handler: mux,
-    }
-
-    err := server.ListenAndServe()
+    lis, err := net.Listen("tcp", ":50051")
     if err != nil {
-        log.Fatalln(err)
+        log.Fatalf("failed to listen: %v", err)
     }
 
-    log.Println("start...")
-}
-```
+    s := grpc.NewServer()
 
-程式說明:
+    service.RegisterHelloServiceServer(s, &helloService{})
 
-1. import 必要的 package
-
-    ```go { .line-numbers }
-    import (
-        // ...
-        "html/template"
-        "net/http"
-    )
-    ```
-
-    1. `"html/template"`: Go 的 template engine。可以直接修改版型，不用重啟系統。
-    1. `"net/http"`: Http 模組
-
-1. 實作 routing 機制：
-
-    ```go { .line-numbers }
-    mux := http.NewServeMux()
-    files := http.FileServer(http.Dir("./public"))
-
-    mux.Handle("/static/", http.StripPrefix("/static/", files))
-
-    mux.HandleFunc("/", index)
-    mux.HandleFunc("/test", test)
-    ```
-
-    1. http.NewServMux(): 產生 `ServMux` 物件，用來處理 url routing 的工作。
-    1. 處理靜態資料:
-
-        ```go { .line-numbers }
-        files := http.FileServer(http.Dir("./public"))
-        mux.Handle("/static/", http.StripPrefix("/static/", files))
-        ```
-
-        1. 指定檔案放的目錄：`http.FileServer(http.Dir("./public"))`
-        1. 設定 靜態資料的 url，指到剛剛設定的 `FileServer`。
-
-1. 其他 URL 的 routing: 利用 `HandleFunc` 來設定 URL 與處理 function 的關係。以下的 sample，`/add` 會執行 `add`, `/` 會執行 `index`
-
-    ```go { .line-numbers }
-    mux.HandleFunc("/", index)
-    mux.HandleFunc("/test", test)
-    ```
-
-1. 綁定 port 並啟動 web server
-
-    ```go { .line-numbers }
-    server := &http.Server{
-        Addr:    "0.0.0.0:8080",
-        Handler: mux,
+    log.Println("serving...")
+    if err := s.Serve(lis); err != nil {
+        log.Fatalf("failed to serve: %v", err)
     }
 
-    err := server.ListenAndServe()
-    if err != nil {
-        log.Fatalln(err)
-    }
-    ```
-
-### Handler 與 Request Parameter
-
-Handler function 的定義：
-
-```go { .line-numbers }
-func name(w http.ResponseWriter, r *http.Request) {
-    body
-}
-```
-
-eg:
-
-```go { .line-numbers }
-func index(w http.ResponseWriter, r *http.Request) {
-    var tmp = "Hello World!!!"
-
-    if r.FormValue("name") != "" {
-        tmp = "Hi, " + r.FormValue("name")
-    }
-
-    data := &MyData{
-        Title: "首頁",
-        Nav:   "home",
-        Data:  tmp,
-    }
-
-    generateHTML(w, data, "layout", "nav", "index")
-}
-```
-
-1. 可透過 `r.Method` 來判斷是 GET or POST 等
-1. 透過 `r.PostFormValue` 來取得 POST 值。Go 有內建多種取 request 值的方式，整理如下：
-
-| Field | Should call method first | parameters in URL | Form | URL encoded | Multipart (upload file)
-| - | - | - | - | - | -
-| Form | ParseForm | ✓ | ✓ | ✓ | -
-| PostForm | Form | - | ✓ | ✓ | -
-| MultipartForm | ParseMultipartForm | - | ✓ | - | ✓ |
-| FormValue | NA | ✓ | ✓ | ✓ | -
-| PostFormValue | NA | - | ✓ | ✓ | -
-
-from: [Go Web Programming](https://www.manning.com/books/go-web-programming)
-
-### Response Header
-
-預設 response 的 status code 是 **200(OK)**，如果要修改 header 值或 status code 時，要注意 `w.WriteHeader(code)` 要最後呼叫，因為呼叫完 `WriteHeader` 後，任何 header 的更動，都不會被接受。也就是改了也沒用。
-
-eg:
-
-```go {.line-numbers}
-w.Header().Set("Location", "/all")
-w.WriteHeader(302)
-```
-
-### Cookie
-
-Cookie struct
-
-```go {.line-numbers}
-type Cookie struct {
-    Name       string
-    Value      string
-    Path       string
-    Domain     string
-    Expires    time.Time
-    RawExpires string
-    MaxAge     int
-    Secure     bool
-    HttpOnly   bool
-    Raw        string
-    Unparsed   []string
-}
-```
-
-eg:
-
-```go
-func setCookie(w http.ResponseWriter, r *http.Request) {
-    c1 := http.Cookie{
-        Name:     "first_cookie",
-        Value:    "Go Web Programming",
-        HttpOnly: true,
-    }
-    c2 := http.Cookie{
-        Name:     "second_cookie",
-        Value:    "Manning Publications Co",
-        HttpOnly: true,
-    }
-    //w.Header().Set("Set-Cookie", c1.String())
-    //w.Header().Add("Set-Cookie", c2.String())
-
-    http.SetCookie(w, &c1)
-    http.SetCookie(w, &c2)
-}
-
-func getCookie(w http.ResponseWriter, r *http.Request) {
-    h := r.Header["Cookie"]
-    fmt.Fprintln(w, h)
-}
-```
-
-### Templates
-
-Go template engine 很好用，會自動依版型的內容，來自動做 escape 動作。使用 template engine 需要再學習它的語法。
-
-Go html template 是利用 text template，因此相關的語法，要看 ["text/template"](https://golang.org/pkg/text/template/#pkg-index)
-
-範例中，整理了我覺得常用的案例。
-
-### 程式碼
-
-```go { .line-numbers }
-func generateHTML(w http.ResponseWriter, data interface{}, files ...string) {
-    var tmp []string
-    for _, f := range files {
-        tmp = append(tmp, fmt.Sprintf("templates/%s.html", f))
-    }
-
-    tmpl := template.Must(template.ParseFiles(tmp...))
-    tmpl.ExecuteTemplate(w, "layout", data)
-}
-
-func test(w http.ResponseWriter, r *http.Request) {
-    data := &MyData{
-        Title: "測試",
-        Nav:   "home",
-    }
-
-    // 測試資料
-    data.Data = struct {
-        TestString   string
-        SimpleString string
-        TestStruct   struct{ A, B string }
-        TestArray    []string
-        TestMap      map[string]string
-        Num1, Num2   int
-        EmptyArray   []string
-        ZeroInt      int
-    }{
-        `O'Reilly: How are <i>you</i>?`,
-        "中文測試",
-        struct{ A, B string }{"foo", "boo"},
-        []string{"Hello", "World", "Test"},
-        map[string]string{"A": "B", "abc": "DEF"},
-        10,
-        101,
-        []string{},
-        0,
-    }
-
-    generateHTML(w, data, "layout", "nav", "test")
+    log.Println("start....")
 }
 ```
 
 說明：
 
-1. `template.ParseFiles(tmp...)`: 選擇會用到的版型檔案，要確認版型的路徑與檔案是否正確。
-1. `template.Must(template.ParseFiles(tmp...))`: 使用 `template.Must` 產生版型物件。
-1. `tmpl.ExecuteTemplate(w, "layout", data)`: 執行版型，並將版型會用的資料(`data`)帶入。其中 `"layout"` 是定義在版型內。
+1. listen port: `lis, err := net.Listen("tcp", ":50051")`
+1. New gRPC Server: `s := grpc.NewServer()`
+1. register:
 
-### 版型
-
-範例的版型結構：
-
-1. `layout.html`: 版型的主框。內含 `nav` 與  `content` 這個子版型。
-    1. `{{ template "navbar" . }}`
-    1. `{{ template "content" . }}`
-
-    在 `layout.html` 定義了這個版型的名稱 **layout**：`{{ define "layout" }}`，也就是程式碼 `tmpl.ExecuteTemplate(w, "layout", data)` 中的 `"layout"`。
-
-    在 include 子版型的語法中，eg: `{{ template "navbar" . }}`，有 **`.`**，指的是傳進來的資料，在 ["text/template"](https://golang.org/pkg/text/template/#pkg-index) 有詳細的說明。
-
-    ```html
-    {{ define "layout" }}
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=9">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Kara - {{ .Title }}</title>
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/css/bootstrap.min.css" integrity="sha384-Zug+QiDoJOrZ5t4lssLdxGhVrurbmBWopoEl+M6BdEfwnCJZtKxi1KgxUyJq13dy" crossorigin="anonymous">
-    </head>
-    <body>
-        {{ template "navbar" . }}
-        <div class="container">
-        {{ template "content" . }}
-        </div> <!-- /container -->
-        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/js/bootstrap.min.js" integrity="sha384-a5N7Y/aK3qNeh15eJKGWxsqtnX/wWdSZSKp+81YjTmS15nvnvxKHuzaWwXHDli+4" crossorigin="anonymous"></script>
-    </body>
-    </html>
-    {{ end }}
+    ```go { .line-numbers }
+    service.RegisterHelloServiceServer(s, &helloService{})
     ```
 
-1. `nav.html`: Navigation bar。跟 `layout.html` 一樣，一開頭定義這個版型的名稱 `{{ define "navbar" }}`，也就是 `layout.html` 中 `{{ template "navbar" . }}` 的 `"navbar"`。
+1. Serv:
 
-    ```html
-    {{ define "navbar" }}
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <a class="navbar-brand" href="#">Kara</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNavDropdown">
-        <ul class="navbar-nav">
-            <li class="nav-item {{ if eq .Nav "home" }}active{{ end }}">
-            <a class="nav-link" href="/">首頁</a>
-            </li>
-            <li class="nav-item {{ if eq .Nav "add" }}active{{ end }}">
-            <a class="nav-link" href="/add">新增排程</a>
-            </li>
-        </ul>
-        </div>
-    </nav>
-    {{ end }}
+    ```go { .line-numbers }
+    if err := s.Serve(lis); err != nil {
+        log.Fatalf("failed to serve: %v", err)
+    }
     ```
 
-1. `test.html`: 內容的子版型，開頭 `{{ define "content" }}` 與上述相同。
+### gRPC client
 
-```html
-{{ define "content" }}
+```go { .line-numbers }
+package main
 
-<script languate="javascript">
-    var pair = {{ .Data.TestStruct }};
-    var array = {{ .Data.TestArray }};
-    var str1 = "{{ .Data.TestString }}";
-    var str2 = "{{ .Data.SimpleString }}";
-</script>
+import (
+    "context"
+    "fmt"
+    "log"
 
-<p> escape string <br />
-{{ .Data.TestString }} <br />
-<a title='{{ .Data.TestString }}'>{{ .Data.TestString }}</a> <br />
-<a href="/{{ .Data.TestString }}">{{ .Data.TestString }}</a> <br />
-<a href="?q={{ .Data.TestString }}">{{ .Data.TestString }}</a> <br />
-<a onx='f("{{ .Data.TestString }}")'>{{ .Data.TestString }}</a> <br />
-<a onx='f({{ .Data.TestString }})'>{{ .Data.TestString }}</a> <br />
-<a onx='pattern = /{{ .Data.TestString }}/;'>{{.Data.TestString }}</a> <br />
-</p>
+    "go_test/class14/service"
 
-<p> non escape string <br />
-{{ .Data.SimpleString }} <br />
-<a title='{{ .Data.SimpleString }}'>{{ .Data.SimpleString }}</a> <br />
-<a href="/{{ .Data.SimpleString }}">{{ .Data.SimpleString }}</a> <br />
-<a href="?q={{ .Data.SimpleString }}">{{ .Data.SimpleString }}</a> <br />
-<a onx='f("{{ .Data.SimpleString }}")'>{{ .Data.SimpleString }}</a> <br />
-<a onx='f({{ .Data.SimpleString }})'>{{ .Data.SimpleString }}</a> <br />
-<a onx='pattern = /{{ .Data.SimpleString }}/;'>{{ .Data.SimpleString }}</a> <br />
-</p>
+    "google.golang.org/grpc"
+)
 
-<p>array index <br />
-    {{ index .Data.TestArray 0 }}<br />
-    {{ index .Data.TestArray 1 }}<br />
-    {{ index .Data.TestArray 2 }}<br />
-    len: {{ len .Data.TestArray }}<br />
+func main() {
 
-</p>
+    conn, err := grpc.Dial("localhost:50051", grpc.WithInsecure())
+    if err != nil {
+        panic(fmt.Sprintf("dial grpc server error: %v", err))
+    }
+    defer conn.Close()
 
-<p>Map<br />
-abc : {{ index .Data.TestMap "abc"}} <br />
-A : {{ index .Data.TestMap "A"}} <br />
-B : {{ index .Data.TestMap "B"}} <br />
-</p>
+    client := service.NewHelloServiceClient(conn)
 
-<p>Compare<br />
-{{ with .Data }}
-{{ if eq .Num1 .Num2}} eq {{ else }} ne {{end}}<br/>
-{{ if ne .Num1 .Num2}} ne {{ else }} eq {{end}}<br/>
-{{ if lt .Num1 .Num2}} lt {{ else if gt .Num1 .Num2 }} gt {{ else if le .Num1 .Num2 }} le {{ else }} ge {{end}}
-{{ end }}
-</p>
+    resp, err := client.Hello(context.Background(), &service.Request{Name: "Bob"})
 
-<p>Range Array 1<br />
-    {{ range .Data.TestArray}}
-    {{.}} <br />
-    {{else}}
-    no data
-    {{end}}
-    <br />
-</p>
+    log.Println(resp)
 
-<p>Range Array 2<br />
-    {{ range $idx, $elm := .Data.TestArray }}
-    {{ $idx }} : {{ $elm }} <br />
-    {{else}}
-    no data
-    {{end}}
-    <br />
-</p>
-
-<p>Range Map<br />
-    {{ range $key, $elm := .Data.TestMap }}
-    {{ $key }} : {{ $elm }} <br />
-    {{else}}
-    no data
-    {{end}}
-    <br />
-</p>
-
-<p>Range empty<br />
-    {{ range .Data.EmptyArray}}
-    {{ . }} <br />
-    {{ else }}
-    no data
-    {{ end }}
-    <br />
-</p>
-
-<p>with empty<br />
-   {{with .Data.EmptyArray}}
-    have data
-    {{else}}
-    nodata
-    {{end}}
-</p>
-
-<p>with int zero value<br />
-    {{with .Data.ZeroInt}}
-     have data
-     {{else}}
-     nodata
-     {{end}}
- </p>
-
-{{ end }}
+    log.Println("end...")
+}
 ```
 
-### 重點語法說明
-
-Go template engine 會依照版型的內容，自動做 escape。
-
-1. 在 `<script></script>` 的效果
-
-    語法：
-
-    ```html
-    <script languate="javascript">
-        var pair = {{ .Data.TestStruct }};
-        var array = {{ .Data.TestArray }};
-        var str1 = "{{ .Data.TestString }}";
-        var str2 = "{{ .Data.SimpleString }}";
-    </script>
-    ```
-
-    結果：
-
-    ```html
-    <script languate="javascript">
-        var pair = {"A":"foo","B":"boo"};
-        var array = ["Hello","World","Test"];
-        var str1 = "O\x27Reilly: How are \x3ci\x3eyou\x3c\/i\x3e?";
-        var str2 = "中文測試";
-    </script>
-    ```
-
-    如果 string 內容有需要做 escape 時，go template engine 會自動做，eg: `"O\x27Reilly: How are \x3ci\x3eyou\x3c\/i\x3e?"`, 比較特別的是如果資料是 struct 或 array，會自動轉成 javascript 的 data type 型態。eg: `var pair = {"A":"foo","B":"boo"};` 及 `var array = ["Hello","World","Test"];`。
-
-1. string 自動 escape 效果
-
-    語法：
-
-    ```html
-    <p> escape string <br />
-    {{ .Data.TestString }} <br />
-    <a title='{{ .Data.TestString }}'>{{ .Data.TestString }}</a> <br />
-    <a href="/{{ .Data.TestString }}">{{ .Data.TestString }}</a> <br />
-    <a href="?q={{ .Data.TestString }}">{{ .Data.TestString }}</a> <br />
-    <a onx='f("{{ .Data.TestString }}")'>{{ .Data.TestString }}</a> <br />
-    <a onx='f({{ .Data.TestString }})'>{{ .Data.TestString }}</a> <br />
-    <a onx='pattern = /{{ .Data.TestString }}/;'>{{.Data.TestString }}</a> <br />
-    </p>
-    ```
-
-    結果：
-
-    ```html
-    <p> escape string <br />
-    O&#39;Reilly: How are &lt;i&gt;you&lt;/i&gt;? <br />
-    <a title='O&#39;Reilly: How are &lt;i&gt;you&lt;/i&gt;?'>O&#39;Reilly: How are &lt;i&gt;you&lt;/i&gt;?</a> <br />
-    <a href="/O%27Reilly:%20How%20are%20%3ci%3eyou%3c/i%3e?">O&#39;Reilly: How are &lt;i&gt;you&lt;/i&gt;?</a> <br />
-    <a href="?q=O%27Reilly%3a%20How%20are%20%3ci%3eyou%3c%2fi%3e%3f">O&#39;Reilly: How are &lt;i&gt;you&lt;/i&gt;?</a> <br />
-    <a onx='f("O\x27Reilly: How are \x3ci\x3eyou\x3c\/i\x3e?")'>O&#39;Reilly: How are &lt;i&gt;you&lt;/i&gt;?</a> <br />
-    <a onx='f(&#34;O&#39;Reilly: How are \u003ci\u003eyou\u003c/i\u003e?&#34;)'>O&#39;Reilly: How are &lt;i&gt;you&lt;/i&gt;?</a> <br />
-    <a onx='pattern = /O\x27Reilly: How are \x3ci\x3eyou\x3c\/i\x3e\?/;'>O&#39;Reilly: How are &lt;i&gt;you&lt;/i&gt;?</a> <br />
-    </p>
-    ```
-
-1. string 沒有需要做 escape 時
-
-    語法：
-
-    ```html
-    <p> non escape string <br />
-    {{ .Data.SimpleString }} <br />
-    <a title='{{ .Data.SimpleString }}'>{{ .Data.SimpleString }}</a> <br />
-    <a href="/{{ .Data.SimpleString }}">{{ .Data.SimpleString }}</a> <br />
-    <a href="?q={{ .Data.SimpleString }}">{{ .Data.SimpleString }}</a> <br />
-    <a onx='f("{{ .Data.SimpleString }}")'>{{ .Data.SimpleString }}</a> <br />
-    <a onx='f({{ .Data.SimpleString }})'>{{ .Data.SimpleString }}</a> <br />
-    <a onx='pattern = /{{ .Data.SimpleString }}/;'>{{ .Data.SimpleString }}</a> <br />
-    </p>
-    ```
-
-    效果：
-
-    ```html
-    <p> non escape string <br />
-    中文測試 <br />
-    <a title='中文測試'>中文測試</a> <br />
-    <a href="/%e4%b8%ad%e6%96%87%e6%b8%ac%e8%a9%a6">中文測試</a> <br />
-    <a href="?q=%e4%b8%ad%e6%96%87%e6%b8%ac%e8%a9%a6">中文測試</a> <br />
-    <a onx='f("中文測試")'>中文測試</a> <br />
-    <a onx='f(&#34;中文測試&#34;)'>中文測試</a> <br />
-    <a onx='pattern = /中文測試/;'>中文測試</a> <br />
-    </p>
-    ```
-
-1. Compare and if-else
-
-    語法：
-
-    ```html
-    <p>Compare<br />
-    {{ with .Data }}
-    {{ if eq .Num1 .Num2}} eq {{ else }} ne {{end}}<br/>
-    {{ if ne .Num1 .Num2}} ne {{ else }} eq {{end}}<br/>
-    {{ if lt .Num1 .Num2}} lt {{ else if gt .Num1 .Num2 }} gt {{ else if le .Num1 .Num2 }} le {{ else }} ge {{end}}
-    {{ end }}
-    </p>
-    ```
-
-    結果：
-
-    ```html
-    <p>Compare<br />
-
-    ne <br/>
-    ne <br/>
-    lt 
-
-    </p>
-    ```
-
-1. 讀取 array 值
-
-    語法：
-
-    ```html
-    <p>array index <br />
-        {{ index .Data.TestArray 0 }}<br />
-        {{ index .Data.TestArray 1 }}<br />
-        {{ index .Data.TestArray 2 }}<br />
-        len: {{ len .Data.TestArray }}<br />
-    </p>
-    ```
-
-    結果：
-
-    ```html
-    <p>array index <br />
-        Hello<br />
-        World<br />
-        Test<br />
-        len: 3<br />
-    </p>
-    ```
-1. array travel (range-else)
-
-    語法：
-
-    ```html
-    <p>Range Array 1<br />
-        {{ range .Data.TestArray}}
-        {{.}} <br />
-        {{else}}
-        no data
-        {{end}}
-    </p>
-
-    <p>Range Array 2<br />
-        {{ range $idx, $elm := .Data.TestArray }}
-        {{ $idx }} : {{ $elm }} <br />
-        {{else}}
-        no data
-        {{end}}
-
-    </p>
-
-    <p>Range empty<br />
-        {{ range .Data.EmptyArray}}
-        {{ . }} <br />
-        {{ else }}
-        no data
-        {{ end }}
-    </p>
-    ```
-
-    結果：
-
-    ```html
-    <p>Range Array 1<br />
-
-        Hello <br />
-
-        World <br />
-
-        Test <br />
-
-    </p>
-
-    <p>Range Array 2<br />
-
-        0 : Hello <br />
-
-        1 : World <br />
-
-        2 : Test <br />
-
-    </p>
-
-    <p>Range empty<br />
-
-        no data
-
-    </p>
-    ```
-1. 讀取 map
-
-    語法：
-
-    ```html
-    <p>Map<br />
-    abc : {{ index .Data.TestMap "abc"}} <br />
-    A : {{ index .Data.TestMap "A"}} <br />
-    B : {{ index .Data.TestMap "B"}} <br />
-    </p>
-    ```
-
-    結果：
-
-    ```html
-    <p>Map<br />
-    abc : DEF <br />
-    A : B <br />
-    B :  <br />
-    </p>
-    ```
-
-1. Map travel
-
-    語法：
-
-    ```html
-    <p>Range Map<br />
-        {{ range $key, $elm := .Data.TestMap }}
-        {{ $key }} : {{ $elm }} <br />
-        {{else}}
-        no data
-        {{end}}
-    </p>
-    ```
-
-    結果：
-
-    ```html
-    <p>Range Map<br />
-
-        A : B <br />
-
-        abc : DEF <br />
-
-    </p>
-    ```
-
-1. 確認值是否**不是 zero value**，要特別小心當值是 **zero value**，像 `int` 型別，值又是 **"0"** 時，會判定成沒有值，會進到 `else` 的區塊。
-
-    語法：
-
-    ```html
-    <p>with empty<br />
-    {{with .Data.EmptyArray}}
-        have data
-        {{else}}
-        nodata
-        {{end}}
-    </p>
-
-    <p>with int zero value<br />
-        {{with .Data.ZeroInt}}
-        have data
-        {{else}}
-        nodata
-        {{end}}
-    </p>
-    ```
-
-    結果：
-
-    ```html
-    <p>with empty<br />
-
-        nodata
-
-    </p>
-
-    <p>with int zero value<br />
-
-        nodata
-
-    </p>
-    ```
+說明：
+
+1. connect to service: `conn, err := grpc.Dial("localhost:50051", grpc.WithInsecure())`, 因為沒有設定加密，因此要多一個 `grpc.WithInsecure()` 選項。(gRPC 預設是要用加密的，但我們沒有加密的相關設定，因此請用 *Insecure*)
+1. 透過 connection 產生 client: `client := service.NewHelloServiceClient(conn)`
+1. 呼叫 service 的 function: `resp, err := client.Hello(context.Background(), &service.Request{Name: "Bob"})`

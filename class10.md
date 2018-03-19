@@ -1,165 +1,143 @@
-# Go Class 10 Testing
+# 10 Build and Dependency Management
 
-Go 有自帶一個 Unit Test 的工具包。程式寫作時，可以自動做 unit test。使用上的慣例：在當下的目錄下，為每一個程式檔案，再新增一個 xxx_test.go 的檔案，裏面撰寫 unit test 程式。
+## Build
 
-VSCode Go Plugins 設定：
+資料來源：[How To Build Go Executables for Multiple Platforms on Ubuntu 16.04](https://www.digitalocean.com/community/tutorials/how-to-build-go-executables-for-multiple-platforms-on-ubuntu-16-04)
 
-```json
-{
-    "terminal.integrated.shell.osx": "/bin/zsh",
-    "go.coverOnSave": true,
-    "go.coverageDecorator": "gutter"
-}
+執行指令：`env GOOS=target-OS GOARCH=target-architecture go build package-import-path`
+
+平台列表
+
+| GOOS - Target Operating System | GOARCH - Target Platform |
+| - | -
+| android | arm
+| darwin | 386
+| darwin | amd64
+| darwin | arm
+| darwin | arm64
+| dragonfly | amd64
+| freebsd | 386
+| freebsd | amd64
+| freebsd | arm
+| linux | 386
+| linux | amd64
+| linux | arm
+| linux | arm64
+| linux | ppc64
+| linux | ppc64le
+| linux | mips
+| linux | mipsle
+| linux | mips64
+| linux | mips64le
+| netbsd | 386
+| netbsd | amd64
+| netbsd | arm
+| openbsd | 386
+| openbsd | amd64
+| openbsd | arm
+| plan9 | 386
+| plan9 | amd64
+| solaris | amd64
+| windows | 386
+| windows | amd64
+
+**Warning: Cross-compiling executables for Android requires the Android NDK, and some additional setup which is beyond the scope of this tutorial.**
+
+作者的文章中，有提到 ubuntu 環境的 script，以此，修改 mac 的版本：
+
+```bash
+#!/usr/bin/env bash
+
+package=$1
+if [[ -z "$package" ]]; then
+  echo "usage: $0 <package-name>"
+  exit 1
+fi
+package_split=(${package//\// })
+package_split_len=${#package_split[@]}
+package_split_last=`expr $package_split_len - 1`
+package_name=${package_split[$package_split_last]}
+platforms=("windows/amd64" "windows/386" "darwin/amd64")
+
+for platform in "${platforms[@]}"
+do
+    platform_split=(${platform//\// })
+    GOOS=${platform_split[0]}
+    GOARCH=${platform_split[1]}
+    output_name='../build/'$package_name'-'$GOOS'-'$GOARCH
+    if [ $GOOS = "windows" ]; then
+        output_name+='.exe'
+    fi
+
+    echo 'build '$output_name
+    env GOOS=$GOOS GOARCH=$GOARCH go build -o $output_name $package
+    if [ $? -ne 0 ]; then
+        echo 'An error has occurred! Aborting the script execution...'
+        exit 1
+    fi
+done
 ```
 
-eg: 專案目錄是 `class10`
+## Dependency Management
 
-```text
-.
-├── util.go
-└── util_test.go
+Go 原本是沒有 dependency management 工具，因此社群很多第三方的工具，後來官方才出自己的版本。[go dep](https://github.com/golang/dep)
+
+原本 go 要用第三方套件時，都會使用 `go get -u 套件_URL` 的方式，將 source code 下載到 $GOPATH/src 下。如果不同專案，使用到相同的套件，但不同版本時，就會很麻煩。
+
+大多數的管理工具，包含官方工具，會在專案的目錄下，產生 `vendor` 的目錄，將第三方套件的 source code 下載到這個目錄下，專案有使用到時，則來這個目錄找。
+
+使用方式：
+
+1. 一開始在專案的目錄下，執行 `dep init`，會產生 `Gopkg.toml`, `Gopkg.lock` 及 `vendor`
+1. 產生一個 go 的程式檔案
+1. 需要用到某個套件前(還沒開始寫 import), 執行 `dep ensure -add 套件_URI[@版本]`[^dep_version]。會發現在 `Gopkg.toml` 加入設定，以及下載套件到 `vendor` 目錄下。
+1. 繼續寫程式
+
+[^dep_version]: 如要指定版本，請在 URL 後, 加版本號碼, eg: `@v1.0.0`
+
+常用指令：
+
+- `dep init`: 第一次使用管理工具時，請先執行，會自動產生 `Gopkg.toml` 檔案，裏面會去掃描有用到的第三方工具，並下載。
+- `dep ensure`: 之後有異動 `Gopkg.toml`，再執行，會去更新 `vendor` 目錄
+
+### Gopkg.toml 格式
+
+```toml
+# Gopkg.toml example
+#
+# Refer to https://github.com/golang/dep/blob/master/docs/Gopkg.toml.md
+# for detailed Gopkg.toml documentation.
+#
+# required = ["github.com/user/thing/cmd/thing"]
+# ignored = ["github.com/user/project/pkgX", "bitbucket.org/user/project/pkgA/pkgY"]
+#
+# [[constraint]]
+#   name = "github.com/user/project"
+#   version = "1.0.0"
+#
+# [[constraint]]
+#   name = "github.com/user/project2"
+#   branch = "dev"
+#   source = "github.com/myfork/project2"
+#
+# [[override]]
+#  name = "github.com/x/y"
+#  version = "2.4.0"
 ```
 
-測試 function 命名是以 **Test** 開頭，通常會針對要測試的 function 來命名，比如：有一個 `Sum` 的 function, 測試 `Sum` 的 function 則命名為 `TestSum`。
+最常用的是 **``[[constraint]]``**
 
 eg:
 
-util.go
+```toml
+[[constraint]]
+  name = "google.golang.org/grpc"
+  version = "1.7.1"
 
-```go { .line-numbers }
-package class10
-
-// Sum ...
-func Sum(n ...int) int {
-
-    sum := 0
-
-    for _, x := range n {
-        sum += x
-    }
-
-    return sum
-}
+[[constraint]]
+  name = "golang.org/x/net"
+  branch = "master"
 ```
 
-util_test.go
-
-```go { .line-numbers }
-package class10
-
-import "testing"
-
-func TestSum(t *testing.T) {
-
-    x := Sum(1, 2, 3, 4, 5)
-
-    if x != 15 {
-        t.Fatal("sum error")
-    }
-}
-```
-
-如果 VSCode 有設定正確的話，在每次修改 util.go 存檔後，會自動執行 unit test，並回報覆蓋度。如下圖：
-
-![Unit Test Coverage](unit_test.png)
-
-## tesint.T
-
-`testing.T` 是做 unit test 會帶入的參數，它的功能很多 (可參考[官方說明](https://golang.org/pkg/testing/#T))，以下列出常用的 function。
-
-1. Log, Logf: 輸出訊息
-1. Fail: 標註目前測試，發生錯誤，但**繼續**執行
-1. FailNow: 標註目前測試，發生錯誤，**中斷**執行
-1. Error, Errorf: Log + Fail
-1. Fatal, Fatalf: Log + FailNow
-
-通常會用到的是 `Log`, `Logf`, `Error`, `Errorf`, `Fatal`, `Fatalf`
-
-## testing.M
-
-很多情況下，unit test 會需要先產生測試資料，在完成後，刪除測試資料。此時，撰寫 unit test 就好像在寫一個完整的執行程式，此時就會用到 `testing.M`.
-
-eg:
-
-```go { .line-numbers }
-package class10
-
-import (
-    "os"
-    "testing"
-)
-
-func TestSum(t *testing.T) {
-
-    x := Sum(1, 2, 3, 4, 5)
-
-    if x != 15 {
-        t.Fatal("sum error")
-    }
-}
-
-func TestMain(m *testing.M) {
-    // initialize test resource
-
-    exitCode := m.Run()
-
-    // destroy test resource
-
-    os.Exit(exitCode)
-}
-```
-
-## Benchmark
-
-Go Unit Test 套件，也可以做 benchmark 測試，程式碼撰寫在 `xxx_test.go` 中，function 命名與 Test 類似，以 **Benchmark** 開頭。
-
-eg:
-
-```go { .line-numbers }
-package class10
-
-import (
-    "os"
-    "testing"
-)
-
-func TestSum(t *testing.T) {
-
-    x := Sum(1, 2, 3, 4, 5)
-
-    if x != 15 {
-        t.Fatal("sum error")
-    }
-}
-
-func TestMain(m *testing.M) {
-    // initialize test resource
-
-    exitCode := m.Run()
-
-    // destroy test resource
-
-    os.Exit(exitCode)
-}
-
-func BenchmarkSum(b *testing.B) {
-    for i := 0; i < b.N; i++ {
-        Sum(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
-    }
-}
-```
-
-VS Code 預設不會執行 benchmark，因此可以在 console 下，切換到專案目錄，執行 `go test -bench="."`。可以得到以下的結果：
-
-```text
-goos: darwin
-goarch: amd64
-pkg: go_test/class10
-BenchmarkSum-4
-200000000                8.01 ns/op
-PASS
-ok      go_test/class10 2.421s
-```
-
-以中 `200000000                8.01 ns/op` 是指本次 benchmark 執行 **200000000** 次數，**8.01 ns/op** 每次花費 **8.01 ns**。
-1 ns/op** 每次花費 **8.01 ns**。
+- version: 指定要用那個一版本。
+- branch: 指定要用那一個分支，通常不指定 version 時，會直接用 master 分支。直接用 master 分支。
