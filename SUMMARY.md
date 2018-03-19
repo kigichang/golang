@@ -8,7 +8,7 @@
 * [05 Data Types - Reference Types](class05_.md)
 * [06 Functions and Methods](class06_.md)
 * [07 Interface](class07_.md)
-* 08 Concurrency - Goroutine and Channel
+* [08 Concurrency - Goroutine and Channel](class08_.md)
 * 09 Testing
 * 10 Build and Dependency Management
 * 11 flag and spf13 Cobra/Viper
