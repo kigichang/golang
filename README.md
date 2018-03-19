@@ -1,5 +1,8 @@
 # 學習 Golang 的筆記
 
+[Source on Github](https://github.com/kigichang/golang)
+[Publish on Gitbooks](https://kigi.gitbooks.io/golang/content/)
+
 資料主要來自：
 
 1. 官網：[https://golang.org/](https://golang.org/)
