@@ -5,7 +5,7 @@
 * [02 程式結構與語法](class02.md)
 * [03 Data Types - Basic Types](class03.md)
 * [04 Data Types - Aggregate Types](class04.md)
-* 05 Data Types - Reference Types
+* [05 Data Types - Reference Types](class05.md)
 * 06 Functions and Methods
 * 07 Interface
 * 08 Concurrency - Goroutine and Channel
