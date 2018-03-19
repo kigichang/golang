@@ -95,7 +95,7 @@ Books:
 1. 在 src 下開一個目錄
 1. 產生一個檔案 `main.go` 內容如下：
 
-    ```go { .line-numbers }
+    ```go
     package main
 
     import "fmt"
@@ -119,7 +119,7 @@ Books:
 
 重覆上述的動作，sample code 如下：
 
-```go { .line-numbers }
+```go
 package main
 
 import (
