@@ -7,7 +7,7 @@
 * [04 Data Types - Aggregate Types](class04.md)
 * [05 Data Types - Reference Types](class05.md)
 * [06 Functions and Methods](class06.md)
-* 07 Interface
+* [07 Interface](class07.md)
 * 08 Concurrency - Goroutine and Channel
 * 09 Testing
 * 10 Build and Dependency Management
