@@ -16,4 +16,4 @@
 * 13 Protobuf and gRPC
 * 14 Reflection and Struct Tag
 * 15 Fake Inherit in Golang
-* 16 Cowork with C/C++
+* 16 Cowork with C/C++ (swig)
