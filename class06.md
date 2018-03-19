@@ -68,28 +68,28 @@ func name(parameter-list) (result-list) {
 
     eg:
 
-    sample 1:
+    1. 宣告
 
-    ```go
-    func sum(vals ...int) int {
-        total := 0
-        for _, val := range vals {
-            total += val
+        ```go
+        func sum(vals ...int) int {
+            total := 0
+            for _, val := range vals {
+                total += val
+            }
+            return total
         }
-        return total
-    }
 
-    fmt.Println(sum())           //  "0"
-    fmt.Println(sum(3))          //  "3"
-    fmt.Println(sum(1, 2, 3, 4)) //  "10"
-    ```
+        fmt.Println(sum())           //  "0"
+        fmt.Println(sum(3))          //  "3"
+        fmt.Println(sum(1, 2, 3, 4)) //  "10"
+        ```
 
-    如何將 slice 傳入:
+    1. 如何將 slice 傳入:
 
-    ```go
-    values := []int{1, 2, 3, 4}
-    fmt.Println(sum(values...)) // "10"
-    ```
+        ```go
+        values := []int{1, 2, 3, 4}
+        fmt.Println(sum(values...)) // "10"
+        ```
 
 ### Pass by Value (Call by Value)
 
