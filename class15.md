@@ -1,0 +1,1 @@
+# 15 Fake Inherit in Golang
