@@ -1,4 +1,4 @@
-# 學習 Golang 的筆記
+# Golang 學習筆記
 
 - [Source on Github](https://github.com/kigichang/golang)
 - [Publish on Gitbooks](https://kigi.gitbooks.io/golang/content/)
