@@ -61,7 +61,7 @@ Books:
 
 ### Strong Type
 
-變數宣告後，它的資料型別也就固定了，不能再更改。不像 PHP 可以隨意改變變數的資料型別。
+變數宣告後，它的資料型別也就固定，不能更改。不像 PHP 可以隨意更改變數的資料型別。
 
 ### 可在不同平台執行
 
@@ -73,9 +73,9 @@ Books:
 
 ### 沒有 OO (Object Oriented)
 
-程式撰寫的觀念與 C 類似，有 pointer，但沒有物件導向[^nonOO]。
+程式撰寫的觀念與 C 類似，有 pointer，但沒有物件導向[^NotOOP]。
 
-[^nonOO]: OOP 有三個基本特性: 封裝，繼承，多型。而 Go 只有封裝。因此我覺得 Go 不算是 OO 的語言。
+[^NotOOP]: OOP 有三個基本特性: 封裝，繼承，多型。而 Go 只有封裝。因此我覺得 Go 不算是 OO 的語言。
 
 ### 有 package 管理
 
@@ -135,4 +135,4 @@ func main() {
 }
 ```
 
-利用 `os.Args` 來接 command line 傳進來的參數。`os.Args[0]` 是執行檔的完整檔名，所以傳入的參數值要從 `os.Args[1]` 開始。如果要寫較複雜的 command line 程式，建議用 [spf13/cobra](https://github.com/spf13/cobra) 這個套件來管理參數。
+利用 `os.Args` 來接 command line 傳進來的參數。`os.Args[0]` 是執行檔的完整檔名，所以傳入的參數值要從 `os.Args[1]` 開始。Golang 有內建 `flag` 套件來管理參數，但如果要寫較複雜的 command line 程式，建議用 [spf13/cobra](https://github.com/spf13/cobra)。
