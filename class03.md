@@ -313,7 +313,7 @@ hello world!!!
 
 ## Visible
 
-Go 沒有 `private` and `public`，是利用字母的大、小寫來區分 `private` 及 `public`。如果變數或 function 是小寫開頭，則為 **private**，反之，大寫就是 **public**。
+Go 沒有 `private` and `public`，是利用字母的大、小寫來區分 `private` 及 `public`。如果變數或 function 是小寫開頭，則為 **private**，反之，大寫就是 **public**。private 變數，在同 package 下，即使是不同 struct，都會可以被讀取。
 
 ## Scope
 
