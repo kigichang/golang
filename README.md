@@ -1,7 +1,7 @@
 # Golang 學習筆記
 
 - [Source on Github](https://github.com/kigichang/golang)
-- [Publish on Gitbooks](https://kigi.gitbooks.io/golang/content/)
+- [Publish on Gitbook](https://kigi.gitbooks.io/golang/content/)
 
 資料主要來自：
 
