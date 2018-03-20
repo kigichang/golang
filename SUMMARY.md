@@ -9,7 +9,7 @@
 * [06 Functions and Methods](class06_.md)
 * [07 Interface](class07_.md)
 * [08 Concurrency - Goroutine and Channel](class08_.md)
-* 09 Testing
+* [09 Testing](class09_.md)
 * 10 Build and Dependency Management
 * 11 flag and spf13 Cobra/Viper
 * 12 MySQL and Web (Gorilla web toolkit)
