@@ -1,6 +1,6 @@
 # 12 MySQL and Web
   
-  
+{% raw %}
 ## MySQL
   
   
@@ -1340,4 +1340,4 @@ s.Use(handler.MemberAuthHandler)
   
     - key: cookie name
     - value: original cookie value
-  
+  {% endraw %}
