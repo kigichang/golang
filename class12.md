@@ -1098,7 +1098,226 @@ Go template engine 會依照版型的內容，自動做 escape。
 
 ## Build Web with Gorilla Toolkit
 
-- [mux](https://github.com/gorilla/mux)
-- [securecookie](https://github.com/gorilla/securecookie)
-- [schema](https://github.com/gorilla/schema)
-- [csrf](https://github.com/gorilla/csrf)
+- [mux](https://github.com/gorilla/mux): Mux Router，可以定義更彈性的 routing path.
+- [securecookie](https://github.com/gorilla/securecookie): 加密 cookie
+- [schema](https://github.com/gorilla/schema): 將 post form 的資料，轉成 struct
+- [csrf](https://github.com/gorilla/csrf): 避免被 CSRF 功擊[^csrf]
+
+[^csrf]: [讓我們來談談 CSRF](https://blog.techbridge.cc/2017/02/25/csrf-introduction/)
+
+將綜合以上與 Gorilla Tool Kit，撰寫註冊與登入功能。
+
+### Table Schema
+
+**account**:
+
+```sql
+CREATE TABLE `member` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) NOT NULL,
+  `created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8
+```
+
+```sql
+CREATE TABLE `account` (
+  `id` int(11) NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `password` char(100) NOT NULL,
+  `created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `email` (`email`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8
+```
+
+### mux
+
+```go {.line-numbers}
+r := mux.NewRouter()
+
+r.HandleFunc("/", handler.Index)
+r.HandleFunc("/login", handler.ShowLogin).Methods("GET")
+r.HandleFunc("/login", handler.DoLogin).Methods("POST")
+r.HandleFunc("/logout", handler.Logout)
+r.HandleFunc("/register", handler.ShowRegister).Methods("GET")
+r.HandleFunc("/register", handler.DoRegister).Methods("POST")
+
+s := r.PathPrefix("/member").Subrouter()
+s.HandleFunc("", handler.Member)
+s.HandleFunc("/edit", handler.MemberShowEdit).Methods("GET")
+s.HandleFunc("/edit", handler.MemberDoEdit).Methods("POST")
+
+s.Use(handler.MemberAuthHandler)
+```
+
+- `Methods(xxx)`: 限定某種 Http Method
+- `r.PathPrefix(xxx).Subrouter()`: 產生子 router, 方便管理
+- `s.Use(xxx)`: 此 router 下的所有 request 都需要先經過某個 handler 處理，類似 fiter 功能。
+
+### csrf
+
+1. 設定:
+
+    ```go {.line-numbers}
+    CSRF := csrf.Protect(
+        []byte(`1234567890abcdefghijklmnopqrstuvwsyz!@#$%^&*()_+~<>?:{}|,./;'[]\`),
+        csrf.RequestHeader("X-ATUH-Token"),
+        csrf.FieldName("auth_token"),
+        csrf.Secure(false),
+    )
+
+    log.Fatal(http.ListenAndServe(":8000", CSRF(r)))
+    ```
+
+1. 用 `csrf.TemplateField(r)` 產生 token 並傳給版型
+
+    ```go {.line-numbers}
+    func ShowLogin(w http.ResponseWriter, r *http.Request) {
+        tmpl.HTML(w, csrf.TemplateField(r), "layout", "login")
+    }
+    ```
+
+1. 將 token 放在 html form 內
+
+    ```html
+    {{ define "content" }}
+    <form method="post" action="/login">
+    {{ . }}
+        <div class="form-group row">
+        <label for="email" class="col-sm-2 col-form-label">Email:</label>
+        <div class="col-sm-10">
+            <input type="email" class="form-control" id="email" name="email" required>
+        </div>
+        </div>
+        <div class="form-group row">
+            <label for="password" class="col-sm-2 col-form-label">Password</label>
+            <div class="col-sm-10">
+            <input type="password" class="form-control" id="password" name="password" required>
+            </div>
+        </div>
+        <div class="form-group row">
+        <div class="col-sm-10">
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </div>
+        </div>
+    </form>
+    {{ end }}
+    ```
+
+1. 用 Gorilla schema 處理時，記得要加一個 token 欄位，可以不處理
+
+    ```go {.line-number}
+    form := struct {
+        Email    string `schema:"email"`
+        Password string `schema:"password"`
+        Token    string `schema:"auth_token"`
+    }{}
+
+    r.ParseForm()
+
+    err := schema.NewDecoder().Decode(&form, r.PostForm)
+    ```
+
+### schema
+
+1. form 版型
+
+    ```html
+    {{ define "content" }}
+    <form method="post" action="/register">
+    {{ . }}
+        <div class="form-group row">
+        <label for="name" class="col-sm-2 col-form-label">Name:</label>
+        <div class="col-sm-10">
+            <input type="text" class="form-control" id="name" name="name" required>
+        </div>
+        </div>
+        <div class="form-group row">
+        <label for="email" class="col-sm-2 col-form-label">Email:</label>
+        <div class="col-sm-10">
+            <input type="email" class="form-control" id="email" name="email" required>
+        </div>
+        </div>
+        <div class="form-group row">
+            <label for="password" class="col-sm-2 col-form-label">Password</label>
+            <div class="col-sm-10">
+            <input type="password" class="form-control" id="password" name="password" required>
+            </div>
+        </div>
+        <div class="form-group row">
+        <div class="col-sm-10">
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </div>
+        </div>
+    </form>
+    {{ end }}
+    ```
+
+1. 宣告相對應的 struct 並 decode
+
+```go {.line-numbers}
+form := struct {
+    Name     string `schema:"name"`
+    Email    string `schema:"email"`
+    Password string `schema:"password"`
+    Token    string `schema:"auth_token"`
+}{}
+
+r.ParseForm()
+
+err := schema.NewDecoder().Decode(&form, r.PostForm)
+```
+
+### securecookie
+
+1. Initialize
+
+    ```go {.line-number}
+    secureC = securecookie.New([]byte(hashKey), []byte(blockKey))
+    ```
+
+    - hashKey: 32 or 64 bytes
+    - blockKey: 16 (AES-128), 24 (AES-192), 32 (AES-256) bytes
+
+1. Encode and Set Cookie
+
+    ```go {.line-numbers}
+    tmp, err := secureC.Encode(key, value)
+
+    if err != nil {
+        return
+    }
+
+    c := &http.Cookie{
+        Name:   key,
+        Value:  tmp,
+        MaxAge: 0,
+        Path:   "/",
+    }
+
+    http.SetCookie(w, c)
+    ```
+
+    - key: cookie name
+    - value: cookie value to encode
+
+1. Read Cookie and Decode
+
+    ```go {.line-numbers}
+    c, err := r.Cookie(key)
+    if err != nil {
+        return
+    }
+
+    value := ""
+    err = secureC.Decode(key, c.Value, &value)
+    if err != nil {
+        return
+    }
+    ```
+
+    - key: cookie name
+    - value: original cookie value
