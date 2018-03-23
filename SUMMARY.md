@@ -12,7 +12,7 @@
 - [09 Testing](class09_.md)
 - [10 Build and Dependency Management](class10_.md)
 - [11 flag and spf13 Cobra/Viper](class11_.md)
-- 12 MySQL and Web (Gorilla web toolkit)
+- [12 MySQL and Web (Gorilla web toolkit)](class12_.md)
 - 13 Protobuf and gRPC
 - 14 Reflection and Struct Tag
 - 15 Fake Inherit in Golang

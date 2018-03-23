@@ -1,11 +1,13 @@
 # 12 MySQL and Web
-
+  
+  
 ## MySQL
-
-與 Java JDBC 類似，Go 有定義一套 interface，所有要連 DB 的 driver，都需要實作這些 interface (["database/sql/driver"](https://golang.org/pkg/database/sql/driver/))。以下我是用 [go-sql-driver/mysql](https://github.com/go-sql-driver/mysql)
-
+  
+  
+與 Java JDBC 類似，Go 有定義一套 interface，所有要連 DB 的 driver，都需要實作這些 interface (["database/sql/driver"](https://golang.org/pkg/database/sql/driver/ ))。以下我是用 [go-sql-driver/mysql](https://github.com/go-sql-driver/mysql )
+  
 **Test table schema** (MySQL):
-
+  
 ```sql
 CREATE TABLE `member` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -21,22 +23,22 @@ CREATE TABLE `member` (
   UNIQUE KEY `id` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8
 ```
-
+  
 **sample code**:
-
-```go { .line-numbers }
+  
+```go
 package main
-
+  
 import (
     "database/sql"
     "encoding/json"
     "fmt"
     "log"
     "time"
-
+  
     _ "github.com/go-sql-driver/mysql"
 )
-
+  
 // Member ...
 type Member struct {
     ID       int
@@ -49,7 +51,7 @@ type Member struct {
     Created  time.Time
     Updated  time.Time
 }
-
+  
 // Connect ...
 func Connect() (*sql.DB, error) {
     db, err := sql.Open("mysql", "test:1234test@tcp(localhost)/test?charset=utf8mb4,utf8&parseTime=true")
@@ -58,19 +60,19 @@ func Connect() (*sql.DB, error) {
     }
     return db, nil
 }
-
+  
 func main() {
-
+  
     db, err := Connect()
     if err != nil {
         log.Fatal("connect:", err)
     }
     defer db.Close()
-
+  
     birthday := time.Date(0, time.January, 1, 0, 0, 0, 0, time.UTC) //time.Parse("2006-01-02", "1000-01-01")
     register := time.Date(0, time.January, 1, 0, 0, 0, 0, time.UTC)
     login := time.Now()
-
+  
     m1 := Member{
         Name:     "小明",
         Info:     "小明",
@@ -80,42 +82,42 @@ func main() {
         VIP:      "A",
     }
     log.Println(m1)
-
+  
     ins, err := db.Prepare("insert into member(name, info, birthday, register, login, vip) values(?, ?, ?, ?, ?, ?)")
     if err != nil {
         log.Println("prepare insert:", err)
         return
     }
     defer ins.Close()
-
+  
     result, err := ins.Exec(m1.Name, m1.Info, m1.Birthday, m1.Register, m1.Login, m1.VIP)
     if err != nil {
         log.Println("insert:", err)
         return
     }
     defer ins.Close()
-
+  
     id, err := result.LastInsertId()
     if err != nil {
         log.Println("last id:", err)
         return
     }
-
+  
     sel, err := db.Prepare("select id, name, info, birthday, register, login, vip, created, updated from member where id = ?")
     if err != nil {
         log.Println("prepare select:", err)
         return
     }
     defer sel.Close()
-
+  
     rows, err := sel.Query(id)
     if err != nil {
         log.Println("query:", err)
         return
     }
-
+  
     defer rows.Close()
-
+  
     if rows.Next() {
         m2 := Member{}
         err = rows.Scan(&m2.ID, &m2.Name, &m2.Info, &m2.Birthday, &m2.Register, &m2.Login, &m2.VIP, &m2.Created, &m2.Updated)
@@ -128,37 +130,38 @@ func main() {
     } else {
         log.Printf("data (%d) not found\n", id)
     }
-
+  
     fmt.Println("end")
 }
 ```
-
+  
 ### 連線
-
+  
+  
 1. import package.
-
-    ```go { .line-numbers }
+  
+    ```go
     import (
         "database/sql"
         _ "github.com/go-sql-driver/mysql"
     )
     ```
-
+  
     1. `"database/sql"` 是 go 定義 sql interface 的 package
     1. `_ "github.com/go-sql-driver/mysql"` mysql driver package
-
+  
 1. 定義資料的 struct，類似要做 ORM 的動作，當然也可以不要這個定義，都用變數來存資料。
-
-    ```go { .line-numbers }
+  
+    ```go
     // Member ...
     type Member struct {
         ...
     }
     ```
-
+  
 1. 連線資料庫
-
-    ```go { .line-numbers }
+  
+    ```go
     func Connect() (*sql.DB, error) {
         db, err := sql.Open("mysql", "test:1234test@tcp(localhost)/test?charset=utf8mb4,utf8&parseTime=true")
         if err != nil {
@@ -167,32 +170,33 @@ func main() {
         return db, nil
     }
     ```
-
-    與 JDBC 連線類似，指定 driver 的種類，並傳入一組 url 的設定, 格式是：`[username[:password]@][protocol[(address)]]/dbname[?param1=value1&...&paramN=valueN]`。詳細的說明，請見：[DSN (Data Source Name)](https://github.com/go-sql-driver/mysql#dsn-data-source-name)。我在連線後，可以多做了 Ping 的動作，如下：
-
-    ```go { .line-numbers }
+  
+    與 JDBC 連線類似，指定 driver 的種類，並傳入一組 url 的設定, 格式是：`[username[:password]@][protocol[(address)]]/dbname[?param1=value1&...&paramN=valueN]`。詳細的說明，請見：[DSN (Data Source Name)](https://github.com/go-sql-driver/mysql#dsn-data-source-name )。我在連線後，可以多做了 Ping 的動作，如下：
+  
+    ```go
     if err := db.Ping(); err != nil {
         return nil, err
     }
     ```
-
+  
     記得取的 db 連線後，立即下 `defer db.Close()`，確保程式在結束後，會關閉連線。如下：
-
-    ```go { .line-numbers }
+  
+    ```go
     db, err := Connect()
     if err != nil {
         log.Fatal("connect:", err)
     }
     defer db.Close()
     ```
-
+  
 ### Insert
-
-```go { .line-numbers }
+  
+  
+```go
 birthday := time.Date(0, time.January, 1, 0, 0, 0, 0, time.UTC)
 register := time.Date(0, time.January, 1, 0, 0, 0, 0, time.UTC)
 login := time.Now()
-
+  
 m1 := Member{
     Name:     "小明",
     Info:     "小明",
@@ -202,33 +206,33 @@ m1 := Member{
     VIP:      "A",
 }
 log.Println(m1)
-
+  
 ins, err := db.Prepare("insert into member(name, info, birthday, register, login, vip) values(?, ?, ?, ?, ?, ?)")
 if err != nil {
     log.Println("prepare insert:", err)
     return
 }
 defer ins.Close()
-
+  
 result, err := ins.Exec(m1.Name, m1.Info, m1.Birthday, m1.Register, m1.Login, m1.VIP)
 if err != nil {
     log.Println("insert:", err)
     return
 }
 defer ins.Close()
-
+  
 id, err := result.LastInsertId()
 if err != nil {
     log.Println("last id:", err)
     return
 }
 ```
-
+  
 說明：
-
+  
 1. 利用 DB.Pepare 建立一個 PreparedStatement 連線，記得下 `defer ins.Close()`
-
-    ```go { .line-numbers }
+  
+    ```go
     ins, err := db.Prepare("insert into member(name, info, birthday, register, login, vip) values(?, ?, ?, ?, ?, ?)")
     if err != nil {
         log.Println("prepare insert:", err)
@@ -236,36 +240,37 @@ if err != nil {
     }
     defer ins.Close()
     ```
-
+  
 1. 使用 Stmt.Exec 執行指 SQL 指令。
-
-    ```go { .line-numbers }
+  
+    ```go
     result, err := ins.Exec(m1.Name, m1.Info, m1.Birthday, m1.Register, m1.Login, m1.VIP)
     if err != nil {
         log.Println("insert:", err)
         return
     }
     defer ins.Close()
-
+  
     id, err := result.LastInsertId()
     if err != nil {
         log.Println("last id:", err)
         return
     }
     ```
-
+  
     Result 功能：
-
+  
     1. LastInsertId(): 取得 **auto_increment** 的 id
-    1. RowsAffected(): 取得異動的資料筆數，注意，[文件](https://golang.org/pkg/database/sql/#Result)上說並非所有的 driver 都會實作。
-
+    1. RowsAffected(): 取得異動的資料筆數，注意，[文件](https://golang.org/pkg/database/sql/#Result )上說並非所有的 driver 都會實作。
+  
 **Update/Delete** 與 Insert 類似。
-
+  
 ### Select
-
+  
+  
 1. 下 SQL，與 Java 的 PreparedStatement 類似。
-
-    ```go { .line-numbers }
+  
+    ```go
     sel, err := db.Prepare("select id, name, info, birthday, register, login, vip, created, updated from member where id = ?")
     if err != nil {
         log.Println("prepare select:", err)
@@ -273,26 +278,26 @@ if err != nil {
     }
     defer sel.Close()
     ```
-
+  
     與上述 db 類似，取得連線後，記得下 `defer sel.Close()` 確保程式結束後，會關閉 statement 連線。
-
+  
 1. 使用 Stmt.Query 方式，取得 Rows
-
-    ```go { .line-numbers }
+  
+    ```go
     rows, err := sel.Query(id)
     if err != nil {
         log.Println("query:", err)
         return
     }
-
+  
     defer rows.Close()
     ```
-
-    與上述取得連線一樣，立即下 `defer rows.Close()` 確保程式結束後，會關閉 rows。(說明文件說，會[自動關閉](https://golang.org/pkg/database/sql/#Rows.Close)。這部分就看自己的習慣了。但 DB 與 Stmt 一定要記得關。)
-
+  
+    與上述取得連線一樣，立即下 `defer rows.Close()` 確保程式結束後，會關閉 rows。(說明文件說，會[自動關閉](https://golang.org/pkg/database/sql/#Rows.Close )。這部分就看自己的習慣了。但 DB 與 Stmt 一定要記得關。)
+  
 1. 一定要先執行 **Next** 才能取資料。
-
-    ```go { .line-numbers }
+  
+    ```go
     if rows.Next() {
         m2 := Member{}
         err = rows.Scan(&m2.ID, &m2.Name, &m2.Info, &m2.Birthday, &m2.Register, &m2.Login, &m2.VIP, &m2.Created, &m2.Updated)
@@ -306,25 +311,27 @@ if err != nil {
         log.Printf("data (%d) not found\n", id)
     }
     ```
-
+  
 1. 透過 Rows.Scan 取得資料。
-
-    ```go { .line-numbers }
+  
+    ```go
     err = rows.Scan(&m2.ID, &m2.Name, &m2.Info, &m2.Birthday, &m2.Register, &m2.Login, &m2.VIP, &m2.Created, &m2.Updated)
     if err != nil {
         log.Println("scan:", err)
         return
     }
     ```
-
+  
 ### Connect, Prepared Statement, Rows, Cursor 關係
-
-![DB](db.png)
-
+  
+  
+![DB](db.png )
+  
 ## Web
-
+  
+  
 Go 有內建撰寫 Web Server 的套件，可以自己實作一套 AP server。因為 web 還會用到版型與靜態資料，因此在專案目錄的配置建議如下：
-
+  
 ```text
 web
 ├── main.go
@@ -335,47 +342,47 @@ web
     ├── nav.html
     └── test.html
 ```
-
+  
 目錄說明
-
+  
 1. public: 放置靜態資料，實際運作上，AP server 可以不用處理靜態資料。
 1. templates: 放置版型
-
+  
 **完整的程式碼**:
-
-```go { .line-numbers }
+  
+```go
 package main
-
+  
 import (
     "fmt"
     "html/template"
     "log"
     "net/http"
 )
-
+  
 // MyData ...
 type MyData struct {
     Title string
     Nav   string
     Data  interface{}
 }
-
+  
 func generateHTML(w http.ResponseWriter, data interface{}, files ...string) {
     var tmp []string
     for _, f := range files {
         tmp = append(tmp, fmt.Sprintf("templates/%s.html", f))
     }
-
+  
     tmpl := template.Must(template.ParseFiles(tmp...))
     tmpl.ExecuteTemplate(w, "layout", data)
 }
-
+  
 func test(w http.ResponseWriter, r *http.Request) {
     data := &MyData{
         Title: "測試",
         Nav:   "test",
     }
-
+  
     data.Data = struct {
         TestString   string
         SimpleString string
@@ -396,11 +403,11 @@ func test(w http.ResponseWriter, r *http.Request) {
         []string{},
         0,
     }
-
+  
     tmpl := template.Must(template.ParseFiles("templates/layout.html", "templates/nav.html", "templates/test.html"))
     tmpl.ExecuteTemplate(w, "layout", data)
 }
-
+  
 func setCookie(w http.ResponseWriter, r *http.Request) {
     c1 := http.Cookie{
         Name:     "first_cookie",
@@ -415,114 +422,115 @@ func setCookie(w http.ResponseWriter, r *http.Request) {
     http.SetCookie(w, &c1)
     http.SetCookie(w, &c2)
 }
-
+  
 func getCookie(w http.ResponseWriter, r *http.Request) {
     h := r.Header["Cookie"]
     fmt.Fprintln(w, h)
 }
-
+  
 func main() {
     mux := http.NewServeMux()
     files := http.FileServer(http.Dir("./public"))
-
+  
     mux.Handle("/static/", http.StripPrefix("/static/", files))
     mux.HandleFunc("/", test)
     mux.HandleFunc("/set_cookie", setCookie)
     mux.HandleFunc("/get_cookie", getCookie)
-
+  
     server := &http.Server{
         Addr:    "0.0.0.0:8080",
         Handler: mux,
     }
-
+  
     err := server.ListenAndServe()
     if err != nil {
         log.Fatalln(err)
     }
 }
 ```
-
+  
 程式說明:
-
+  
 1. import 必要的 package
-
-    ```go { .line-numbers }
+  
+    ```go
     import (
         // ...
         "html/template"
         "net/http"
     )
     ```
-
+  
     1. `"html/template"`: Go 的 template engine。可以直接修改版型，不用重啟系統。
     1. `"net/http"`: Http 模組
-
+  
 1. 實作 routing 機制：
-
-    ```go { .line-numbers }
+  
+    ```go
     mux := http.NewServeMux()
     files := http.FileServer(http.Dir("./public"))
-
+  
     mux.Handle("/static/", http.StripPrefix("/static/", files))
     mux.HandleFunc("/", test)
     mux.HandleFunc("/set_cookie", setCookie)
     mux.HandleFunc("/get_cookie", getCookie)
     ```
-
+  
     1. http.NewServMux(): 產生 `ServMux` 物件，用來處理 url routing 的工作。
     1. 處理靜態資料:
-
-        ```go { .line-numbers }
+  
+        ```go
         files := http.FileServer(http.Dir("./public"))
         mux.Handle("/static/", http.StripPrefix("/static/", files))
         ```
-
+  
         1. 指定檔案放的目錄：`http.FileServer(http.Dir("./public"))`
         1. 設定 靜態資料的 url，指到剛剛設定的 `FileServer`。
-
+  
 1. 其他 URL 的 routing: 利用 `HandleFunc` 來設定 URL 與處理 function 的關係。以下的 sample，`/` 會執行 `test`, `/set_cookie` 會執行 `setCookie`
-
-    ```go { .line-numbers }
+  
+    ```go
     mux.HandleFunc("/", test)
     mux.HandleFunc("/set_cookie", setCookie)
     mux.HandleFunc("/get_cookie", getCookie)
     ```
-
+  
 1. 綁定 port 並啟動 web server
-
-    ```go { .line-numbers }
+  
+    ```go
     server := &http.Server{
         Addr:    "0.0.0.0:8080",
         Handler: mux,
     }
-
+  
     err := server.ListenAndServe()
     if err != nil {
         log.Fatalln(err)
     }
     ```
-
+  
 ### Handler 與 Request Parameter
-
+  
+  
 Handler function 的定義：
-
-```go { .line-numbers }
+  
+```go
 func name(w http.ResponseWriter, r *http.Request) {
     body
 }
 ```
-
+  
 eg:
-
-```go { .line-numbers }
+  
+```go
 func test(w http.ResponseWriter, r *http.Request) {
     ...
 }
 ```
-
+  
 1. 可透過 `r.Method` 來判斷是 GET or POST 等
 1. 透過 `r.PostFormValue` 來取得 POST 值。Go 有內建多種取 request 值的方式，整理如下：
-
+  
 | Field | Should call method first | parameters in URL | Form | URL encoded | Multipart (upload file)
 | - | - | - | - | - | -
 | Form | ParseForm | ✓ | ✓ | ✓ | -
@@ -530,25 +538,27 @@ func test(w http.ResponseWriter, r *http.Request) {
 | MultipartForm | ParseMultipartForm | - | ✓ | - | ✓ |
 | FormValue | NA | ✓ | ✓ | ✓ | -
 | PostFormValue | NA | - | ✓ | ✓ | -
-
-from: [Go Web Programming](https://www.manning.com/books/go-web-programming)
-
+  
+from: [Go Web Programming](https://www.manning.com/books/go-web-programming )
+  
 ### Response Header
-
+  
+  
 預設 response 的 status code 是 **200(OK)**，如果要修改 header 值或 status code 時，要注意 `w.WriteHeader(code)` 要最後呼叫，因為呼叫完 `WriteHeader` 後，任何 header 的更動，都不會被接受。也就是改了也沒用。
-
+  
 eg:
-
-```go {.line-numbers}
+  
+```go
 w.Header().Set("Location", "/")
 w.WriteHeader(302)
 ```
-
+  
 ### Cookie
-
+  
+  
 Cookie struct
-
-```go {.line-numbers}
+  
+```go
 type Cookie struct {
     Name       string
     Value      string
@@ -563,9 +573,9 @@ type Cookie struct {
     Unparsed   []string
 }
 ```
-
+  
 eg:
-
+  
 ```go
 func setCookie(w http.ResponseWriter, r *http.Request) {
     c1 := http.Cookie{
@@ -580,34 +590,35 @@ func setCookie(w http.ResponseWriter, r *http.Request) {
     }
     //w.Header().Set("Set-Cookie", c1.String())
     //w.Header().Add("Set-Cookie", c2.String())
-
+  
     http.SetCookie(w, &c1)
     http.SetCookie(w, &c2)
 }
-
+  
 func getCookie(w http.ResponseWriter, r *http.Request) {
     h := r.Header["Cookie"]
     fmt.Fprintln(w, h)
 }
 ```
-
+  
 ### Templates
-
+  
+  
 Go template engine 很好用，會自動依版型的內容，來自動做 escape 動作。使用 template engine 需要再學習它的語法。
-
-Go html template 是利用 text template，因此相關的語法，要看 ["text/template"](https://golang.org/pkg/text/template/#pkg-index)
-
+  
+Go html template 是利用 text template，因此相關的語法，要看 ["text/template"](https://golang.org/pkg/text/template/#pkg-index )
+  
 範例中，整理了我覺得常用的案例。
-
+  
 **程式碼**:
-
-```go { .line-numbers }
+  
+```go
 func test(w http.ResponseWriter, r *http.Request) {
     data := &MyData{
         Title: "測試",
         Nav:   "test",
     }
-
+  
     data.Data = struct {
         TestString   string
         SimpleString string
@@ -628,31 +639,32 @@ func test(w http.ResponseWriter, r *http.Request) {
         []string{},
         0,
     }
-
+  
     tmpl := template.Must(template.ParseFiles("templates/layout.html", "templates/nav.html", "templates/test.html"))
     tmpl.ExecuteTemplate(w, "layout", data)
 }
 ```
-
+  
 說明：
-
+  
 1. `template.ParseFiles(tmp...)`: 選擇會用到的版型檔案，要確認版型的路徑與檔案是否正確。
 1. `template.Must(template.ParseFiles(tmp...))`: 使用 `template.Must` 產生版型物件。
 1. `tmpl.ExecuteTemplate(w, "layout", data)`: 執行版型，並將版型會用的資料(`data`)帶入。其中 `"layout"` 是定義在版型內。
-
+  
 ### 版型
-
+  
+  
 範例的版型結構：
-
+  
 1. `layout.html`: 版型的主框。內含 `nav` 與  `content` 這個子版型。
     1. `{{ template "navbar" . }}`
     1. `{{ template "content" . }}`
-
+  
     在 `layout.html` 定義了這個版型的名稱 **layout** `{{ define "layout" }}`，也就是程式碼 `tmpl.ExecuteTemplate(w, "layout", data)` 中的 `"layout"`。
-
-    在 include 子版型的語法中，eg: `{{ template "navbar" . }}`，有 **`.`**，指的是傳進來的資料，在 ["text/template"](https://golang.org/pkg/text/template/#pkg-index) 有詳細的說明。
-
-    ```html { .line-numbers}
+  
+    在 include 子版型的語法中，eg: `{{ template "navbar" . }}`，有 **`.`**，指的是傳進來的資料，在 ["text/template"](https://golang.org/pkg/text/template/#pkg-index ) 有詳細的說明。
+  
+    ```html
     {{ define "layout" }}
     <!DOCTYPE html>
     <html lang="en">
@@ -675,10 +687,10 @@ func test(w http.ResponseWriter, r *http.Request) {
     </html>
     {{ end }}
     ```
-
+  
 1. `nav.html`: Navigation bar。跟 `layout.html` 一樣，一開頭定義這個版型的名稱 `{{ define "navbar" }}`，也就是 `layout.html` 中 `{{ template "navbar" . }}` 的 `"navbar"`。
-
-    ```html { .line-numbers }
+  
+    ```html
     {{ define "navbar" }}
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <a class="navbar-brand" href="#">OOXX</a>
@@ -701,19 +713,19 @@ func test(w http.ResponseWriter, r *http.Request) {
     </nav>
     {{ end }}
     ```
-
+  
 1. `test.html`: 內容的子版型，開頭 `{{ define "content" }}` 與上述相同。
-
+  
     ```html
     {{ define "content" }}
-
+  
     <script languate="javascript">
         var pair = {{ .Data.TestStruct }};
         var array = {{ .Data.TestArray }};
         var str1 = "{{ .Data.TestString }}";
         var str2 = "{{ .Data.SimpleString }}";
     </script>
-
+  
     <p> escape string <br />
     {{ .Data.TestString }} <br />
     <a title='{{ .Data.TestString }}'>{{ .Data.TestString }}</a> <br />
@@ -723,7 +735,7 @@ func test(w http.ResponseWriter, r *http.Request) {
     <a onx='f({{ .Data.TestString }})'>{{ .Data.TestString }}</a> <br />
     <a onx='pattern = /{{ .Data.TestString }}/;'>{{.Data.TestString }}</a> <br />
     </p>
-
+  
     <p> non escape string <br />
     {{ .Data.SimpleString }} <br />
     <a title='{{ .Data.SimpleString }}'>{{ .Data.SimpleString }}</a> <br />
@@ -733,21 +745,21 @@ func test(w http.ResponseWriter, r *http.Request) {
     <a onx='f({{ .Data.SimpleString }})'>{{ .Data.SimpleString }}</a> <br />
     <a onx='pattern = /{{ .Data.SimpleString }}/;'>{{ .Data.SimpleString }}</a> <br />
     </p>
-
+  
     <p>array index <br />
         {{ index .Data.TestArray 0 }}<br />
         {{ index .Data.TestArray 1 }}<br />
         {{ index .Data.TestArray 2 }}<br />
         len: {{ len .Data.TestArray }}<br />
-
+  
     </p>
-
+  
     <p>Map<br />
     abc : {{ index .Data.TestMap "abc"}} <br />
     A : {{ index .Data.TestMap "A"}} <br />
     B : {{ index .Data.TestMap "B"}} <br />
     </p>
-
+  
     <p>Compare<br />
     {{ with .Data }}
     {{ if eq .Num1 .Num2}} eq {{ else }} ne {{end}}<br/>
@@ -755,7 +767,7 @@ func test(w http.ResponseWriter, r *http.Request) {
     {{ if lt .Num1 .Num2}} lt {{ else if gt .Num1 .Num2 }} gt {{ else if le .Num1 .Num2 }} le {{ else }} ge {{end}}
     {{ end }}
     </p>
-
+  
     <p>Range Array 1<br />
         {{ range .Data.TestArray}}
         {{.}} <br />
@@ -764,7 +776,7 @@ func test(w http.ResponseWriter, r *http.Request) {
         {{end}}
         <br />
     </p>
-
+  
     <p>Range Array 2<br />
         {{ range $idx, $elm := .Data.TestArray }}
         {{ $idx }} : {{ $elm }} <br />
@@ -773,7 +785,7 @@ func test(w http.ResponseWriter, r *http.Request) {
         {{end}}
         <br />
     </p>
-
+  
     <p>Range Map<br />
         {{ range $key, $elm := .Data.TestMap }}
         {{ $key }} : {{ $elm }} <br />
@@ -782,7 +794,7 @@ func test(w http.ResponseWriter, r *http.Request) {
         {{end}}
         <br />
     </p>
-
+  
     <p>Range empty<br />
         {{ range .Data.EmptyArray}}
         {{ . }} <br />
@@ -791,7 +803,7 @@ func test(w http.ResponseWriter, r *http.Request) {
         {{ end }}
         <br />
     </p>
-
+  
     <p>with empty<br />
     {{with .Data.EmptyArray}}
         have data
@@ -799,7 +811,7 @@ func test(w http.ResponseWriter, r *http.Request) {
         nodata
         {{end}}
     </p>
-
+  
     <p>with int zero value<br />
         {{with .Data.ZeroInt}}
         have data
@@ -807,18 +819,19 @@ func test(w http.ResponseWriter, r *http.Request) {
         nodata
         {{end}}
     </p>
-
+  
     {{ end }}
     ```
-
+  
 ### Template 重點語法說明
-
+  
+  
 Go template engine 會依照版型的內容，自動做 escape。
-
+  
 1. 在 `<script></script>` 的效果
-
+  
     語法：
-
+  
     ```html
     <script languate="javascript">
         var pair = {{ .Data.TestStruct }};
@@ -827,9 +840,9 @@ Go template engine 會依照版型的內容，自動做 escape。
         var str2 = "{{ .Data.SimpleString }}";
     </script>
     ```
-
+  
     結果：
-
+  
     ```html
     <script languate="javascript">
         var pair = {"A":"foo","B":"boo"};
@@ -838,13 +851,13 @@ Go template engine 會依照版型的內容，自動做 escape。
         var str2 = "中文測試";
     </script>
     ```
-
+  
     如果 string 內容有需要做 escape 時，go template engine 會自動做，eg: `"O\x27Reilly: How are \x3ci\x3eyou\x3c\/i\x3e?"`, 比較特別的是如果資料是 struct 或 array，會自動轉成 javascript 的 data type 型態。eg: `var pair = {"A":"foo","B":"boo"};` 及 `var array = ["Hello","World","Test"];`。
-
+  
 1. string 自動 escape 效果
-
+  
     語法：
-
+  
     ```html
     <p> escape string <br />
     {{ .Data.TestString }} <br />
@@ -856,9 +869,9 @@ Go template engine 會依照版型的內容，自動做 escape。
     <a onx='pattern = /{{ .Data.TestString }}/;'>{{.Data.TestString }}</a> <br />
     </p>
     ```
-
+  
     結果：
-
+  
     ```html
     <p> escape string <br />
     O&#39;Reilly: How are &lt;i&gt;you&lt;/i&gt;? <br />
@@ -870,11 +883,11 @@ Go template engine 會依照版型的內容，自動做 escape。
     <a onx='pattern = /O\x27Reilly: How are \x3ci\x3eyou\x3c\/i\x3e\?/;'>O&#39;Reilly: How are &lt;i&gt;you&lt;/i&gt;?</a> <br />
     </p>
     ```
-
+  
 1. string 沒有需要做 escape 時
-
+  
     語法：
-
+  
     ```html
     <p> non escape string <br />
     {{ .Data.SimpleString }} <br />
@@ -886,9 +899,9 @@ Go template engine 會依照版型的內容，自動做 escape。
     <a onx='pattern = /{{ .Data.SimpleString }}/;'>{{ .Data.SimpleString }}</a> <br />
     </p>
     ```
-
+  
     效果：
-
+  
     ```html
     <p> non escape string <br />
     中文測試 <br />
@@ -900,11 +913,11 @@ Go template engine 會依照版型的內容，自動做 escape。
     <a onx='pattern = /中文測試/;'>中文測試</a> <br />
     </p>
     ```
-
+  
 1. Compare and if-else
-
+  
     語法：
-
+  
     ```html
     <p>Compare<br />
     {{ with .Data }}
@@ -914,23 +927,23 @@ Go template engine 會依照版型的內容，自動做 escape。
     {{ end }}
     </p>
     ```
-
+  
     結果：
-
+  
     ```html
     <p>Compare<br />
-
+  
     ne <br/>
     ne <br/>
     lt 
-
+  
     </p>
     ```
-
+  
 1. 讀取 array 值
-
+  
     語法：
-
+  
     ```html
     <p>array index <br />
         {{ index .Data.TestArray 0 }}<br />
@@ -939,9 +952,9 @@ Go template engine 會依照版型的內容，自動做 escape。
         len: {{ len .Data.TestArray }}<br />
     </p>
     ```
-
+  
     結果：
-
+  
     ```html
     <p>array index <br />
         Hello<br />
@@ -951,9 +964,9 @@ Go template engine 會依照版型的內容，自動做 escape。
     </p>
     ```
 1. array travel (range-else)
-
+  
     語法：
-
+  
     ```html
     <p>Range Array 1<br />
         {{ range .Data.TestArray}}
@@ -962,16 +975,16 @@ Go template engine 會依照版型的內容，自動做 escape。
         no data
         {{end}}
     </p>
-
+  
     <p>Range Array 2<br />
         {{ range $idx, $elm := .Data.TestArray }}
         {{ $idx }} : {{ $elm }} <br />
         {{else}}
         no data
         {{end}}
-
+  
     </p>
-
+  
     <p>Range empty<br />
         {{ range .Data.EmptyArray}}
         {{ . }} <br />
@@ -980,40 +993,40 @@ Go template engine 會依照版型的內容，自動做 escape。
         {{ end }}
     </p>
     ```
-
+  
     結果：
-
+  
     ```html
     <p>Range Array 1<br />
-
+  
         Hello <br />
-
+  
         World <br />
-
+  
         Test <br />
-
+  
     </p>
-
+  
     <p>Range Array 2<br />
-
+  
         0 : Hello <br />
-
+  
         1 : World <br />
-
+  
         2 : Test <br />
-
+  
     </p>
-
+  
     <p>Range empty<br />
-
+  
         no data
-
+  
     </p>
     ```
 1. 讀取 map
-
+  
     語法：
-
+  
     ```html
     <p>Map<br />
     abc : {{ index .Data.TestMap "abc"}} <br />
@@ -1021,9 +1034,9 @@ Go template engine 會依照版型的內容，自動做 escape。
     B : {{ index .Data.TestMap "B"}} <br />
     </p>
     ```
-
+  
     結果：
-
+  
     ```html
     <p>Map<br />
     abc : DEF <br />
@@ -1031,11 +1044,11 @@ Go template engine 會依照版型的內容，自動做 escape。
     B :  <br />
     </p>
     ```
-
+  
 1. Map travel
-
+  
     語法：
-
+  
     ```html
     <p>Range Map<br />
         {{ range $key, $elm := .Data.TestMap }}
@@ -1045,23 +1058,23 @@ Go template engine 會依照版型的內容，自動做 escape。
         {{end}}
     </p>
     ```
-
+  
     結果：
-
+  
     ```html
     <p>Range Map<br />
-
+  
         A : B <br />
-
+  
         abc : DEF <br />
-
+  
     </p>
     ```
-
+  
 1. 確認值是否**不是 zero value**，要特別小心當值是 **zero value**，像 `int` 型別，值又是 **"0"** 時，會判定成沒有值，會進到 `else` 的區塊。
-
+  
     語法：
-
+  
     ```html
     <p>with empty<br />
     {{with .Data.EmptyArray}}
@@ -1070,7 +1083,7 @@ Go template engine 會依照版型的內容，自動做 escape。
         nodata
         {{end}}
     </p>
-
+  
     <p>with int zero value<br />
         {{with .Data.ZeroInt}}
         have data
@@ -1079,26 +1092,28 @@ Go template engine 會依照版型的內容，自動做 escape。
         {{end}}
     </p>
     ```
-
+  
     結果：
-
+  
     ```html
     <p>with empty<br />
-
+  
         nodata
-
+  
     </p>
-
+  
     <p>with int zero value<br />
-
+  
         nodata
-
+  
     </p>
     ```
-
+  
 ## Build Web with Gorilla Toolkit
-
-- [mux](https://github.com/gorilla/mux)
-- [securecookie](https://github.com/gorilla/securecookie)
-- [schema](https://github.com/gorilla/schema)
-- [csrf](https://github.com/gorilla/csrf)
+  
+  
+- [mux](https://github.com/gorilla/mux )
+- [securecookie](https://github.com/gorilla/securecookie )
+- [schema](https://github.com/gorilla/schema )
+- [csrf](https://github.com/gorilla/csrf )
+  
