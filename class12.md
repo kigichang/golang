@@ -1258,18 +1258,18 @@ s.Use(handler.MemberAuthHandler)
 
 1. 宣告相對應的 struct 並 decode
 
-```go {.line-numbers}
-form := struct {
-    Name     string `schema:"name"`
-    Email    string `schema:"email"`
-    Password string `schema:"password"`
-    Token    string `schema:"auth_token"`
-}{}
+    ```go {.line-numbers}
+    form := struct {
+        Name     string `schema:"name"`
+        Email    string `schema:"email"`
+        Password string `schema:"password"`
+        Token    string `schema:"auth_token"`
+    }{}
 
-r.ParseForm()
+    r.ParseForm()
 
-err := schema.NewDecoder().Decode(&form, r.PostForm)
-```
+    err := schema.NewDecoder().Decode(&form, r.PostForm)
+    ```
 
 ### securecookie
 
