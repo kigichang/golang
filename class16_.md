@@ -8,7 +8,7 @@
 ## Golang unsafe package
   
   
-如果使用 Go 的 unsafe 套件，會失去相容與移植。因此如非必要，儘可能不要使用。
+因為 Go 的 unsafe 套件使用到系統底層的屬性，所以會失去相容與移植。如非必要，儘可能不要使用。
   
 unsafe package 主要有三個 function 與一個 data type
   
@@ -21,7 +21,7 @@ unsafe package 主要有三個 function 與一個 data type
 - data type:
   - type Pointer: like void* in c
   
-### sizeof and alignof
+### Sizeof and Alignof
   
   
 ```go
@@ -94,29 +94,37 @@ Sizeof z.b: 2 AlignOf y.b: 2 Offsetof z.b: 2
 Sizeof z.c: 8 AlignOf y.c: 8 Offsetof z.c: 8
 ```
   
-x, y, z 在 64-bit 系統下， alignment 都是 8 bytes. 但 x 的 size 是 24 bytes (3 words)，而其他 y, z 都是 16 bytes (2 words)。
+x, y, z 在 64-bit 系統下， alignment 都是 8 bytes. 但 x 的 size 是 24 bytes (3 words[^word])，而其他 y, z 都是 16 bytes (2 words)。
 Ｖ主要因為 x 的 bool (x.a) 與 int16 (x.c)中間是 float64 (x.b)，佔了 8 bytes (1 word)，bool 雖只佔 1 byte，但要補足成 8 bytes (1 word), 同理 x.c 只佔 2 bytes，也要補足成 8 bytes (1 word)。
 而 y, z 因為 bool, int16 是相連，因此在 bool 後面補 1 bytes, int16 補 4 bytes，補足成 8 bytes(1 word)。所以 x 是 24 bytes，而 y, z 是 16 bytes。
+  
+[^word]: 在 32 bit 系統下，1 word = 4 bytes (32bit), 64 bit 是 8 bytes (64bit)
   
 ### unsafe.Pointer
   
   
-> unsafe.Pointer 可以是任意型別的指標。在 Golang 的 strong type 安全機制下，不同的資料型別與指標都不可以直接轉換，如：
->
->> - 两个不同指针类型的值，例如 int64和 float64。
->> - 指针类型和uintptr的值。
+unsafe.Pointer 可以是任意型別的指標。在 Golang 的 strong type 安全機制下，不同的資料型別與指標都不可以直接轉換，如：
+  
+- 不同指標的值，即使是相同 bit 數，如 int64 和 float64。
+- 指標 與 uintptr 的值。
+  
+unsafe.Pointer 可以破壞 Go 的安全機制；unsafe.Pointer 的功能有：
+  
+1. 任何資料型別的指標，都可以轉成 unsafe.Pointer。
+1. unsafe.Pointer 也可轉成任何資料型別的指標。
+1. uintptr 可以轉成 unsafe.Pointer，但有[風險](#uintptr_to_pointer )。
+1. unsafe.Pointer可以转换为uintptr。
+  
+unsafe.Pointer 可以讓
 >
 >但是借助unsafe.Pointer，我们可以打破Go类型和内存安全性，并使上面的转换成为可能。这怎么可能发生？让我们阅读unsafe包文档中列出的规则：
 >
->任何类型的指针值都可以转换为unsafe.Pointer。
-unsafe.Pointer可以转换为任何类型的指针值。
-uintptr可以转换为unsafe.Pointer。
-unsafe.Pointer可以转换为uintptr。
+  
 >
 >The following patterns involving Pointer are valid. Code not using these patterns is likely to be invalid today or to become invalid in the future. Even the valid patterns below come with important caveats.
   
 1. Conversion of a *T1 to Pointer to *T2.
-1. Conversion of a Pointer to a uintptr (but not back to Pointer)
+1. Conversion of a Pointer to a uintptr (<a name="uintptr_to_pointer">but not back to Pointer</a>)
     Even if a uintptr holds the address of some object, the garbage collector will not update that uintptr's value if the object moves, nor will that uintptr keep the object from being reclaimed.
 1. Conversion of a Pointer to a uintptr and back, with arithmetic.
 1. Conversion of a Pointer to a uintptr when calling syscall.Syscall.
