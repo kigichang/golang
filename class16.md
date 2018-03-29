@@ -640,79 +640,79 @@ func main() {
 
 - `foo.go`:
 
-```go {.line-numbers}
-package main
+    ```go {.line-numbers}
+    package main
 
-// #cgo LDFLAGS: -L. -lfoo
-// #include "foo.h"
-// #include "stdlib.h"
-import "C"
-import (
-    "fmt"
-    "unsafe"
-)
+    // #cgo LDFLAGS: -L. -lfoo
+    // #include "foo.h"
+    // #include "stdlib.h"
+    import "C"
+    import (
+        "fmt"
+        "unsafe"
+    )
 
-func conv(args []string) []*C.char {
-    ret := make([]*C.char, len(args))
+    func conv(args []string) []*C.char {
+        ret := make([]*C.char, len(args))
 
-    for i, x := range args {
-        ret[i] = C.CString(x)
+        for i, x := range args {
+            ret[i] = C.CString(x)
+        }
+
+        return ret
     }
 
-    return ret
-}
+    // New ...
+    func New() C.Test {
+        var args = []string{"A", "B", "C"}
 
-// New ...
-func New() C.Test {
-    var args = []string{"A", "B", "C"}
+        xx := conv(args)
 
-    xx := conv(args)
+        aa := C.int(100)
+        a := &aa
 
-    aa := C.int(100)
-    a := &aa
+        t := C.TestNew(3, &xx[0], a)
+        fmt.Println(aa)
 
-    t := C.TestNew(3, &xx[0], a)
-    fmt.Println(aa)
+        for _, v := range xx {
+            C.free(unsafe.Pointer(v))
+        }
 
-    for _, v := range xx {
-        C.free(unsafe.Pointer(v))
+        return t
+
     }
 
-    return t
+    func main() {
 
-}
+        foo := C.FooInit()
+        C.FooBar(foo)
+        C.FooFree(foo)
 
-func main() {
+        t := New()
+        C.TestFree(t)
 
-    foo := C.FooInit()
-    C.FooBar(foo)
-    C.FooFree(foo)
-
-    t := New()
-    C.TestFree(t)
-
-}
-```
+    }
+    ```
 
 - Makefile:
 
-```makefile
-.PHONY: clean
+    ```makefile {.line-numbers}
+    .PHONY: clean
 
-TARGET=gocpp
+    TARGET=gocpp
 
-$(TARGET): libfoo.a
-    go build -x --work .
+    $(TARGET): libfoo.a
+        go build -x --work .
 
-libfoo.a: foo.o cfoo.o
-    ar r $@ $^
+    libfoo.a: foo.o cfoo.o
+        ar r $@ $^
 
-%.o: %.cpp
-    g++ -O2 -o $@ -c $^
+    %.o: %.cpp
+        g++ -O2 -o $@ -c $^
 
-clean:
-    rm -f *.o *.so *.a $(TARGET)
-```
+    clean:
+        rm -f *.o *.so *.a $(TARGET)
+    ```
 
 說明:
 
