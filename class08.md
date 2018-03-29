@@ -708,4 +708,184 @@ func main() {
 
 ## Context
 
-// TODO
+### Context 基本用法
+
+```go {.line-numbers}
+package main
+
+import (
+    "context"
+    "log"
+    "time"
+)
+
+func contextDemo(ctx context.Context) {
+    dealine, ok := ctx.Deadline()
+    name := ctx.Value(contextKey("name"))
+
+    if ok {
+        log.Println(name, "has dealine:", dealine.Format("2006-01-02 15:04:05"))
+    } else {
+        log.Println(name, "does not have dealine")
+    }
+}
+
+type contextKey string
+
+func main() {
+    timeout := 3 * time.Second
+    deadline := time.Now().Add(10 * time.Second)
+
+    timeoutContext, timeoutCancelFunc := context.WithTimeout(context.Background(), timeout)
+    defer timeoutCancelFunc()
+    cancelContext, cancelFunc := context.WithCancel(context.Background())
+    deadlineContext, deadlineCancelFunc := context.WithDeadline(context.Background(), deadline)
+    defer deadlineCancelFunc()
+
+    go contextDemo(context.WithValue(timeoutContext, contextKey("name"), "[Timeout Context]"))
+    go contextDemo(context.WithValue(cancelContext, contextKey("name"), "[Canncel Context]"))
+    go contextDemo(context.WithValue(deadlineContext, contextKey("name"), "[Deadline Context]"))
+
+    <-timeoutContext.Done()
+    log.Println("timeout ...")
+
+    log.Println("canncel...")
+    cancelFunc()
+
+    <-cancelContext.Done()
+    log.Println("The cancel context has been cancelled...")
+
+    log.Println("cancel error:", cancelContext.Err())
+
+    <-deadlineContext.Done()
+    log.Println("The deadline context has been cancelled...")
+}
+```
+
+### Context Parent-Child 關係
+
+```go {.line-numbers}
+package main
+
+import (
+    "context"
+    "log"
+    "time"
+)
+
+func main() {
+    ctx1, cancel1 := context.WithCancel(context.Background())
+    ctx2, cancel2 := context.WithTimeout(ctx1, 10*time.Second)
+    defer func() {
+        log.Println("cancel 2")
+        cancel2()
+    }()
+
+    <-time.After(2 * time.Second)
+    log.Println("cancel 1")
+    cancel1()
+    log.Println("ctx1:", ctx1.Err())
+    log.Println("ctx2:", ctx2.Err())
+    log.Println("end")
+}
+```
+
+### Context, Goroutine, reflect.Select for multiple channels
+
+```go {.line-numbers}
+package main
+
+import (
+    "context"
+    "fmt"
+    "log"
+    "reflect"
+    "sync"
+    "time"
+)
+
+// ReadAll ...
+func ReadAll(ctx context.Context, wait *sync.WaitGroup, channels ...chan interface{}) <-chan interface{} {
+    out := make(chan interface{})
+
+    var cases []reflect.SelectCase
+    cases = append(cases, reflect.SelectCase{
+        Dir:  reflect.SelectRecv,
+        Chan: reflect.ValueOf(ctx.Done()),
+    })
+
+    for _, c := range channels {
+        cases = append(cases, reflect.SelectCase{
+            Dir:  reflect.SelectRecv,
+            Chan: reflect.ValueOf(c),
+        })
+    }
+
+    go func() {
+        defer func() {
+            close(out)
+            wait.Done()
+            log.Println("close out and done")
+        }()
+
+        for len(cases) > 1 {
+            i, v, ok := reflect.Select(cases)
+            log.Println(i, v, ok)
+            if i == 0 {
+                log.Println("cancel !!!")
+                return
+            }
+            if !ok {
+                cases = append(cases[:i], cases[i+1:]...)
+            }
+
+            out <- v.Interface()
+        }
+    }()
+
+    return out
+}
+
+func main() {
+    channels := []chan interface{}{
+        make(chan interface{}),
+        make(chan interface{}),
+        make(chan interface{}),
+    }
+
+    defer func() {
+        //for _, c := range channels {
+        //    close(c)
+        //}
+        log.Println("close channels completed")
+    }()
+
+    timeout, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+    defer func() {
+        cancel()
+        log.Println("cancel context")
+    }()
+    wait := sync.WaitGroup{}
+    wait.Add(1)
+    out := ReadAll(timeout, &wait, channels...)
+
+    for i, c := range channels {
+        go func(a int, c chan<- interface{}) {
+            for {
+                <-time.After(time.Second)
+                c <- fmt.Sprintf("%d:%s", a, time.Now().Format("2006-01-02 15:04:05"))
+            }
+        }(i, c)
+    }
+
+    go func() {
+        for x := range out {
+            log.Println("out got:", x)
+        }
+    }()
+
+    wait.Wait()
+    log.Println("end")
+
+}
+```
