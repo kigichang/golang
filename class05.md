@@ -9,7 +9,7 @@
 ## Pointer
 
 - 與 C 相同，使用 `&` 來取得 pointer 位置，用 `*` 來存取 pointer 指定的值。
-- 與 C 不同，不能對 pointer 做位移。
+- 與 C 不同，不能直接對 pointer 做位移。
 
 ```go {.line-numbers}
 a := 10

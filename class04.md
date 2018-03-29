@@ -10,13 +10,13 @@
 
 原文：
 
-Arrays and structs are aggregate types; their values are **concatenations** of other values in memory. Arrays are homogeneous—their elements all have the same type—whereas structs are heterogeneous. Both arrays and structs are **fixed size**.[^book1]
+>Arrays and structs are aggregate types; their values are **concatenations** of other values in memory. Arrays are homogeneous—their elements all have the same type—whereas structs are heterogeneous. Both arrays and structs are **fixed size**.[^book1]
 
 [^book1]: from [The Go Programming Language](https://www.amazon.com/Programming-Language-Addison-Wesley-Professional-Computing-ebook/dp/B0184N7WWS)
 
 注意：
 
-1. pass by value, 會 copy 原本資料，因此要小心記憶的問題。可改用 slice 及 pointer。
+1. pass by value, 會 copy 原本資料，因此要小心記憶體的問題。可改用 slice 及 pointer。
 
 ## Arrays
 
@@ -69,7 +69,7 @@ Arrays and structs are aggregate types; their values are **concatenations** of o
 
 1. Array Compare
 
-    If an array’s element type is **comparable** then the array type is comparable too, so we may directly compare two arrays of that type using the == operator, which reports whether all corresponding elements are equal. The != operator is its negation.
+    >If an array’s element type is **comparable** then the array type is comparable too, so we may directly compare two arrays of that type using the == operator, which reports whether all corresponding elements are equal. The != operator is its negation.
 
     ```go {.line-numbers}
     a := [2]int{1, 2}
@@ -130,7 +130,7 @@ Arrays and structs are aggregate types; their values are **concatenations** of o
 
 1. Struct Compare
 
-    If all the fields of a struct are **comparable**, the struct itself is comparable, so two expressions of that type may be compared using == or !=. The == operation compares the corresponding fields of the two structs in order, so the two printed expressions below are equivalent:
+    >If all the fields of a struct are **comparable**, the struct itself is comparable, so two expressions of that type may be compared using == or !=. The == operation compares the corresponding fields of the two structs in order, so the two printed expressions below are equivalent:
 
     ```go {.line-numbers}
     type Point struct{ X, Y int }
