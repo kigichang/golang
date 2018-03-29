@@ -17,7 +17,8 @@ unsafe package 主要有三個 function 與一個 data type
   - func Offsetof(x ArbitraryType) uintptr: offset from start for struct and array
   - func Sizeof(x ArbitraryType) uintptr: size of for type
 - data type:
-  - type Pointer: 等同 void* in c
+  - type Pointer: 等同 void* in c. [Go reference to C](https://golang.org/cmd/cgo/#hdr-Go_references_to_C)
+     > The C type void* is represented by Go's unsafe.Pointer
 
 ### Sizeof and Alignof
 
