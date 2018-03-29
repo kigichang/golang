@@ -15,5 +15,5 @@
 - [12 MySQL and Web (Gorilla web toolkit)](class12_.md)
 - [13 Protobuf and gRPC](class13_.md)
 - [14 Reflection and Struct Tag](class14_.md)
-- [15 Fake Inherit in Golang](class15_.md)
+- [15 Fake Inheritance in Golang](class15_.md)
 - [16 Cowork with C/C++ (swig)](class16_.md)
