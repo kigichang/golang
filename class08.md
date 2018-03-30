@@ -857,7 +857,7 @@ Channel_2 --> reflect.Select;
 Channel_3 --> reflect.Select;
 ```
 
-adfadf
+sample code:
 
 ```go {.line-numbers}
 package main
