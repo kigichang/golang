@@ -13,7 +13,7 @@ func name(parameter-list) (result-list) {
 1. 完整宣告
 
     ```go {.line-numbers}
-    func hypot(x, float64, y float64) float64 {
+    func hypot(x float64, y float64) float64 {
         return math.Sqrt(x*x + y*y)
     }
 

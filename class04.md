@@ -49,7 +49,7 @@
     }
     ```
 
-1. itoa
+1. iota
 
     ```go {.line-numbers}
     type Currency int
