@@ -9,7 +9,8 @@ VSCode Go Plugins 設定：
 {
     "terminal.integrated.shell.osx": "/bin/zsh",
     "go.coverOnSave": true,
-    "go.coverageDecorator": "gutter"
+    "go.coverageDecorator": "gutter",
+    "go.testFlags": ["-v"]
 }
 ```
   
