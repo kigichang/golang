@@ -745,6 +745,33 @@ func main() {
 1. [Go 1 and the Future of Go Programs#Expections](https://golang.org/doc/go1compat#expectations )
 1. [GO 命令教程](http://wiki.jikexueyuan.com/project/go-command-tutorial/ )
   
+### How does this work
+  
+  
+```C++
+class CRect {
+    private:
+        int m_color;
+    public:
+    void setcolor(int color) {
+        m_color = color;
+    }
+}
+```
+  
+```C++
+class CRect {
+    private:
+        int m_color;
+    public:
+    void setcolor(int color, (CRect*)this) {
+        this->m_color = color;
+    }
+}
+```
+  
+from: 物件導向的精髓 多型與虛擬 (Polymorphism in C++) 作者：侯俊傑
+  
 ## Command
   
   
