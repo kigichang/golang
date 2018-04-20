@@ -159,6 +159,95 @@ func main() {
   
     以上的 sample，有一點要特別注意，WaitGroup 傳給 function 時，一定要用 pointer。eg: `func test(x int, wait *sync.WaitGroup)` 及 `go test(10, &waitGroup)`，否則會出錯！(Why?? Ans: **Pass By Value**)
   
+### Go Routine Puzzlers
+  
+  
+```go
+package main
+  
+import (
+    "fmt"
+    "sync"
+)
+  
+type Test struct {
+    ID int
+}
+  
+func main() {
+    var tests []Test
+    for i := 0; i < 2; i++ {
+        tests = append(tests, Test{i})
+    }
+  
+    wait := sync.WaitGroup{}
+  
+    for _, x := range tests {
+        wait.Add(1)
+        go func(t *Test) {
+            defer wait.Done()
+            fmt.Println(t.ID)
+        }(&x)
+  
+    }
+  
+    wait.Wait()
+  
+}
+```
+  
+結果：
+  
+```text
+1
+1
+```
+  
+修正:
+  
+```go
+package main
+  
+import (
+    "fmt"
+    "sync"
+)
+  
+type Test struct {
+    ID int
+}
+  
+func main() {
+    var tests []Test
+    for i := 0; i < 2; i++ {
+        tests = append(tests, Test{i})
+    }
+  
+    wait := sync.WaitGroup{}
+  
+    for i, _ := range tests {
+        wait.Add(1)
+        go func(t *Test) {
+            defer wait.Done()
+            fmt.Println(t.ID)
+        }(&tests[i])
+  
+    }
+  
+    wait.Wait()
+  
+}
+```
+  
+結果：
+  
+```text
+1
+0
+```
+  
+原因：看來有像 **Pass By Name**。`&x`，會一直抓到最後一個。
+  
 ## channel
   
   
