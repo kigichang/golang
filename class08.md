@@ -158,6 +158,8 @@ func main() {
 
 ### Go Routine Puzzlers
 
+Puzzlers Example 1:
+
 ```go {.line-numbers}
 package main
 
@@ -184,7 +186,8 @@ func main() {
             defer wait.Done()
             fmt.Println(t.ID)
         }(&x)
-
+        fmt.Println(i, x, "end")
+        //time.Sleep(1 * time.Second) // 故意 sleep。讓 goroutine 先執行。
     }
 
     wait.Wait()
@@ -200,6 +203,8 @@ func main() {
 ```
 
 修正:
+
+Puzzlers Example 2:
 
 ```go {.line-numbers}
 package main
@@ -242,7 +247,9 @@ func main() {
 0
 ```
 
-??
+因為 goroutine 會需要時間做初始化，所以在 Loop 的宣告的 goroutine, 有很大的機會會在 Loop 結束後，才執行。因此在 closure binding 時，會有很大的機會會 binding 到最後一個值。在 Puzzlers Example 1 中，最後 `x` binding 的值會是最後一個。
+
+建議有這種情形時，要明確指定值。
 
 ## channel
 
