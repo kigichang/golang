@@ -242,7 +242,7 @@ func main() {
 0
 ```
 
-原因：看來有像 **Pass By Name**。`&x`，會一直抓到最後一個。
+??
 
 ## channel
 
