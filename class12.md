@@ -93,7 +93,6 @@ func main() {
         log.Println("insert:", err)
         return
     }
-    defer ins.Close()
 
     id, err := result.LastInsertId()
     if err != nil {
