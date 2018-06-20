@@ -1,6 +1,6 @@
 # 15 Fake Inheritance in Golang
 
-Golang 本身沒有 OOP，但可以透過 Struct Embedding/Anonymous Fields 的機制來模擬 OOP。也因此 Golang 可以模擬出多重繼承的效果。
+Golang 可以透過 Struct Embedding/Anonymous Fields 的機制來實作 OOP。也因此 Golang 可以模擬出多重繼承的效果。
 
 為了避免混餚，建議 embedded struct 不要用 pointer。
 
