@@ -135,8 +135,8 @@ REST 是一種設計風格，並非一種標準。通常使用 HTTP, URI, XML, H
 
   Examples:
 
-  * POST _http://www.example.com/customers_
-  * POST _http://www.example.com/customers/12345/orders_
+  * POST [http://www.example.com/customers]([http://www.example.com/customers)
+  * POST [http://www.example.com/customers/12345/orders](http://www.example.com/customers/12345/orders)
 
 * GET
 
@@ -144,9 +144,9 @@ REST 是一種設計風格，並非一種標準。通常使用 HTTP, URI, XML, H
 
   Examples:
 
-  * GET _http://www.example.com/customers/12345_
-  * GET _http://www.example.com/customers/12345/orders_
-  * GET _http://www.example.com/buckets/sample_
+  * GET [http://www.example.com/customers/12345](http://www.example.com/customers/12345)
+  * GET [http://www.example.com/customers/12345/orders](http://www.example.com/customers/12345/orders)
+  * GET [http://www.example.com/buckets/sample](http://www.example.com/buckets/sample)
 
 * PUT
 
@@ -154,9 +154,9 @@ REST 是一種設計風格，並非一種標準。通常使用 HTTP, URI, XML, H
 
   Examples:
 
-  * PUT _http://www.example.com/customers/12345_
-  * PUT _http://www.example.com/customers/12345/orders/98765_
-  * PUT _http://www.example.com/buckets/secret\_stuff_
+  * PUT [http://www.example.com/customers/12345](http://www.example.com/customers/12345)
+  * PUT [http://www.example.com/customers/12345/orders/98765](http://www.example.com/customers/12345/orders/98765)
+  * PUT [http://www.example.com/buckets/secret_stuff](http://www.example.com/buckets/secret_stuff)
 
 * DELETE
 
@@ -164,9 +164,9 @@ REST 是一種設計風格，並非一種標準。通常使用 HTTP, URI, XML, H
 
   Examples:
 
-  * DELETE _http://www.example.com/customers/12345_
-  * DELETE _http://www.example.com/customers/12345/orders_
-  * DELETE _http://www.example.com/bucket/sample_
+  * DELETE [http://www.example.com/customers/12345](http://www.example.com/customers/12345)
+  * DELETE [http://www.example.com/customers/12345/orders](http://www.example.com/customers/12345/orders)
+  * DELETE [http://www.example.com/bucket/sample](http://www.example.com/bucket/sample)
 
 * PATCH
 
@@ -174,9 +174,9 @@ REST 是一種設計風格，並非一種標準。通常使用 HTTP, URI, XML, H
 
   Examples:
 
-  * PATCH _http://www.example.com/customers/12345_
-  * PATCH _http://www.example.com/customers/12345/orders/98765_
-  * PATCH _http://www.example.com/buckets/secret\_stuff_
+  * PATCH [http://www.example.com/customers/12345](http://www.example.com/customers/12345)
+  * PATCH [http://www.example.com/customers/12345/orders/98765](http://www.example.com/customers/12345/orders/98765)
+  * PATCH [http://www.example.com/buckets/secret_stuff](http://www.example.com/buckets/secret_stuff)
 
 #### Summary
 
