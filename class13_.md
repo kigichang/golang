@@ -487,7 +487,180 @@ message Hello {
 ### 轉成 Go 程式
   
   
-1. 目錄切到 `<img src="https://latex.codecogs.com/gif.latex?GOPATH&#x2F;src`1.%20執行%20`protoc%20--go_out=.%20go_test&#x2F;class13&#x2F;protos&#x2F;*.proto`在%20`go_test&#x2F;class13&#x2F;protos`%20的目錄下，會產生%20`test.pb.go`%20檔案。eg:```go%20{%20.line-numbers%20}&#x2F;&#x2F;%20Code%20generated%20by%20protoc-gen-go.%20DO%20NOT%20EDIT.&#x2F;&#x2F;%20source:%20go_test&#x2F;class13&#x2F;protos&#x2F;test.proto&#x2F;*Package%20protos%20is%20a%20generated%20protocol%20buffer%20package.It%20is%20generated%20from%20these%20files:%20%20%20%20go_test&#x2F;class13&#x2F;protos&#x2F;test.protoIt%20has%20these%20top-level%20messages:%20%20%20%20Hello*&#x2F;package%20protosimport%20proto%20&quot;github.com&#x2F;golang&#x2F;protobuf&#x2F;proto&quot;import%20fmt%20&quot;fmt&quot;import%20math%20&quot;math&quot;import%20google_protobuf%20&quot;github.com&#x2F;golang&#x2F;protobuf&#x2F;ptypes&#x2F;timestamp&quot;&#x2F;&#x2F;%20Reference%20imports%20to%20suppress%20errors%20if%20they%20are%20not%20otherwise%20used.var%20_%20=%20proto.Marshalvar%20_%20=%20fmt.Errorfvar%20_%20=%20math.Inf&#x2F;&#x2F;%20This%20is%20a%20compile-time%20assertion%20to%20ensure%20that%20this%20generated%20file&#x2F;&#x2F;%20is%20compatible%20with%20the%20proto%20package%20it%20is%20being%20compiled%20against.&#x2F;&#x2F;%20A%20compilation%20error%20at%20this%20line%20likely%20means%20your%20copy%20of%20the&#x2F;&#x2F;%20proto%20package%20needs%20to%20be%20updated.const%20_%20=%20proto.ProtoPackageIsVersion2%20&#x2F;&#x2F;%20please%20upgrade%20the%20proto%20packagetype%20Hello%20struct%20{%20%20%20%20Name%20string%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20`protobuf:&quot;bytes,1,opt,name=name&quot;%20json:&quot;name,omitempty&quot;`%20%20%20%20Time%20*google_protobuf.Timestamp%20`protobuf:&quot;bytes,99,opt,name=time&quot;%20json:&quot;time,omitempty&quot;`}func%20(m%20*Hello)%20Reset()%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20{%20*m%20=%20Hello{}%20}func%20(m%20*Hello)%20String()%20string%20%20%20%20%20%20%20%20%20%20%20%20{%20return%20proto.CompactTextString(m)%20}func%20(*Hello)%20ProtoMessage()%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20{}func%20(*Hello)%20Descriptor()%20([]byte,%20[]int)%20{%20return%20fileDescriptor0,%20[]int{0}%20}func%20(m%20*Hello)%20GetName()%20string%20{%20%20%20%20if%20m%20!=%20nil%20{%20%20%20%20%20%20%20%20return%20m.Name%20%20%20%20}%20%20%20%20return%20&quot;&quot;}func%20(m%20*Hello)%20GetTime()%20*google_protobuf.Timestamp%20{%20%20%20%20if%20m%20!=%20nil%20{%20%20%20%20%20%20%20%20return%20m.Time%20%20%20%20}%20%20%20%20return%20nil}func%20init()%20{%20%20%20%20proto.RegisterType((*Hello)(nil),%20&quot;protos.Hello&quot;)}func%20init()%20{%20proto.RegisterFile(&quot;go_test&#x2F;class13&#x2F;protos&#x2F;test.proto&quot;,%20fileDescriptor0)%20}var%20fileDescriptor0%20=%20[]byte{%20%20%20%20&#x2F;&#x2F;%20140%20bytes%20of%20a%20gzipped%20FileDescriptorProto%20%20%20%20&#x2F;&#x2F;%20....}```如果要需要新增功能，不要修改在這個檔案。要另外開檔案來處理。如:%20`test.go`.%20否則更新%20protobuf%20定義時，會重新產生新的檔案，會原本修改的內容去除。eg:%20test.go```go%20{.line-numbers}package%20protosimport%20(%20%20%20%20proto%20&quot;github.com&#x2F;golang&#x2F;protobuf&#x2F;proto&quot;%20%20%20%20&quot;github.com&#x2F;golang&#x2F;protobuf&#x2F;ptypes&quot;)&#x2F;&#x2F;%20CreateHello%20...func%20CreateHello(name%20string)%20*Hello%20{%20%20%20%20return%20&amp;Hello{%20%20%20%20%20%20%20%20Name:%20name,%20%20%20%20%20%20%20%20Time:%20ptypes.TimestampNow(),%20%20%20%20}}&#x2F;&#x2F;%20UnmarshalHello%20...func%20UnmarshalHello(data%20[]byte)%20(*Hello,%20error)%20{%20%20%20%20ret%20:=%20&amp;Hello{}%20%20%20%20if%20err%20:=%20proto.Unmarshal(data,%20ret);%20err%20!=%20nil%20{%20%20%20%20%20%20%20%20return%20nil,%20err%20%20%20%20}%20%20%20%20return%20ret,%20nil}&#x2F;&#x2F;%20MarshalHello%20...func%20MarshalHello(data%20*Hello)%20([]byte,%20error)%20{%20%20%20%20return%20proto.Marshal(data)}```####%20Marshal%20&#x2F;%20Unmarshal使用%20protobuf%20與%20JSON%20類似。eg:```go%20{%20.line-numbers%20}import%20(%20%20%20%20proto%20&quot;github.com&#x2F;golang&#x2F;protobuf&#x2F;proto&quot;)&#x2F;&#x2F;%20UnmarshalHello%20...func%20UnmarshalHello(data%20[]byte)%20(*Hello,%20error)%20{%20%20%20%20ret%20:=%20&amp;Hello{}%20%20%20%20if%20err%20:=%20proto.Unmarshal(data,%20ret);%20err%20!=%20nil%20{%20%20%20%20%20%20%20%20return%20nil,%20err%20%20%20%20}%20%20%20%20return%20ret,%20nil}&#x2F;&#x2F;%20MarshalHello%20...func%20MarshalHello(data%20*Hello)%20([]byte,%20error)%20{%20%20%20%20return%20proto.Marshal(data)}```###%20gRPC也是撰寫%20.proto%20，建議定義%20gRPC%20service%20要與資料%20message%20分開,%20只放%20service%20會用到的%20message，一來程式管理比較方便，二來也避免互相干擾。eg:%20service&#x2F;service.proto```protobufsyntax%20=%20&quot;proto3&quot;;package%20service;import%20&quot;go_test&#x2F;class13&#x2F;protos&#x2F;test.proto&quot;;message%20Request%20{%20%20%20%20string%20name%20=%201;}service%20HelloService%20{%20%20%20%20rpc%20Hello(Request)%20returns%20(protos.Hello)%20{}}```主要%20gRPC%20的定義是這一段：```go%20{%20.line-numbers%20}service%20HelloService%20{%20%20%20%20rpc%20Hello(Request)%20returns%20(protos.Hello)%20{}}```用%20`rpc`%20與%20`returns`%20這兩個關鍵字來定義%20service.與上述動作一樣，切換到"/>GOPATH/src，執行 `protoc --go_out=plugins=grpc:. go_test/class13/service/*.proto`。與上述不一樣的地方，是在 `--go_out` 這個多了 `plugins=grpc` 設定。
+1. 目錄切到 `GOPATH/src`
+1. 執行 `protoc --go_out=. go_test/class13/protos/*.proto`
+  
+在 `go_test/class13/protos` 的目錄下，會產生 `test.pb.go` 檔案。
+  
+eg:
+  
+```go
+// Code generated by protoc-gen-go. DO NOT EDIT.
+// source: go_test/class13/protos/test.proto
+  
+/*
+Package protos is a generated protocol buffer package.
+  
+It is generated from these files:
+    go_test/class13/protos/test.proto
+  
+It has these top-level messages:
+    Hello
+*/
+package protos
+  
+import proto "github.com/golang/protobuf/proto"
+import fmt "fmt"
+import math "math"
+import google_protobuf "github.com/golang/protobuf/ptypes/timestamp"
+  
+// Reference imports to suppress errors if they are not otherwise used.
+var _ = proto.Marshal
+var _ = fmt.Errorf
+var _ = math.Inf
+  
+// This is a compile-time assertion to ensure that this generated file
+// is compatible with the proto package it is being compiled against.
+// A compilation error at this line likely means your copy of the
+// proto package needs to be updated.
+const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
+  
+type Hello struct {
+    Name string                     `protobuf:"bytes,1,opt,name=name" json:"name,omitempty"`
+    Time *google_protobuf.Timestamp `protobuf:"bytes,99,opt,name=time" json:"time,omitempty"`
+}
+  
+func (m *Hello) Reset()                    { *m = Hello{} }
+func (m *Hello) String() string            { return proto.CompactTextString(m) }
+func (*Hello) ProtoMessage()               {}
+func (*Hello) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{0} }
+  
+func (m *Hello) GetName() string {
+    if m != nil {
+        return m.Name
+    }
+    return ""
+}
+  
+func (m *Hello) GetTime() *google_protobuf.Timestamp {
+    if m != nil {
+        return m.Time
+    }
+    return nil
+}
+  
+func init() {
+    proto.RegisterType((*Hello)(nil), "protos.Hello")
+}
+  
+func init() { proto.RegisterFile("go_test/class13/protos/test.proto", fileDescriptor0) }
+  
+var fileDescriptor0 = []byte{
+    // 140 bytes of a gzipped FileDescriptorProto
+    // ....
+}
+  
+```
+  
+如果要需要新增功能，不要修改在這個檔案。要另外開檔案來處理。如: `test.go`. 否則更新 protobuf 定義時，會重新產生新的檔案，會原本修改的內容去除。
+  
+eg: test.go
+  
+```go
+package protos
+  
+import (
+    proto "github.com/golang/protobuf/proto"
+    "github.com/golang/protobuf/ptypes"
+)
+  
+// CreateHello ...
+func CreateHello(name string) *Hello {
+    return &Hello{
+        Name: name,
+        Time: ptypes.TimestampNow(),
+    }
+}
+  
+// UnmarshalHello ...
+func UnmarshalHello(data []byte) (*Hello, error) {
+    ret := &Hello{}
+  
+    if err := proto.Unmarshal(data, ret); err != nil {
+        return nil, err
+    }
+  
+    return ret, nil
+}
+  
+// MarshalHello ...
+func MarshalHello(data *Hello) ([]byte, error) {
+    return proto.Marshal(data)
+}
+```
+  
+#### Marshal / Unmarshal
+  
+  
+使用 protobuf 與 JSON 類似。
+  
+eg:
+  
+```go
+import (
+    proto "github.com/golang/protobuf/proto"
+)
+// UnmarshalHello ...
+func UnmarshalHello(data []byte) (*Hello, error) {
+    ret := &Hello{}
+  
+    if err := proto.Unmarshal(data, ret); err != nil {
+        return nil, err
+    }
+  
+    return ret, nil
+}
+  
+// MarshalHello ...
+func MarshalHello(data *Hello) ([]byte, error) {
+    return proto.Marshal(data)
+}
+```
+  
+### gRPC
+  
+  
+也是撰寫 .proto ，建議定義 gRPC service 要與資料 message 分開, 只放 service 會用到的 message，一來程式管理比較方便，二來也避免互相干擾。
+  
+eg: service/service.proto
+  
+```protobuf
+syntax = "proto3";
+  
+package service;
+  
+import "go_test/class13/protos/test.proto";
+  
+message Request {
+    string name = 1;
+}
+  
+service HelloService {
+    rpc Hello(Request) returns (protos.Hello) {}
+}
+```
+  
+主要 gRPC 的定義是這一段：
+  
+```go
+service HelloService {
+    rpc Hello(Request) returns (protos.Hello) {}
+}
+```
+  
+用 `rpc` 與 `returns` 這兩個關鍵字來定義 service.
+  
+與上述動作一樣，切換到 $GOPATH/src，執行 `protoc --go_out=plugins=grpc:. go_test/class13/service/*.proto`。與上述不一樣的地方，是在 `--go_out` 這個多了 `plugins=grpc` 設定。
   
 在 `go_test/class13/service` 的目錄下，會產生 `service.pb.go`，一樣不建議直接修改 `service.pb.go`，有新加功能，都另開檔案來處理，eg: `service.go`
   

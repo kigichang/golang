@@ -457,7 +457,7 @@ message Hello {
 
 ### 轉成 Go 程式
 
-1. 目錄切到 `$GOPATH/src`
+1. 目錄切到 `GOPATH/src`
 1. 執行 `protoc --go_out=. go_test/class13/protos/*.proto`
 
 在 `go_test/class13/protos` 的目錄下，會產生 `test.pb.go` 檔案。
