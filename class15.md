@@ -1,8 +1,35 @@
 # 15 Fake Inheritance in Golang
 
-Golang 可以透過 Struct Embedding/Anonymous Fields 的機制來實作 OOP。也因此 Golang 可以模擬出多重繼承的效果。
+Golang 本身沒有 OOP[^non_oop]，但可以透過 Struct Embedding/Anonymous Fields 的機制來實作 OOP。也因此 Golang 可以模擬出多重繼承的效果。
 
-為了避免混餚，建議 embedded struct 不要用 pointer。
+Embedded struct 不要用 Pointer. ~~為了避免混餚，建議 embedded struct 不要用 pointer。~~
+
+```go
+package main
+
+type animal struct {
+}
+
+type dog struct {
+    animal
+}
+
+func test(x *animal) {
+
+}
+
+func main() {
+
+    d := new(dog)
+
+    test(d)             // cannot use d (type *dog) as type *animal in argument to test
+    test(d.(animal))    // invalid type assertion: d.(animal) (non-interface type *dog on left)
+
+    var a *animal = d   // cannot use d (type *dog) as type *animal in assignment
+}
+```
+
+[^non_oop]: 因為 Golang 本身沒有繼承的機制，只是透過 Struct Embedding/Anonymous Fields 來達到繼承效果。
 
 ## 單一繼承與 Override
 
