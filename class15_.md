@@ -1,4 +1,4 @@
-# 15 Fake Inheritance in Golang
+# 15 Fake Inheritance in Golang (待修正)
   
   
 Golang 本身沒有 OOP[^non_oop]，但可以透過 Struct Embedding/Anonymous Fields 的機制來實作 OOP。也因此 Golang 可以模擬出多重繼承的效果。
