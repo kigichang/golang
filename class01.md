@@ -10,7 +10,7 @@
 
 Books:
 
-1. [The Go Programming Language](https://www.amazon.com/Programming-Language-Addison-Wesley-Professional-Computing-ebook/dp/B0184N7WWS) [~中文版~](https://www.gitbook.com/book/wizardforcel/gopl-zh/details)
+1. [The Go Programming Language](https://www.amazon.com/Programming-Language-Addison-Wesley-Professional-Computing-ebook/dp/B0184N7WWS)(https://www.gitbook.com/book/wizardforcel/gopl-zh/details)
 1. [Go Web Programming](https://www.manning.com/books/go-web-programming)
 1. [Go System Programming](https://www.packtpub.com/networking-and-servers/go-systems-programming)
 
@@ -20,18 +20,23 @@ Books:
 
 1. 下載 golang。[~下載連結~](https://golang.org/dl/)
 1. 設定環境變數 **`$GOPATH`**: `$GOPATH` 是專門放 Go 開發專案的目錄，所有 Go 相關的工具，也會一併裝在這個目錄。
+1. Go 1.11 之後，有官方有支援 module  的功能，可以不用設定 GOPATH，但目前我們專案環境還未完全移轉，暫時還不用。
 
 ## IDE 建議
 
-建議用 Visual Studio Code，再安裝相關的 plugin。
+建議用 Visual Studio Code，再安裝 Go Plugin
 
-1. Go plugin: [https://github.com/Microsoft/vscode-go](https://github.com/Microsoft/vscode-go)
+[Go by Microsoft](https://marketplace.visualstudio.com/items?itemName=ms-vscode.Go)
 
-    ![go for vscode](go_for_vscode.png)
+其他相關的 plugin (非必要，但為了開發方便，還是裝一下)
 
-1. Code Runner: [https://github.com/formulahendry/vscode-code-runner](https://github.com/formulahendry/vscode-code-runner)
-
-    ![code runner](code_runner.png)
+1. [gotemplate-syntax](https://marketplace.visualstudio.com/items?itemName=casualjim.gotemplate)
+1. [vscode-proto3](https://marketplace.visualstudio.com/items?itemName=zxh404.vscode-proto3)
+1. [Docker by Microsoft](https://marketplace.visualstudio.com/items?itemName=PeterJausovec.vscode-docker)
+1. [Markdown Preview Enhanced](https://marketplace.visualstudio.com/items?itemName=shd101wyy.markdown-preview-enhanced)
+1. [markdownlint](https://marketplace.visualstudio.com/items?itemName=DavidAnson.vscode-markdownlint)
+1. [hexdump for VSCode](https://marketplace.visualstudio.com/items?itemName=slevesque.vscode-hexdump)
+1. [Compareit](https://marketplace.visualstudio.com/items?itemName=in4margaret.compareit)
 
 ## GOPATH 目錄說明
 
@@ -73,9 +78,7 @@ Books:
 
 ### 沒有 OO (Object Oriented)
 
-程式撰寫的觀念與 C 類似，有 pointer，但沒有物件導向[^NotOOP]。
-
-[^NotOOP]: OOP 有三個基本特性: 封裝，繼承，多型。而 Go 只有封裝。因此我覺得 Go 不算是 OO 的語言。
+程式撰寫的觀念與 C 類似，有 pointer，但沒有物件導向。OOP 有三個基本特性: 封裝，繼承，多型。而 Go 沒有繼承。因此我覺得 Go 不算是 OO 的語言。在 Go 要有繼承的效果，需要用 interface 的方式來達成。
 
 ### 有 package 管理
 
@@ -111,7 +114,7 @@ Books:
 
 1. 寫執行檔的程式，檔名不一定要命名成 `main.go`，但程式碼的 package 宣告一定要是 **main**。
 1. 經過 build 之後，產生的執行檔名，會是目錄的名稱。
-1. 可以使用 `go run main.go` 直接執行程式，如果程式是拆分成多個 .go 的檔案，則需要將每個檔名也加入。eg: `go run main.go a.go b.go`
+1. 可以使用 `go run main.go` 直接執行程式，如果程式是拆分成多個 .go 的檔案，則需要將每個檔名也加入。eg: `go run main.go a.go b.go`，在 linux like 的環境，可以用 `go run *.go` 的方式來執行。
 1. `import` 是將會用到的 package 加入，跟 Java 一樣，有用到的 package 用 import 加入。Go 的工具，會幫忙找內建的 package ，自動加入到程式碼中，很方便；但如果是第三方的套件，就要自己寫。第三方套件 import 路徑，是從 `$GOPATH/src` 以下。eg: 程式放在 `$GOPATH/src/a/b/c` 則 import 路徑是 `import "a/b/c"`。
 1. 程式的進入點 (Entry point): `func main()`，跟大多數的程式語言一樣，寫執行檔都會需要有一個主函式 **main**
 

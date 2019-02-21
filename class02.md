@@ -2,7 +2,7 @@
 
 ## 關鍵字
 
-```go {.line-numbers}
+```go
 break    default     func   interface select
 case     defer       go     map       struct
 chan     else        goto   package   switch
@@ -12,13 +12,13 @@ continue for         import return    var
 
 ## 內建常數
 
-```go {.line-numbers}
+```go
 true  false  iota  nil
 ```
 
 ## 資料型別
 
-```go {.line-numbers}
+```go
 int  int8  int16  int32  int64 uint  uint8  uint16  uint32  uint64 uintptr
 float32  float64  complex64  complex128
 bool  byte  rune  string  error
@@ -26,10 +26,8 @@ bool  byte  rune  string  error
 
 ## 內建 Function
 
-```go {.line-numbers}
-make  len  cap  new  append  copy
-delete
-close
+```go
+make  len  cap  new  append  copy delete close
 complex  real  imag
 panic  recover
 ```
@@ -38,8 +36,20 @@ panic  recover
 
 ### 完整寫法
 
-```go {.line-numbers}
+```go
 var name type = expression
+```
+
+不給初始值時，可以省略 **= expression**。如下：
+
+```go
+var name type
+```
+
+給初始值時，則可以省略 **type**。如下：
+
+```go
+var name = expression
 ```
 
 1. 宣告變數，不給初始值
@@ -156,7 +166,7 @@ s := ""     // string
 
 ## Tuple
 
-數組
+數組，進期的程式語言，大多有支援 tuple 功能，早期的則沒有。如果沒有支援 tuple 時，就需要用 class or struct 來封裝回傳。
 
 1. Tuple Assignment (1)
 
@@ -186,7 +196,11 @@ s := ""     // string
     }
     ```
 
-## Type Declaration
+## type Keyword
+
+在 Go 可以使用 **type** 來宣告一個新的 data type，通常用在宣告 struct 或 interface。我們也可以使用 **type** 的擴充既有型別的功能。
+
+### Type Declaration
 
 Go 可以使用 `type`，利用原有的資料型別，宣告一個新的資料型別，最常用在 `struct` 宣告，使用 `type` 重新宣告資料型別，可以增加程式碼的可讀性。
 
@@ -234,6 +248,25 @@ eg:
     ```
 
     注意，雖然 `Celsius` 及 `Fahrenheit` 底層都是 `float64`，但都還是要視為不同的型別。
+
+### Type Alias
+
+Go 可以幫 type 取別名 (alias), 宣告的語法：
+
+```go
+type type1 = type2
+```
+
+如此一來，type1 就直接等於是 type2，可以不用轉型。
+
+### 差別
+
+**Type Declaration** 與 **Type Alias** 主要的差別：
+
+|   | 需做轉型 | 擴展功能 |
+| - | ------- | ------- |
+| Type Declaration | yes| yes |
+| Type Alaias | no | no |
 
 ## Package and Imports
 
