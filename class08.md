@@ -74,7 +74,7 @@ func main() {
     )
 
     func main() {
-        waitGroup := sync.WaitGroup{}
+        waitGroup := sync.WaitGrfoup{}
 
         waitGroup.Add(10)
 
